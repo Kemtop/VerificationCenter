@@ -19,6 +19,7 @@
 #include "TBSCertificate.h"
 #include "X509Reader\X509Reader.h"
 #include "SingleSign\ScKeeper.h"
+#include "GranitCore.h"
 
 //Размер Заголовока файла-служебная информация [7-байт служебной информации][Заголовок 47байт][Хэш контента 256бит][Длина контейнера ключа 4байта]
 #define Key_title_len 90
@@ -97,8 +98,7 @@ public:
 private:
 	//Включит режим другой версии ключа.
 	bool enableRose;
-	
-	
+		
 	string lastError; //Ошибка.
 	bool KeyContainerIsLoad; //Флаг того что контейнер ключа был загружен из файла
 	bool cachedSk; //Разрешить кеширование секретного ключа.

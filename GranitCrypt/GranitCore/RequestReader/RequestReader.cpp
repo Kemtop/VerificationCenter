@@ -1,5 +1,8 @@
 #include "RequestReader.h"
 
+//Константа защиты ключевого контейнера.
+const string RequestReader::KeyChipperConstant = "17dfbfc9acfa787e242d75c7f0764bfd83e79eef08d4581a881527d92dbad1d4";
+
 RequestReader::RequestReader()
 {
 }
@@ -238,12 +241,8 @@ bool RequestReader::UnpackMaket(QByteArray &src, QByteArray &dst)
 
 		bool isErr = false;
 		string Err = "";
-		ByteBlock cr_key = GetPackMf(Err, isErr); //Получаю ключ упаковки макета.
-		if (isErr)
-		{
-			lastError = Err;
-			return false;
-		}
+		//Получаю ключ упаковки макета.
+		ByteBlock cr_key = Utillity::hex_to_bytes(KeyChipperConstant);
 
 		//Распаковываю макет.		
 		Sib3412 K(cr_key);
@@ -280,51 +279,4 @@ bool RequestReader::UnpackMaket(QByteArray &src, QByteArray &dst)
 	}
 
 	return true;
-}
-
-
-//Получает значение ключа упаковывания макета. В случае ошибки HasErr=1;Err-содержит сообщение об ошибке.
-ByteBlock RequestReader::GetPackMf(string & Err, bool & HasErr)
-{
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0)
-	{
-		Err = "Ошибка ЦМ1:Не удалось загрузить библиотеку.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	typedef int(*ArrangeIWC)(char *Pointer);
-	ArrangeIWC iWc = (ArrangeIWC)GetProcAddress(hLib, "ArrangeIWC"); //Получаю адрес функции.
-
-	if (iWc == 0)  //Не удалось загрузить функцию.
-	{
-		Err = "Ошибка ЦМ2:Не удалось загрузить функцию из библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	char Value[312];
-
-	int retA = iWc(Value); //
-	if (retA != 32768) //Странная функция в dll.
-	{
-		Err = "Ошибка ЦМ3:Ошибка функции библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	string lA(Value);
-	ByteBlock cr_key = Utillity::hex_to_bytes(lA.c_str());
-
-	bool fret = FreeLibrary(hLib);
-	if (fret == 0)
-	{
-		Err = "Ошибка ЦМ4:Ошибка трансляции библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	return cr_key;
 }

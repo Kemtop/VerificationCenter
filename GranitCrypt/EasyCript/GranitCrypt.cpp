@@ -53,46 +53,7 @@ GranitCrypt::GranitCrypt(QWidget *parent)
 	tf.setForeground(QBrush(QColor("#008000")));
 	ui.plainTextEditFiles->setCurrentCharFormat(tf);
 	ui.plainTextEditFiles->appendPlainText(StrCodec->toUnicode(helloMassage.c_str()));
-
-	//Код не выносить в отдельный метод! Это снизит защиту приложения от взлома!
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0) return; //Не удалось загрузить библиотеку.
-
-	typedef unsigned char(*F0)();
-	typedef unsigned char(*setTpPointA)(unsigned int val);
-	typedef unsigned char(*envirGradient)(unsigned int val);
-
-	F0 f0 = (F0)GetProcAddress(hLib, "IMA_MAP_ANPOINT");//Злоумышленник не сможет вызвать другие функции, так как они будут давать исключения, из-за попытки обратится 
-														//к внутри класовой переменной. Исключение ошибки чтения.
-	setTpPointA f1 = (setTpPointA)GetProcAddress(hLib, "setTpPointA");
-	envirGradient f2 = (envirGradient)GetProcAddress(hLib, "environmentGradient");
-
-	unsigned int p = 36;
-	unsigned int *ptrP = &p; //Адрес в памяти.
-	*ptrP++;
-
-	//Добавить проверки на пустоту функций в dll.
-
-
-	unsigned int retX = f1(p);
-
-	if (retX < p)
-	{
-		FreeLibrary(hLib);
-		return; //Ошибка.
-	}
-
-	p = 128;
-	retX = f2(p);
-
-	if (retX != 1)
-	{
-		FreeLibrary(hLib);
-		return; //Ошибка.
-	}
-
-	FreeLibrary(hLib);
+		
 	badAttempPswd = 0;
 	hasThrObj = false; //Объекта не существует.
 }
