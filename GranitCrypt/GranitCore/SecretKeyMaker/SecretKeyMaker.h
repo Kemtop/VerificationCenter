@@ -24,6 +24,7 @@
 #include "Models\mRequest.h"
 #include "SerializableTools\SerializableTools.h"
 #include "VanishChest\VanishChest.h"
+#include "KeyService/KeyService.h"
 
 #include <string>
 

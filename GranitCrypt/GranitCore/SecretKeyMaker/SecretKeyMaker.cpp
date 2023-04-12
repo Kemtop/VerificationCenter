@@ -697,14 +697,10 @@ bool SecretKeyMaker::PackContainer(QByteArray &Container, QByteArray &Packing)
 	//Ключ которым шифруется сообщение
 	bool isErr = false;
 	string Err = "";
-	ByteBlock cr_key = GetPackKv(Err, isErr); //Получаю ключ упаковки контейнера секретного ключа.
-	if (isErr)
-	{
-		lastError = Err;
-		return false;
-	}
 
-
+	//Получает значение ключа упаковывания контейнера. В случае ошибки HasErr=1;Err-содержит сообщение об ошибке.
+	ByteBlock cr_key = Utillity::hex_to_bytes(GranitCore::KeyChipperConstant); //Получаю ключ упаковки контейнера секретного ключа.
+	
 	//Преобразовываю  QByteArray в ByteBlock
 	size_t mess_length = static_cast<size_t>(Container.size());//Длина сообщения
 	uint8_t *d_ptr; //Начало блока данных
@@ -752,55 +748,6 @@ bool SecretKeyMaker::PackContainer(QByteArray &Container, QByteArray &Packing)
 	return true;
 }
 
-//Получает значение ключа упаковывания контейнера. В случае ошибки HasErr=1;Err-содержит сообщение об ошибке.
-ByteBlock SecretKeyMaker::GetPackKv(string & Err, bool & HasErr)
-{
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0)
-	{
-		Err = "Ошибка РК1:Не удалось загрузить библиотеку.";
-		HasErr = 1;
-		return NULL;
-	}
-
-	typedef int(*AreApisANSI)(char *Linear, int *Len, char *Value); //Тип данных для упаковки контейнера ключа.
-
-
-	AreApisANSI areApis = (AreApisANSI)GetProcAddress(hLib, "AreApisANSI"); //Получаю адрес функции в библиотеке.
-	if (areApis == 0)  //Не удалось загрузить функцию.
-	{
-		Err = "Ошибка РК2:Не удалось загрузить функцию из библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
-
-	char LinearA[128];
-	char ValueA[300] = "t9034l9ff0--s78";
-	int aLen = 537;
-	int retA = areApis(LinearA, &aLen, ValueA); //Вызываю функцию.
-	if (retA != 16537) //Странная функция в dll.
-	{
-		Err = "Ошибка РК3:Ошибка функции библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
-	string lA(LinearA);
-	ByteBlock cr_key = Utillity::hex_to_bytes(lA); //Crypt_Key_For_Container
-	bool fret = FreeLibrary(hLib);
-	if (fret == 0)
-	{
-		Err = "Ошибка РК4:Ошибка трансляции библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
-	return cr_key;
-}
-
-
 bool SecretKeyMaker::CreateRequestFile(QString pathToSave, mRequest &Req)
 {
 	try
@@ -817,14 +764,9 @@ bool SecretKeyMaker::CreateRequestFile(QString pathToSave, mRequest &Req)
 		//Ключ которым шифруется сообщение
 		bool isErr = false;
 		string Err = "";
-		ByteBlock cr_key = GetPackMf(Err, isErr); //Получаю ключ упаковки макета.
-		if (isErr)
-		{
-			lastError = Err;
-			return false;
-		}
-
-
+			   
+		ByteBlock cr_key = Utillity::hex_to_bytes(GranitCore::KeyChipperConstant); //Получаю ключ упаковки макета.
+		
 		//Сообщение подлежащее шифрованию-контейнер "макета ключа"
 		QByteArray bytes = out_str.toUtf8();//Строку в байт массив 
 
@@ -1024,50 +966,4 @@ void SecretKeyMaker::SetService_Information(uint8_t *arr, uint8_t *hash, uint32_
 		pos++;
 	}
 
-}
-
-//Получает значение ключа упаковывания макета. В случае ошибки HasErr=1;Err-содержит сообщение об ошибке.
-ByteBlock SecretKeyMaker::GetPackMf(string & Err, bool & HasErr)
-{
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0)
-	{
-		Err = "Ошибка ЦМ1:Не удалось загрузить библиотеку.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	typedef int(*ArrangeIWC)(char *Pointer);
-	ArrangeIWC iWc = (ArrangeIWC)GetProcAddress(hLib, "ArrangeIWC"); //Получаю адрес функции.
-
-	if (iWc == 0)  //Не удалось загрузить функцию.
-	{
-		Err = "Ошибка ЦМ2:Не удалось загрузить функцию из библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	char Value[312];
-
-	int retA = iWc(Value); //
-	if (retA != 32768) //Странная функция в dll.
-	{
-		Err = "Ошибка ЦМ3:Ошибка функции библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	string lA(Value);
-	ByteBlock cr_key = Utillity::hex_to_bytes(lA.c_str());
-
-	bool fret = FreeLibrary(hLib);
-	if (fret == 0)
-	{
-		Err = "Ошибка ЦМ4:Ошибка трансляции библиотеки.";
-		HasErr = 1;
-		return ByteBlock();
-	}
-
-	return cr_key;
 }

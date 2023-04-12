@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "KeyService.h"
 
-
 KeyService::KeyService()
 {
 	KeyContainerIsLoad = false;
@@ -261,57 +260,12 @@ bool KeyService::CheckSK(QString PathToSK, uint32_t &container_length)
 	return true;
 }
 
-
-
 //Получает значение ключа упаковывания контейнера. В случае ошибки HasErr=1;Err-содержит сообщение об ошибке.
 ByteBlock  KeyService::GetPackKv(string & Err, bool & HasErr)
 {
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0)
-	{
-		Err = "Ошибка РК1:Не удалось загрузить библиотеку.";
-		HasErr = 1;
-		return NULL;
-	}
-
-	typedef int(*AreApisANSI)(char *Linear, int *Len, char *Value); //Тип данных для упаковки контейнера ключа.
-
-
-	AreApisANSI areApis = (AreApisANSI)GetProcAddress(hLib, "AreApisANSI"); //Получаю адрес функции в библиотеке.
-	if (areApis == 0)  //Не удалось загрузить функцию.
-	{
-		Err = "Ошибка РК2:Не удалось загрузить функцию из библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
-
-	char LinearA[128];
-	char ValueA[300] = "t9034l9ff0--s78";
-	int aLen = 537;
-	int retA = areApis(LinearA, &aLen, ValueA); //Вызываю функцию.
-	if (retA != 16537) //Странная функция в dll.
-	{
-		Err = "Ошибка РК3:Ошибка функции библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
-	string lA(LinearA);
-	ByteBlock cr_key = Utillity::hex_to_bytes(lA); //Crypt_Key_For_Container
-	bool fret = FreeLibrary(hLib);
-	if (fret == 0)
-	{
-		Err = "Ошибка РК4:Ошибка трансляции библиотеки.";
-		HasErr = 1;
-		return NULL;
-	}
-
+	ByteBlock cr_key = Utillity::hex_to_bytes(GranitCore::KeyChipperConstant); //Crypt_Key_For_Container
 	return cr_key;
 }
-
-
 
 //Расшифровывает контейнер секретного ключа и проверяю его заголовок, в случает ошибки =0
 int KeyService::UnpackSKContainer(QByteArray &C, QByteArray &Result)
@@ -328,24 +282,8 @@ int KeyService::UnpackSKContainer(QByteArray &C, QByteArray &Result)
 	data_ptr = data_ptr + 20; //Устанавливаю указатель на начало блока данных
 	ByteBlock crypted_message(data_ptr, data_len); //Шифрованное сообщение		
 												   //Ключ которым шифруется сообщение
-
-	HMODULE hLib;
-	hLib = LoadLibraryA("libCn3q.dll");
-	if (hLib == 0) return 2; //Не удалось загрузить библиотеку.
-	AreApisANSI areApis = (AreApisANSI)GetProcAddress(hLib, "AreApisANSI");
-	if (areApis == 0) return 3; //Не удалось загрузить функцию.
-
-	char LinearA[128];
-	char ValueA[300] = "t9034l9ff0--s78";
-	int aLen = 537;
-	int retA = areApis(LinearA, &aLen, ValueA);
-	if (retA != 16537) return 4; //Странная функция в dll.
-
-	string lA(LinearA);
-	FreeLibrary(hLib);
-
-	ByteBlock cr_key = Utillity::hex_to_bytes(lA); //Crypt_Key_For_Container
-
+	
+	ByteBlock cr_key = Utillity::hex_to_bytes(GranitCore::KeyChipperConstant); //Crypt_Key_For_Container
 	Sib3412 K(cr_key);
 	ByteBlock decrypt_result;
 	//Расшифровываю
