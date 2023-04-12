@@ -23,7 +23,8 @@ private:
 	
 	string lastError;
 
-
+	//Константа защиты ключевого контейнера.
+	static const string KeyChipperConstant;
 public:
 	RequestReader();
 	~RequestReader();
