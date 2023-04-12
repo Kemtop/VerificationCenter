@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UsbKeySClass</class>
+ <widget class="QMainWindow" name="UsbKeySClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>305</width>
+    <height>248</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>305</width>
+    <height>248</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>UsbKeyS</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QPushButton" name="BtnGetSerial">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get Serial</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="TbSerial">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>281</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="inputMask">
+     <string>NNNNN-NNNNN-NNNNN-NNNNN-NNNNN</string>
+    </property>
+    <property name="text">
+     <string>00000-00000-00000-00000-00000</string>
+    </property>
+    <property name="maxLength">
+     <number>29</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="BtnSetSerial">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>40</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Set Serial</string>
+    </property>
+   </widget>
+   <widget class="QDateEdit" name="dateEdit">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>140</y>
+      <width>110</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="dateTime">
+     <datetime>
+      <hour>0</hour>
+      <minute>0</minute>
+      <second>0</second>
+      <year>2019</year>
+      <month>1</month>
+      <day>1</day>
+     </datetime>
+    </property>
+    <property name="minimumDate">
+     <date>
+      <year>2019</year>
+      <month>1</month>
+      <day>1</day>
+     </date>
+    </property>
+    <property name="currentSection">
+     <enum>QDateTimeEdit::DaySection</enum>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="BtnGetDate">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>130</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get Last Date</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="BtnSetDate">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Set Last Date</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="BtnKeyGen">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>281</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Load New RSA Key</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="TbHWSerial">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>281</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="BtnGetHWSerial">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>100</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get HW Serial</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="UsbKeyS.qrc"/>
+ </resources>
+ <connections/>
+</ui>

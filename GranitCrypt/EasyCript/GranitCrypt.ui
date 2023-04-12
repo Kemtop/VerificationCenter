@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GranitCryptClass</class>
+ <widget class="QMainWindow" name="GranitCryptClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>618</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1000</width>
+    <height>618</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>11</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Система защита данных &quot;Роза-М&quot; MIT License</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QPushButton" name="pushButtonDecrypt">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>550</y>
+      <width>132</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">text-align:right;
+background-image: url(&quot;Image/decrypted&quot;);
+background-repeat: no-repeat;
+background-position: left </string>
+    </property>
+    <property name="text">
+     <string>Расшифровать </string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBarAll">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>510</y>
+      <width>951</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonCrypt">
+    <property name="geometry">
+     <rect>
+      <x>704</x>
+      <y>550</y>
+      <width>132</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">text-align:right;
+background-image: url(&quot;Image/encrypted.png&quot;);
+background-repeat: no-repeat;
+background-position: left </string>
+    </property>
+    <property name="text">
+     <string>Зашифровать </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelProgressFile">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>438</y>
+      <width>911</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>labelProgressFile</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEditFiles">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>981</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBarFile">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>460</y>
+      <width>951</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+    <property name="textVisible">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelProgressAll">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>490</y>
+      <width>921</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>labelProgressAll</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonSelectKey">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>550</y>
+      <width>132</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Test</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1000</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="actionOpenFile"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="actionHelp"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <addaction name="actionDbPath"/>
+    <addaction name="actionResetSetings"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="actionDbPath">
+   <property name="text">
+    <string>Сгенерировать ключ</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionResetSetings">
+   <property name="text">
+    <string>Сброс настроек</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actiondffd">
+   <property name="text">
+    <string>dffd</string>
+   </property>
+  </action>
+  <action name="actionSaveCert">
+   <property name="text">
+    <string>Сохранить сертификаты</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="GranitCrypt.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,12 @@
+LIBRARY "LibGranitK"
+EXPORTS
+Tst
+LoadSecretKey
+SkInfo
+ChkPassword
+CheckCertForKey
+OpenCertDb
+SignData
+LibCheckSign 
+ClearLib
+closeDb

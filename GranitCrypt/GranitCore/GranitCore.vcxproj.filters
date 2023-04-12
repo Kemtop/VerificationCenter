@@ -1,0 +1,469 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{4777d70f-c103-4554-aebf-b11e9c339330}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{d4d9d396-f02e-4bea-90de-7a31f6abf320}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="X509Reader">
+      <UniqueIdentifier>{73def2c9-52ad-4d93-8361-bae70c202a72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SignLib">
+      <UniqueIdentifier>{bf0409de-cf18-4f6a-8ad3-5c109360de75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="СertificateСreator">
+      <UniqueIdentifier>{ff2c1beb-e141-4f2a-8adc-2f2cc7acb7dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="СertificateСreator\ASN1">
+      <UniqueIdentifier>{b7b290d8-ebf6-4985-ae24-4347c3864f31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="СertificateСreator\ASN1\DerCoder">
+      <UniqueIdentifier>{273a8e69-63f0-4f01-9177-ac3fde182657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AlgOidName">
+      <UniqueIdentifier>{47c7fdc8-92d8-4dc8-9228-df91588e7997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hash3411">
+      <UniqueIdentifier>{6a40c74d-0f6f-4911-a8ce-42911cfbd21d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AlgorithmIdentifier">
+      <UniqueIdentifier>{0520983e-1e70-4cb5-97b5-42c77e74e1ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gost3412">
+      <UniqueIdentifier>{1ac8183b-2b09-4dca-b0d7-e8b1d8266ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ASreader">
+      <UniqueIdentifier>{66fc78ef-0c6e-4bbe-aef2-8fba27e10a39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AsInterpretator">
+      <UniqueIdentifier>{79d43557-0579-4185-9411-573961c39300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VanishChest">
+      <UniqueIdentifier>{0c0f7b6e-b738-4e19-9448-f34290c3e1ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GranitDbI">
+      <UniqueIdentifier>{29bddc69-47f9-4b55-9813-4eb49b46de74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gost3413">
+      <UniqueIdentifier>{82ce0a28-de0f-4546-b8d3-8446a16b6fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CipherGear">
+      <UniqueIdentifier>{6eb439a9-68fd-4eb0-b11d-0fb1c9c64d08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="KeyService">
+      <UniqueIdentifier>{79ad5fb5-dbf3-4140-8fef-99483dbcf3bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SingleSign">
+      <UniqueIdentifier>{9c8ae282-eae8-4532-aaee-8d46fd84bc64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{fdb09902-ecde-4400-92c4-ed0c8d1ce187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SerializableTools">
+      <UniqueIdentifier>{6727505c-ca2f-4b76-945c-b8fa9be9f22b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SecretKeyMaker">
+      <UniqueIdentifier>{5d85b801-0e4d-4190-a921-b4fd6a5bd9b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RequestReader">
+      <UniqueIdentifier>{b0897932-3607-4643-8e70-33b58fbd04ac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GranitCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="X509Reader\PubKeyData.cpp">
+      <Filter>X509Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="X509Reader\X509Reader.cpp">
+      <Filter>X509Reader</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\CreateSign.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\Groups.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\Point.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\PointMath.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\Signature.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SignLib\VerifySign.cpp">
+      <Filter>SignLib</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\CertCreator.cpp">
+      <Filter>СertificateСreator</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ExtensionField.cpp">
+      <Filter>СertificateСreator</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\TBSCertificate.cpp">
+      <Filter>СertificateСreator</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\Asn1Object.cpp">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\Asn1Tags.cpp">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerEncoding.cpp">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerCoder.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerContextSpecific.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerInteger.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerSequence.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerSequenceObject.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\DerSet.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="СertificateСreator\ASN1\DerCoder\OidTokenizer.cpp">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClCompile>
+    <ClCompile Include="AlgOidName\AlgOidName.cpp">
+      <Filter>AlgOidName</Filter>
+    </ClCompile>
+    <ClCompile Include="hash3411\hash3411.cpp">
+      <Filter>hash3411</Filter>
+    </ClCompile>
+    <ClCompile Include="AlgorithmIdentifier\AlgorithmIdentifier.cpp">
+      <Filter>AlgorithmIdentifier</Filter>
+    </ClCompile>
+    <ClCompile Include="Gost3412\Utility.cpp">
+      <Filter>Gost3412</Filter>
+    </ClCompile>
+    <ClCompile Include="Gost3412\Cipher3412.cpp">
+      <Filter>Gost3412</Filter>
+    </ClCompile>
+    <ClCompile Include="ASreader\ASblockData.cpp">
+      <Filter>ASreader</Filter>
+    </ClCompile>
+    <ClCompile Include="ASreader\ASreader.cpp">
+      <Filter>ASreader</Filter>
+    </ClCompile>
+    <ClCompile Include="AsInterpretator\AsInterpretator.cpp">
+      <Filter>AsInterpretator</Filter>
+    </ClCompile>
+    <ClCompile Include="VanishChest\VanishChest.cpp">
+      <Filter>VanishChest</Filter>
+    </ClCompile>
+    <ClCompile Include="GranitDbI\GranitDbI.cpp">
+      <Filter>GranitDbI</Filter>
+    </ClCompile>
+    <ClCompile Include="GranitDbI\modelOpenSignKey.cpp">
+      <Filter>GranitDbI</Filter>
+    </ClCompile>
+    <ClCompile Include="Gost3413\Gost3413.cpp">
+      <Filter>Gost3413</Filter>
+    </ClCompile>
+    <ClCompile Include="CipherGear\CipherGear.cpp">
+      <Filter>CipherGear</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_CipherGear.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_CipherGear.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="CipherGear\CipherWorker.cpp">
+      <Filter>CipherGear</Filter>
+    </ClCompile>
+    <ClCompile Include="CipherGear\CipherGearData.cpp">
+      <Filter>CipherGear</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_CipherGearData.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_CipherGearData.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="CipherGear\eventsCipherWorker.cpp">
+      <Filter>CipherGear</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyService\KeyService.cpp">
+      <Filter>KeyService</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_PkContainer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_PkContainer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="PkContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_PkRequest.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_PkRequest.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="PkRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleSign\ScKeeper.cpp">
+      <Filter>SingleSign</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleSign\SingleSign.cpp">
+      <Filter>SingleSign</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SingleSign.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SingleSign.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Gost3412\Sib3412.cpp">
+      <Filter>Gost3412</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\mRequest.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_mRequest.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_mRequest.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="SerializableTools\SerializableTools.cpp">
+      <Filter>SerializableTools</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SerializableTools.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SerializableTools.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="SecretKeyMaker\SecretKeyMaker.cpp">
+      <Filter>SecretKeyMaker</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SecretKeyMaker.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SecretKeyMaker.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="RequestReader\RequestReader.cpp">
+      <Filter>RequestReader</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_RequestReader.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_RequestReader.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleSign\rfcSignedData.cpp">
+      <Filter>SingleSign</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleSign\binASN1SignedData.cpp">
+      <Filter>SingleSign</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GranitCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="X509Reader\PubKeyData.h">
+      <Filter>X509Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="X509Reader\X509Reader.h">
+      <Filter>X509Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\CreateSign.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\Groups.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\Point.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\PointMath.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\Signature.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SignLib\VerifySign.h">
+      <Filter>SignLib</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\CertCreator.h">
+      <Filter>СertificateСreator</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ExtensionField.h">
+      <Filter>СertificateСreator</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\TBSCertificate.h">
+      <Filter>СertificateСreator</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\Asn1Object.h">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\Asn1Tags.h">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerEncoding.h">
+      <Filter>СertificateСreator\ASN1</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerCoder.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerContextSpecific.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerInteger.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerSequence.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerSequenceObject.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\DerSet.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="СertificateСreator\ASN1\DerCoder\OidTokenizer.h">
+      <Filter>СertificateСreator\ASN1\DerCoder</Filter>
+    </ClInclude>
+    <ClInclude Include="AlgOidName\AlgOidName.h">
+      <Filter>AlgOidName</Filter>
+    </ClInclude>
+    <ClInclude Include="hash3411\hash3411.h">
+      <Filter>hash3411</Filter>
+    </ClInclude>
+    <ClInclude Include="AlgorithmIdentifier\AlgorithmIdentifier.h">
+      <Filter>AlgorithmIdentifier</Filter>
+    </ClInclude>
+    <ClInclude Include="Gost3412\Utility.h">
+      <Filter>Gost3412</Filter>
+    </ClInclude>
+    <ClInclude Include="Gost3412\Cipher3412.h">
+      <Filter>Gost3412</Filter>
+    </ClInclude>
+    <ClInclude Include="ASreader\ASblockData.h">
+      <Filter>ASreader</Filter>
+    </ClInclude>
+    <ClInclude Include="ASreader\ASreader.h">
+      <Filter>ASreader</Filter>
+    </ClInclude>
+    <ClInclude Include="AsInterpretator\AsInterpretator.h">
+      <Filter>AsInterpretator</Filter>
+    </ClInclude>
+    <ClInclude Include="VanishChest\VanishChest.h">
+      <Filter>VanishChest</Filter>
+    </ClInclude>
+    <ClInclude Include="GranitDbI\GranitDbI.h">
+      <Filter>GranitDbI</Filter>
+    </ClInclude>
+    <ClInclude Include="GranitDbI\modelOpenSignKey.h">
+      <Filter>GranitDbI</Filter>
+    </ClInclude>
+    <ClInclude Include="Gost3413\Gost3413.h">
+      <Filter>Gost3413</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyService\KeyService.h">
+      <Filter>KeyService</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleSign\ScKeeper.h">
+      <Filter>SingleSign</Filter>
+    </ClInclude>
+    <ClInclude Include="Gost3412\Sib3412.h">
+      <Filter>Gost3412</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleSign\binASN1SignedData.h">
+      <Filter>SingleSign</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="granitcore_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CipherGear\CipherGear.h">
+      <Filter>CipherGear</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CipherGear\CipherWorker.h">
+      <Filter>CipherGear</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CipherGear\CipherGearData.h">
+      <Filter>CipherGear</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CipherGear\eventsCipherWorker.h">
+      <Filter>CipherGear</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PkContainer.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PkRequest.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SingleSign\SingleSign.h">
+      <Filter>SingleSign</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Models\mRequest.h">
+      <Filter>Models</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SerializableTools\SerializableTools.h">
+      <Filter>SerializableTools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SecretKeyMaker\SecretKeyMaker.h">
+      <Filter>SecretKeyMaker</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RequestReader\RequestReader.h">
+      <Filter>RequestReader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SingleSign\rfcSignedData.h">
+      <Filter>SingleSign</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

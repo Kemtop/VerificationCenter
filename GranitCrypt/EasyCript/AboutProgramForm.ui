@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutProgramForm</class>
+ <widget class="QWidget" name="AboutProgramForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>676</width>
+    <height>418</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>О программе.</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>111</x>
+     <y>13</y>
+     <width>501</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-family:Times New Roman;
+font-style: normal;
+font-weight: bold;
+
+font-size:16px;
+color:#1B1BB3;</string>
+   </property>
+   <property name="text">
+    <string>Cистема Криптографической Защиты Информации &quot;Роза-М&quot;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>131</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-image: url(&quot;Image/logo_cut.png&quot;);</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonClose">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>380</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton 
+
+{
+
+   border-style: solid;
+ 
+   border-radius: 10;
+
+    border-top          : 1px solid rgba(200, 200, 200, 255);
+
+    border-left         : 1px solid rgba(200, 200, 200, 255);
+
+    border-right        : 2px solid rgba(172, 172, 172);
+
+    border-bottom       : 2px solid rgba(172, 172, 172);
+
+   /*
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(198, 198, 198), stop:1 rgba(225, 225, 225, 255));
+*/
+background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 0.1 #eaeaea, stop: 0.49 #eaeaea, stop: 0.5 #eaeaea, stop: 1 #ffffff);
+font-size: 16px;
+}
+
+
+
+QPushButton:hover 
+
+{
+/*
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(225, 225, 225, 255), stop:1 rgba(163, 163, 163));
+*/
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(196, 228, 255), stop:1 rgba(225, 225, 225, 255));
+}
+
+
+
+QPushButton:pressed 
+
+{
+
+    padding-top         : 2px;
+
+    padding-left        : 2px;
+
+    border-top          : 2px solid rgba(117, 117, 117, 255);
+
+    border-left         : 2px solid rgba(117, 117, 117, 255);
+
+    border-right        : 1px solid rgba(200, 200, 200, 255);
+
+    border-bottom       : 1px solid rgba(200, 200, 200, 255);
+
+    background-color    : rgba(172, 172, 172);
+
+}
+
+
+
+QPushButton:disabled 
+
+{
+
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(225, 225, 255, 255), stop:1 rgba(172, 172, 172));
+
+}</string>
+   </property>
+   <property name="text">
+    <string>Закрыть</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>47</y>
+     <width>501</width>
+     <height>310</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>3</y>
+      <width>491</width>
+      <height>300</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButtonProductKey">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>380</y>
+     <width>131</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+QPushButton 
+{
+	border: none;
+	font-family:Times New Roman;
+	font-style: normal;
+	font-weight: bold;
+	font-size:16px;
+	color:#1B1BB3;
+	text-decoration:underline;
+     border-style: solid;
+    border-radius: 10;
+    border-top          : 1px solid rgba(200, 200, 200, 255);
+    border-left         : 1px solid rgba(200, 200, 200, 255);
+    border-right        : 2px solid rgba(172, 172, 172);
+    border-bottom       : 2px solid rgba(172, 172, 172);
+    border: none;
+}
+
+
+/*
+Наведение курсора.
+*/
+QPushButton:hover 
+{
+
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(196, 228, 255), stop:1 rgba(225, 225, 225, 255));
+font-style: solid;
+    font-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(196, 228, 255), stop:1 rgba(225, 225, 225, 255));
+color:#001BB3;
+/*
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(225, 225, 225, 255), stop:1 rgba(163, 163, 163));
+
+*/
+
+}
+
+
+
+QPushButton:pressed 
+
+{
+/*
+    padding-top         : 2px;
+
+    padding-left        : 2px;
+
+    border-top          : 2px solid rgba(117, 117, 117, 255);
+
+    border-left         : 2px solid rgba(117, 117, 117, 255);
+
+    border-right        : 1px solid rgba(200, 200, 200, 255);
+
+    border-bottom       : 1px solid rgba(200, 200, 200, 255);
+
+    background-color    : rgba(172, 172, 172);
+*/
+}
+
+
+
+QPushButton:disabled 
+
+{
+
+    background-color    : qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(225, 225, 255, 255), stop:1 rgba(172, 172, 172));
+
+}</string>
+   </property>
+   <property name="text">
+    <string>Ключ продукта.</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
