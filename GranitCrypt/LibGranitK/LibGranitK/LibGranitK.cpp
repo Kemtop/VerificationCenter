@@ -4,12 +4,85 @@
 #include "SingleSign\binASN1SignedData.h"
 
 __declspec(dllexport)
-int Tst()
+int ShowTestWindow(char * message)
 {
-	MessageBoxA(GetActiveWindow(), "Dll test", "Dll say: Hello!", MB_ICONERROR);
+	MessageBoxA(GetActiveWindow(), "Dll test", message, MB_ICONERROR);
 	return 123;
 }
 
+/*
+ Инициализирует ключ для применения в шифровании данных.
+*/
+__declspec(dllexport)
+int SetSingleModeChipper()
+{
+  keyService.setRoseMode(); //Модифицированная версия криптосистемы.	
+  return 1;
+}
+
+//Проверяет пароль к секретному ключу для режима шифрование данных.
+__declspec(dllexport)
+int CheckPasswordForSecretKey(char *password, char *error)
+{	
+	string pswd(password);
+
+	QString Password_ = QString::fromLocal8Bit(pswd.c_str());
+	
+	bool errflag = keyService.CheckPassword(Password_);
+
+	if (!errflag)
+	{
+		string Err = "";
+		Err = keyService.getLastError(); //Получаю сообщение об ошибке.
+		strcpy(error, Err.c_str());
+		Password_ = "*****"; //Затираю, что б в памяти не висел.
+		return 0; //Возникла ошибка.
+	}
+
+	Password_ = "*****"; //Затираю, что б в памяти не висел.
+	return 1;
+}
+
+//Был ли загружен контейнер секретного ключа?
+__declspec(dllexport)
+int GetKeyContainerStatus()
+{
+	return keyService.getKeyContainerStatus();
+}
+
+//Шифрует файлы.
+__declspec(dllexport)
+int CryptFiles(char *filesPath,char *Password)
+{
+	QTextCodec *StrCodec; //Для преобразования кодировки
+	StrCodec = QTextCodec::codecForName("Windows-1251"); //Установка кодировки
+	QString filesPath_ = StrCodec->toUnicode(string(filesPath).c_str()); //Преобразовываю строку в QString.
+
+	ShowTestWindow(filesPath);
+
+	//QStringList &paths_to_file, QString Password
+	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
+	/*
+	CipherWorkerData cgDate; //Данные для механизма шифрования. 
+	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
+	cgDate.setProcessFiles(filesPath_);
+	cgDate.setPassword(Password);
+	cgDate.setRAsimOpenKey(Dh_OpenKey);
+	cgDate.setKeyContainer(Ks.getContainer());
+	cgDate.setSignerIndex("003");//Не используется.
+	cgDate.setSignatureDH("abc");
+	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
+
+	int f_count = paths_to_file.count(); //Количество файлов
+	allCurProcessFiles = f_count;
+
+	initchW(); //Инициализация объекта шифрования.
+	chW->setData(cgDate);
+	chW->start();//Запускаю поток.
+	typeProcessWorking = 1;*/
+
+	return 0;
+}
 
 /*
 Загружаю секретный ключ по указанному пути в объект libKs.
@@ -24,11 +97,11 @@ int LoadSecretKey(char *LastError, char * PathToKey)
 	QTextCodec *StrCodec; //Для преобразования кодировки
 	StrCodec = QTextCodec::codecForName("Windows-1251"); //Установка кодировки
 	QString PathToSecretKey = StrCodec->toUnicode(Path.c_str()); //Преобразовываю строку в QString.
-	errflag = libKs.LoadKey(PathToSecretKey); //Загружаю секретный ключ в объект libKs.
+	errflag = keyService.LoadKey(PathToSecretKey); //Загружаю секретный ключ в объект libKs.
 	
 	if (!errflag) //Возникла ошибка.
 	{
-		strError = libKs.getLastError(); //Получаю сообщение об ошибке.
+		strError = keyService.getLastError(); //Получаю сообщение об ошибке.
 		strcpy(LastError, strError.c_str()); //Передаю сообщение.
 		return 0;
 	}
@@ -43,7 +116,7 @@ int SkInfo(char *Familia, char *Imia, char *Otchestvo, char *DateBegin, char *Da
 	//Получает информацию о владельце секретного ключа.
 	string _Familia, _Imia, _Otchestvo, _DateBegin, _DateEnd, _DaysLeft;
 
-	bool errflag= libKs.GetSkInfo(_Familia,_Imia,_Otchestvo,_DateBegin,_DateEnd,_DaysLeft);
+	bool errflag= keyService.GetSkInfo(_Familia,_Imia,_Otchestvo,_DateBegin,_DateEnd,_DaysLeft);
 	if (!errflag) return 0; //Возникла ошибка.
 
 	strcpy(Familia,_Familia.c_str()); //Передаю значение.
@@ -65,21 +138,21 @@ int ChkPassword(char *Password, char *Error)
 	//Проверяет правильность пароля к секретному ключу пользователя =0 ошибка
 	
 	//Включаю режим сохранения некоторых параметров секретного ключа в объекте libKs во время проверки пароля. 
-	libKs.enableCachedSk();  
+	keyService.enableCachedSk();
 
 	QString Password_ = QString::fromLocal8Bit(pswd.c_str());
 
-	bool errflag = libKs.CheckPassword(Password_);    
+	bool errflag = keyService.CheckPassword(Password_);
 	if (!errflag)
 	{
 		string Err = "";
-		Err = libKs.getLastError(); //Получаю сообщение об ошибке.
+		Err = keyService.getLastError(); //Получаю сообщение об ошибке.
 		strcpy(Error, Err.c_str());
-		Password_ = "ноябрь"; //Затираю, что б в памяти не висел.
+		Password_ = "*****"; //Затираю, что б в памяти не висел.
 		return 0; //Возникла ошибка.
 	}		
 
-	Password_ = "Кевв"; //Затираю, что в памяти не висел.
+	Password_ = "*****"; //Затираю, что в памяти не висел.
 	return 1;
 }
 
@@ -91,12 +164,12 @@ int CheckCertForKey(char *Error)
 
 	//Проверяет соответствие закрытого ключа и сертификата находящегося в БД системы для данного ключа.
 	//Сроки действия, а также цепочки сертификатов.
-	bool errflag = libKs.CheckKeyCert(dBi);
+	bool errflag = keyService.CheckKeyCert(dBi);
 			
 	if (!errflag)
 	{
 		string Err = "";
-		Err = libKs.getLastError();
+		Err = keyService.getLastError();
 		strcpy(Error, Err.c_str());
 		return 0; //Возникла ошибка.
 	}
@@ -137,7 +210,7 @@ int SignData(uint8_t *Message, int Mlen,char *SignStr, uint32_t *Slen, char *Err
 	string _SignStr="";
 	uint32_t _Slen;
 
-	Sg.setKeyService(libKs); //Передаю объект для работы с ключами.
+	Sg.setKeyService(keyService); //Передаю объект для работы с ключами.
 	bool errFlag=Sg.GrKSignData(Message, Mlen, _SignStr, _Slen);
 	
 	if (!errFlag)
@@ -162,7 +235,7 @@ int LibCheckSign(uint8_t *Message, int Mlen,char *SignStr, char *FIOp, char *Err
 	string SignValue(SignStr);
 	string _FIOp(FIOp);
 
-	Sg.setKeyService(libKs); //Передаю объект для работы с ключами.
+	Sg.setKeyService(keyService); //Передаю объект для работы с ключами.
 	Sg.setDb(dBi);//Объект для работы с БД системы "ГранитК".
 	bool errFlag=Sg.GrKCheckSign(Message, Mlen,SignValue, _FIOp);
 	
@@ -192,4 +265,33 @@ __declspec(dllexport)
 void closeDb()
 {
 	dBi.CloseDb(); //Обязательно нужен иначе БД нельзя будет обновить.
+}
+
+//Возвращает набор данных необходимых для объекта шифрования.
+__declspec(dllexport)
+CipherWorkerData GetCipherWorkerData(string *pathsToFiles, int filesCount, char *password)
+{
+	string pswd(password);
+	QString password_ = QString::fromLocal8Bit(pswd.c_str());
+
+	QStringList paths_to_file;
+
+	for (int i = 0; i < filesCount; i++)
+	{
+		paths_to_file.append(pathsToFiles[i].c_str());
+	}
+	
+	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
+
+	CipherWorkerData cgDate; //Данные для механизма шифрования. 
+	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
+	cgDate.setProcessFiles(paths_to_file);
+	cgDate.setPassword(password_);
+	cgDate.setRAsimOpenKey(Dh_OpenKey);
+	cgDate.setKeyContainer(keyService.getContainer());
+	cgDate.setSignerIndex("003");//Не используется.
+	cgDate.setSignatureDH("abc");
+	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
+	
+	return cgDate;
 }

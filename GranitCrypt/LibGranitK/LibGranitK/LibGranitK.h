@@ -5,12 +5,14 @@
 
 #include "KeyService.h"
 #include "SingleSign.h"
+#include "CipherWorker.h"
+#include "CipherGearData.h"
 
 using std::string;
 //#include "libgranitk_global.h"
 
 
-KeyService libKs;
+KeyService keyService;
 GranitDbI dBi;
 SingleSign Sg;
 
