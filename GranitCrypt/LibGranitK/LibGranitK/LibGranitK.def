@@ -1,6 +1,6 @@
 LIBRARY "LibGranitK"
 EXPORTS
-Tst
+ShowTestWindow
 LoadSecretKey
 SkInfo
 ChkPassword
@@ -10,3 +10,7 @@ SignData
 LibCheckSign 
 ClearLib
 closeDb
+SetSingleModeChipper
+CheckPasswordForSecretKey
+GetKeyContainerStatus
+GetCipherWorkerData

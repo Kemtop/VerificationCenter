@@ -160,6 +160,21 @@ private:
 	*/
 	bool maxBadAttempPswd();
 
+	//Библиотека шифрования.
+	HMODULE hChipperDll;
+	
+	//Загружает dll библиотеку шифрования
+	bool LoadChipperDll();
+
+	//Выгружает dll библиотеку шифрования
+	void FreeChipperDll();
+
+	//Загружает ключевой контейнер.
+	bool InitSecretKey(QString &password);
+
+	//Возвращает данные для шифрования файлов.
+	CipherWorkerData GetCipherWorker(QStringList &paths_to_file, QString password);
+
 	struct Prm1
 	{
 		bool PwdIsChecked; //Пароль был проверен
