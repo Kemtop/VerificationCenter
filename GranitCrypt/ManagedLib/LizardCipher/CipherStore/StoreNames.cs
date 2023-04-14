@@ -1,4 +1,4 @@
-﻿namespace ManagedLib.CipherStore
+﻿namespace LizardEncryptLib.CipherStore
 {
     public class StoreNames
     {

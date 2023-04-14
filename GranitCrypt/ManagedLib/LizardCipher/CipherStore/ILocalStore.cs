@@ -1,4 +1,4 @@
-﻿namespace ManagedLib.CipherStore
+﻿namespace LizardEncryptLib.CipherStore
 {
     /// <summary>
     /// Локальное хранилище кодируемых и декодируемых файлов.
