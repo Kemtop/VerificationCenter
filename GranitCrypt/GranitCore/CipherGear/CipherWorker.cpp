@@ -40,6 +40,8 @@ bool CipherWorker::CryptFiles(QStringList & paths_to_file, QString Password, str
 	
 	uint8_t session_key[32]; //Сеансовый ключ для блочного шифра.
 	
+	//вынес в dll LoadAsymmetricKey. Убрать в будущем!
+
 	//Кэширую ключ асимметричного шифрования.
 	//Преобразовываю строку в 16 ричном виде в бинарный формат
 	QByteArray HexArray = QByteArray::fromHex(receiverKey.c_str());
@@ -146,6 +148,8 @@ void CipherWorker::sendEventAllProcessVal(int val)
 
 void CipherWorker::sendEventProcessFileInfo(string msg)
 {
+	if (IsDisabledEventProcess) return;
+
 	eventsCipherWorker *ev0 = new eventsCipherWorker();//Создание  события в  очень похоже на утечку памяти,
 													   //но ею не является, так как после обработки все объекты событий удаляются! 
 	ev0->setCurfileprocessInfo(msg);
@@ -154,6 +158,7 @@ void CipherWorker::sendEventProcessFileInfo(string msg)
 
 void CipherWorker::sendEventThreadStatus(int status)
 {
+	if (IsDisabledEventProcess) return;
 	//Создаем объект класса события и высылаем его объекту-получателю с помощью метода postEvent(). 
 	eventsCipherWorker *ev = new eventsCipherWorker();//Создание  события в  очень похоже на утечку памяти,
 													  //но ею не является, так как после обработки все объекты событий удаляются! 
@@ -163,6 +168,7 @@ void CipherWorker::sendEventThreadStatus(int status)
 
 void CipherWorker::sendEventCurFileProcess(int val)
 {
+	if (IsDisabledEventProcess) return;
 	//Прогресс обработки файлов.
 	eventsCipherWorker *ev1 = new eventsCipherWorker();
 	ev1->setCurFileProcess(val);
@@ -171,6 +177,7 @@ void CipherWorker::sendEventCurFileProcess(int val)
 
 void CipherWorker::sendMaxFileProcess(int val)
 {
+	if (IsDisabledEventProcess) return;
 	//Прогресс обработки файлов.
 	//Создаем объект класса события и высылаем его объекту-получателю с помощью метода postEvent(). 
 	eventsCipherWorker *ev = new eventsCipherWorker();//Создание  события в  очень похоже на утечку памяти,
@@ -414,7 +421,7 @@ bool CipherWorker::CryptFile(QString src_path, QString dst_dir, Cipher3412 &Ciph
 
 							//Заполнение заголовка длиной файла
 		CBC.FileLengthToArray(src_file_len, Flen);
-
+		
 		//Шифрование размера файла
 		CBC.getMSBfromR(Reg, MSB);//Получаю MSB из регистра
 		CBC.сryptIterationCBC(&Cipher, Flen, MSB, C_block);
@@ -433,7 +440,6 @@ bool CipherWorker::CryptFile(QString src_path, QString dst_dir, Cipher3412 &Ciph
 		qint64 block_count = src_file_len / 16;
 		//!!!!!!!!!!!!!!Предусмотреть ситуацию когда размер файла менее 16 байт!!!!!!!!!!!!!!!!1
 		
-
 		//Прогресс обработки файлов.
 		 sendMaxFileProcess(block_count);//Посылаю событие о максимальном значении.
 				
@@ -457,8 +463,7 @@ bool CipherWorker::CryptFile(QString src_path, QString dst_dir, Cipher3412 &Ciph
 				lastError = "Ошибка 3 Не удалось считать файл";
 				return false;
 			}
-				
-
+						
 			//Преобразоываю char в uint8_t
 			CBC.copyFtoC(input_block, P);
 			//Итерация шифрования
@@ -527,7 +532,6 @@ bool CipherWorker::CryptFile(QString src_path, QString dst_dir, Cipher3412 &Ciph
 
 		fileIn.close();
 
-
 		//Добавление параметров ассиметричной системы
 		AsInterpretator Ai;
 		QByteArray AsBlock;
@@ -588,7 +592,7 @@ bool CipherWorker::WriteCryptFileTitle(QFile &file, qint64 file_len, qint64 &fil
 		 string pgm_title = "GranitK Information security protection system ";
 
 		 //Включен альтернативный режим
-		if(baseData.getRoseMode())
+		//if(baseData.getRoseMode()) --Удалить весь этот мусор!
 			pgm_title = "I'll always have a little red rose in my heart";
 
 
