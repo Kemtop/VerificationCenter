@@ -10,7 +10,6 @@ namespace LizardEncryptLib.LowLayerFunction
     /// </summary>
     public class NativeAdapter : ILowLayerFunctions
     {
-        //const string NativeLib = "NativeCrypt.dll";
         const string NativeLib = "LibGranitK.dll";
        
 
