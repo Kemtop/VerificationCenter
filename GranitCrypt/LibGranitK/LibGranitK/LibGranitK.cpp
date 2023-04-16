@@ -295,3 +295,111 @@ CipherWorkerData GetCipherWorkerData(string *pathsToFiles, int filesCount, char 
 	
 	return cgDate;
 }
+
+//Конвертируем char->QString.
+QString toQString(char *password)
+{
+	string pswd(password);
+	return QString::fromLocal8Bit(pswd.c_str());
+}
+
+//Загружает ассиметричный ключ шифрования.
+__declspec(dllexport)
+int LoadAsymmetricKey(char *password, char *error)
+{
+	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
+
+	CipherWorkerData cgDate; //Данные для механизма шифрования. 
+	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
+	cgDate.setPassword(toQString(password));
+	cgDate.setRAsimOpenKey(Dh_OpenKey);
+	cgDate.setKeyContainer(keyService.getContainer());
+	cgDate.setSignerIndex("003");//Не используется.
+	cgDate.setSignatureDH("abc");
+	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
+
+	//Кэширую ключ асимметричного шифрования.
+	//Преобразовываю строку в 16 ричном виде в бинарный формат
+	QByteArray HexArray = QByteArray::fromHex(Dh_OpenKey.c_str());
+	//Преобразовываю ключ	
+	ArraySource as_pk(reinterpret_cast<uint8_t*>(HexArray.data()), HexArray.size(), true);//pumpAll
+	asymmetricKeyR.Load(as_pk); //Загружаю ключ.
+
+	return 1;
+}
+
+__declspec(dllexport)
+//Инициализирует механизм шифрования.
+int InitCipher()
+{
+	cipherWorker = new CipherWorker();
+	cipherWorker->asymmetricKeyR = asymmetricKeyR;
+	return 1;
+}
+//Удаляет объект механизма шифрования.
+int ClearCipher()
+{
+	delete cipherWorker;
+	cipherWorker = NULL;
+	return 1;
+}
+
+//Загружает ключ подписи с использованием эллиптической кривой
+__declspec(dllexport)
+int LoadSignedSecretKey(char *password, char *error)
+{
+	//Получаю закрытый ключ подписи
+	Point Q1;		
+
+	//user_d-закрытый ключ подписи
+	bool result = cipherWorker->DecryptEc_SK(Q1, user_d, toQString(password), keyService.getContainer());
+	
+	const string errorTest = "Ошибка K5 : Не удалось считать ключ.";
+	
+	if(result)
+	{
+		//Для наглядности передаю ключ подписи. Что делает код более уязвимым для создания дампа процесса.Переделать если вы так об этом беспокоитесь.
+		strcpy(error, string(user_d.get_str(16)).c_str());
+		return 1;
+	}
+	else
+	{
+		strcpy(error, errorTest.c_str());
+		return 0;
+	}
+}
+
+__declspec(dllexport)
+//Шифрует файл.
+int CryptLocalFile(char *src_path, char *dst_dir, char *error)
+{
+	keyService.setRoseMode(); //Модифицированная версия криптосистемы.
+	uint8_t session_key[32]; //Сеансовый ключ для блочного шифра.
+	//Обнуление.
+	for (int i = 0; i < 32; i++) session_key[i] = 0; //Муссор приведи в порядок!
+
+	uint8_t Reg[32]; //Регистр сдвига для гаммирования.
+	Cipher3412 Cipher; //Объект содержащий базовые методы блочного шифрования ГОСТ 3412.
+	Gost3413 BlockGost; //Алгоритм гаммирования.
+	
+	BlockGost.generateIV(session_key);//Формирую случайное число размером 32байта, которое является сеансовым ключом.
+	Cipher.deploymentEncryptionRoundKeys(session_key);//Развертывание секретного ключа.
+
+	//Шифрование секретного ключа
+	string crypted_session_key; //Шифрованный сеансовый ключ.
+	//Шифрую сессионный ключ, асимметричным алгоритмом.
+	cipherWorker->CryptedSessionKey(session_key, crypted_session_key);
+
+	BlockGost.generateIV(Reg);//Формирую случайный начальный вектор(32байта) и помещаю его в регистр
+	//iv должен быть разный для всех файлов! Не менять код!
+	 //Шифрую файл
+	bool result = cipherWorker->CryptFile(toQString(src_path), toQString(dst_dir), Cipher, Reg, crypted_session_key, user_d, keyService.getContainer());
+
+	if (!result)
+	{
+		strcpy(error, cipherWorker->getLastError().c_str());
+		return 0;
+	}
+	
+	return 1;
+}

@@ -38,6 +38,15 @@ public:
 		reportInUI = false;
 		enableRose = false;
 	};
+
+	//Конструктор используется в dll.
+	CipherWorker()
+	{
+		reportInUI = false;
+		enableRose = false;
+		IsDisabledEventProcess = true;
+	};
+
 	~CipherWorker();
 
 	bool CryptFiles(QStringList &paths_to_file, QString Password, string receiverKey, PkContainer &KeyContainer,
@@ -51,6 +60,16 @@ public:
 	
 	void setData(CipherWorkerData data); //Устанавливает параметры работы. 
 	void run(); //Переопределение родительского метода.
+	//Извлекает ключ подписи из контейнера ключа.
+	bool DecryptEc_SK(Point & Q, mpz_class & d, QString Password, PkContainer &KeyContainer);
+	//Шифрую 32 байтный сеансовый ключ.
+	bool CryptedSessionKey(uint8_t *session_key, string &result);
+	//Шифрую файл по указанному пути
+	bool CryptFile(QString src_path, QString dst_dir, Cipher3412 &Cipher, uint8_t *Reg, string &CryptedKey,
+		mpz_class &user_d, PkContainer &KeyContainer);
+	RSA::PublicKey asymmetricKeyR; //Открытый ключ получателя.
+	//Отключает генерацию событий обработки файлов.
+	bool IsDisabledEventProcess;
 private:
 	QObject* threadEvens; //Атрибут, указывающий на объект-получатель нашего события.	
 	CipherWorkerData baseData; //Основные параметры для запуска шифрования.
@@ -66,24 +85,16 @@ private:
 	QTextCodec *codec;
 	//QString destinationDir; //Путь к директории куда будут складываться обработанные файлы.(шифрованный или расшифрованные)
 	string lastError;  //Хранит последнюю ошибку.
-	RSA::PublicKey asymmetricKeyR; //Открытый ключ получателя.
 	string signerIndex;   //Индекс открытого ключа подписанта
 	string rHashOkDH; //Значение сигнатуры открытого ключа ДХ.
 	bool reportInUI;//Флаг включение вывода отчета в пользовательский интерфейс.
-
-	//Шифрую 32 байтный сеансовый ключ.
-	bool CryptedSessionKey(uint8_t *session_key, string &result);
-	//Извлекает ключ подписи из контейнера ключа.
-	bool DecryptEc_SK(Point & Q, mpz_class & d, QString Password,PkContainer &KeyContainer);
 
 	bool CheckEcPair(Point & Q, mpz_class & d, string  ecOid);
 	//Получает результат хэширования пароля и соли
 	bool HashedPassword(QString &Passwd, QString &salt_str, uint8_t *hash);
 	//Расшифровывает секретный ключ CryptedKey используя key
 	bool DecryptSK(uint8_t *key, QString &CryptedKey, QString &iv, string &p_key);
-	//Шифрую файл по указанному пути
-	bool CryptFile(QString src_path, QString dst_dir, Cipher3412 &Cipher, uint8_t *Reg, string &CryptedKey,
-		mpz_class &user_d, PkContainer &KeyContainer);
+	
 	//Формирует заголовок шифруемого файла, записывает его в файл
 	bool WriteCryptFileTitle(QFile &file, qint64 file_len, qint64 &file_pos);
 	bool SignFile(QFile & file, mpz_class & user_d, PkContainer &KeyContainer); //Подписывает файл.
