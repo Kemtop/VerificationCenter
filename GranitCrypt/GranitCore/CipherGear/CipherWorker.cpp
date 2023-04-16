@@ -72,7 +72,7 @@ bool CipherWorker::CryptFiles(QStringList & paths_to_file, QString Password, str
 		uint8_t Reg[32]; //Регистр сдвига для гаммирования.
 		Cipher3412 Cipher; //Объект содержащий базовые методы блочного шифрования ГОСТ 3412.
 		Gost3413 BlockGost; //Алгоритм гаммирования.
-
+		//Уже есть в GenerateRand256(uint8_t *array) dll.
 		BlockGost.generateIV(session_key);//Формирую случайное число размером 32байта, которое является сеансовым ключом.
 		Cipher.deploymentEncryptionRoundKeys(session_key);//Развертывание секретного ключа.
 		

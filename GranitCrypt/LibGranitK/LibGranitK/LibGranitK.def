@@ -19,3 +19,4 @@ LoadSignedSecretKey
 InitCipher
 ClearCipher
 CryptLocalFile
+GenerateRand256
