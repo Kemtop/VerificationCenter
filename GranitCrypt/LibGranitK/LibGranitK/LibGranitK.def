@@ -14,3 +14,8 @@ SetSingleModeChipper
 CheckPasswordForSecretKey
 GetKeyContainerStatus
 GetCipherWorkerData
+LoadAsymmetricKey
+LoadSignedSecretKey
+InitCipher
+ClearCipher
+CryptLocalFile
