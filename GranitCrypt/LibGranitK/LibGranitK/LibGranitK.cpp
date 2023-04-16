@@ -328,8 +328,8 @@ int LoadAsymmetricKey(char *password, char *error)
 	return 1;
 }
 
-__declspec(dllexport)
 //Инициализирует механизм шифрования.
+__declspec(dllexport)
 int InitCipher()
 {
 	cipherWorker = new CipherWorker();
@@ -369,8 +369,8 @@ int LoadSignedSecretKey(char *password, char *error)
 	}
 }
 
-__declspec(dllexport)
 //Шифрует файл.
+__declspec(dllexport)
 int CryptLocalFile(char *src_path, char *dst_dir, char *error)
 {
 	keyService.setRoseMode(); //Модифицированная версия криптосистемы.
@@ -401,5 +401,16 @@ int CryptLocalFile(char *src_path, char *dst_dir, char *error)
 		return 0;
 	}
 	
+	return 1;
+}
+
+//Генерирует 32 байтное число(int256) использую псевдослучайный генератор чисел библиотеки.
+__declspec(dllexport)
+int GenerateRand256(uint8_t *array, uint8_t *getZero)
+{
+	for (int i = 0; i < 32; i++) array[i] = 0;
+	if (*getZero == 1) return 1;
+	Gost3413 BlockGost; //Алгоритм гаммирования.
+	BlockGost.generateIV(array);//Формирую случайное число размером 32байта, которое является сеансовым ключом.
 	return 1;
 }
