@@ -10,6 +10,9 @@ GranitCrypt/DllProductKeySelfTest/*
 GranitCrypt/dllHwKey/*
 Deployment/*
 
+Native/CryptoPP/*
+Native/Mpir/*
+
 Debug
 Release
 Win32
