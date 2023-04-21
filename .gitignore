@@ -12,6 +12,7 @@ Deployment/*
 
 Native/CryptoPP/*
 Native/Mpir/*
+Native/EasyCript/Test/* 
 
 Debug
 Release
