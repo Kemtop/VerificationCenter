@@ -132,14 +132,6 @@ namespace ManagedAdapter
             return true;
         }
 
-        private bool Crypt(string srcPathToFile, string dstDir, Action<string> endIteration)
-        {
-            if (!_adapter.CryptlFile(srcPathToFile, dstDir)) return false;
-            endIteration(srcPathToFile);
-
-            return true;
-        }
-
         /// <summary>
         /// Универсальный метод для обработки файлов.
         /// </summary>
