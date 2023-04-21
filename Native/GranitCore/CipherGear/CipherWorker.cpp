@@ -1,10 +1,53 @@
 #include "CipherWorker.h"
 
+void CipherWorker::setProcessMode(int Val)
+{
+	processmode = Val;
+}
+
+void CipherWorker::setProcessFiles(QStringList val)
+{
+	filesToProcess = val;
+}
+
+void CipherWorker::setPassword(QString val)
+{
+	password = val;
+}
+
+void CipherWorker::setRAsimOpenKey(std::string val)
+{
+	receiverKey = val;
+}
+
+void CipherWorker::setKeyContainer(PkContainer val)
+{
+	keyContainer = val;
+}
+
+void CipherWorker::setSignerIndex(string val)
+{
+	signerIndex = val;
+}
+
+void CipherWorker::setSignatureDH(string val)
+{
+	signatureDH = val;
+}
+
+void CipherWorker::setDbPath(QString val)
+{
+	DbPath = val;
+}
+
+void CipherWorker::setRoseMode(bool val)
+{
+	enableRose = val;
+}
 
 CipherWorker::~CipherWorker()
 {
 }
-
 
 bool CipherWorker::initDistDir(QString val, QString &destinationDir)
 {
@@ -100,29 +143,25 @@ string CipherWorker::getLastError()
 	return lastError;
 }
 
-void CipherWorker::setData(CipherWorkerData data)
-{
-	baseData = data;
-}
-
+//Многопоточная обветка Qt с событиями. Используется только для Qt приложения.
 void CipherWorker::run()
 {
+	IsDisabledEventProcess = false; //Посылать сосытия Qt подписчику.
+
 	//Посылаем событие -поток запущен.
 	sendEventThreadStatus(1);//Поток запущен.
 	bool res = false;
 
-	if (baseData.getProcessMode() == 1) //Шифрование файлов.
+	if (processmode == 1) //Шифрование файлов.
 	{
-	   res = CryptFiles(baseData.getProcessFiles(), baseData.getPassword(),
-	   baseData.getRAsimOpenKey(), baseData.getKeyContainer(), baseData.getSignerIndex(), baseData.getSignatureDH());
+	   res = CryptFiles(filesToProcess, password, receiverKey, keyContainer, signerIndex, signatureDH);
 	}
 
-	if (baseData.getProcessMode() == 2)//Шифрование файлов.
+	if (processmode == 2)//Расшифрование файлов.
 	{
-		res = DecryptFiles(baseData.getProcessFiles(), baseData.getDbPath(), baseData.getPassword(),baseData.getKeyContainer());
+		res = DecryptFiles(filesToProcess, DbPath, password, keyContainer);
 	}
-
-
+	
 	if (!res) //Возникла ошибка.
 	{
 		string err = getLastError();
@@ -920,8 +959,6 @@ bool CipherWorker::DecryptingFile(QString src_path, QString dst_dir, QString DbP
 			return false;
 		}
 
-		
-
 		//Удаляю ".crypt" из имени файла 
 		QString file_name = src_file_name.left(src_file_name.length() - 6);
 		QString dst_path = dst_dir + "/" + file_name;
@@ -934,19 +971,20 @@ bool CipherWorker::DecryptingFile(QString src_path, QString dst_dir, QString DbP
 			return false;
 		}
 				
-
 		//Считываю параметры асимметричной системы-блоки данных идущие за шифрованным сообщением
 		ASreader ASr;
+		bool result = ASr.Read(src_file, src_file_info.size());
+
 		if (!ASr.Read(src_file, src_file_info.size()))
 		{
-			lastError = "Ошибка 9A: Не верный данные в файле " + codec->fromUnicode(file_name);
+			lastError = "Ошибка 9A: Не верный данные в файле "+codec->fromUnicode(file_name);
 			return false;
 		}
-			
-
+		
 		string mess_progress = "Проверка подписи файла \"" + codec->fromUnicode(src_file_name) + "\"";
+		
 		sendEventProcessFileInfo(mess_progress);
-
+		
 		qint64 flen_ = src_file_info.size();//Размер файла.
 
 		if (flen_ >= 1900000000)
@@ -962,15 +1000,12 @@ bool CipherWorker::DecryptingFile(QString src_path, QString dst_dir, QString DbP
 				return false;
 			}
 		}
-		
-
 
 		//Расшифровка ключа блочного шифра зашифрованного асимметричным алгоритмом.
 		uint8_t secretKey[32];
 		if(!ASdecryptSecretKey(ASr, secretKey, UserPassword, KeyContainer))
 			return false;
 		
-
 		Cipher3412 Cipher; //Объект содержащий базовые методы блочного шифрования
 		Cipher.deploymentDecryptionRoundKeys(secretKey); //Развертывание секретного ключа  
 
@@ -1017,8 +1052,6 @@ bool CipherWorker::DecryptingFile(QString src_path, QString dst_dir, QString DbP
 			return false;
 		}
 	
-
-
 		//Преобразовываю данные
 		CBC.copyFtoC(input_block, C_block);
 		//Заполнение регистра данными IV
@@ -1150,7 +1183,7 @@ bool CipherWorker::CheckSign(ASreader & ASr, QFile & file, QString DbPath, PkCon
 		
 
 		//Отключен простой режим.
-		if (!baseData.getRoseMode())
+		if (!enableRose)
 		{
 			//Открывает соединение с базой данных
 			GranitDbI DBI(DbPath);

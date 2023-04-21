@@ -17,7 +17,6 @@
 #include "AsInterpretator\AsInterpretator.h"
 #include "ASreader\ASreader.h"
 #include "VerifySign.h"
-#include "CipherGearData.h"
 #include <QThread>
 #include "eventsCipherWorker.h"
 #include "GranitDbI\GranitDbI.h"
@@ -44,6 +43,7 @@ public:
 	{
 		reportInUI = false;
 		enableRose = false;
+		codec = QTextCodec::codecForName("Windows-1251");
 		IsDisabledEventProcess = true;
 	};
 
@@ -58,7 +58,17 @@ public:
 
 	string getLastError(); //Возвращает ошибку.
 	
-	void setData(CipherWorkerData data); //Устанавливает параметры работы. 
+	//Режим работы-шифрование 1, расшифровка 2.
+	void setProcessMode(int Val); //Режим работы.
+	void setProcessFiles(QStringList val); //Устанавливает список полных путей файлов подлежащих обработке.
+	void setPassword(QString val); //Пароль к закрытому ключу.
+	void setRAsimOpenKey(std::string val); //Асимметричный ключ получателя.
+	void setKeyContainer(PkContainer val); //Контейнер ключа.
+	void setSignerIndex(string val); //Индекс получателя.
+	void setSignatureDH(string val);
+	void setDbPath(QString val); //Устанавливает путь к Бд системы.
+	void setRoseMode(bool val); //Включает упрощенный режим работы.
+	
 	void run(); //Переопределение родительского метода.
 	//Извлекает ключ подписи из контейнера ключа.
 	bool DecryptEc_SK(Point & Q, mpz_class & d, QString Password, PkContainer &KeyContainer);
@@ -67,12 +77,17 @@ public:
 	//Шифрую файл по указанному пути
 	bool CryptFile(QString src_path, QString dst_dir, Cipher3412 &Cipher, uint8_t *Reg, string &CryptedKey,
 		mpz_class &user_d, PkContainer &KeyContainer);
+
+	//Расшифровываю файл
+	bool DecryptingFile(QString src_path, QString dst_dir, QString DbPath,
+		QString UserPassword, PkContainer &KeyContainer);
+
 	RSA::PublicKey asymmetricKeyR; //Открытый ключ получателя.
 	//Отключает генерацию событий обработки файлов.
 	bool IsDisabledEventProcess;
 private:
 	QObject* threadEvens; //Атрибут, указывающий на объект-получатель нашего события.	
-	CipherWorkerData baseData; //Основные параметры для запуска шифрования.
+
 	void sendEventAllProcessVal(int val); //Отправляет событие значения обработки всех файлов.
 	void sendEventProcessFileInfo(string msg); //Отправляет событие информирования о процессе обработки файла.
 	void sendEventThreadStatus(int status);
@@ -89,6 +104,14 @@ private:
 	string rHashOkDH; //Значение сигнатуры открытого ключа ДХ.
 	bool reportInUI;//Флаг включение вывода отчета в пользовательский интерфейс.
 
+	int processmode; //Режим работы-шифрование 1, расшифровка 2.
+	QStringList filesToProcess; //Список полных путей файлов подлежащих обработке.
+	QString password; //Пароль для хранения ключа.
+	std::string receiverKey; //Открытый ключ получателя.
+	PkContainer keyContainer; //Ключ.
+	string signatureDH; //Сигнатуру открытого ключа получателя.		
+	QString DbPath; //Путь к Бд.
+
 	bool CheckEcPair(Point & Q, mpz_class & d, string  ecOid);
 	//Получает результат хэширования пароля и соли
 	bool HashedPassword(QString &Passwd, QString &salt_str, uint8_t *hash);
@@ -101,10 +124,6 @@ private:
 
 	//Используя путь к файлу, создает директорию для сохранения расшифрованных файлов, возвращает путь к директории
 	bool CreateDstDecryptDir(QString fpath, QString &DirPath);
-
-	//Расшифровываю файл
-	bool DecryptingFile(QString src_path, QString dst_dir, QString DbPath,
-		QString UserPassword, PkContainer &KeyContainer);
 
 	//Проверяет подпись файла
 	bool CheckSign(ASreader &ASr, QFile &file, QString DbPath, PkContainer &KeyContainer);

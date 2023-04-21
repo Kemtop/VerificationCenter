@@ -3,6 +3,14 @@
 #include "SingleSign\rfcSignedData.h" //Удалить!!
 #include "SingleSign\binASN1SignedData.h"
 
+
+//Конвертируем char->QString.
+QString toQString(char *val)
+{
+	string pswd(val);
+	return QString::fromLocal8Bit(pswd.c_str());
+}
+
 __declspec(dllexport)
 int ShowTestWindow(char * message)
 {
@@ -24,9 +32,7 @@ int SetSingleModeChipper()
 __declspec(dllexport)
 int CheckPasswordForSecretKey(char *password, char *error)
 {	
-	string pswd(password);
-
-	QString Password_ = QString::fromLocal8Bit(pswd.c_str());
+	QString Password_ = toQString(password);
 	
 	bool errflag = keyService.CheckPassword(Password_);
 
@@ -48,40 +54,6 @@ __declspec(dllexport)
 int GetKeyContainerStatus()
 {
 	return keyService.getKeyContainerStatus();
-}
-
-//Шифрует файлы.
-__declspec(dllexport)
-int CryptFiles(char *filesPath,char *Password)
-{
-	QTextCodec *StrCodec; //Для преобразования кодировки
-	StrCodec = QTextCodec::codecForName("Windows-1251"); //Установка кодировки
-	QString filesPath_ = StrCodec->toUnicode(string(filesPath).c_str()); //Преобразовываю строку в QString.
-
-	ShowTestWindow(filesPath);
-
-	//QStringList &paths_to_file, QString Password
-	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
-	/*
-	CipherWorkerData cgDate; //Данные для механизма шифрования. 
-	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
-	cgDate.setProcessFiles(filesPath_);
-	cgDate.setPassword(Password);
-	cgDate.setRAsimOpenKey(Dh_OpenKey);
-	cgDate.setKeyContainer(Ks.getContainer());
-	cgDate.setSignerIndex("003");//Не используется.
-	cgDate.setSignatureDH("abc");
-	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
-
-	int f_count = paths_to_file.count(); //Количество файлов
-	allCurProcessFiles = f_count;
-
-	initchW(); //Инициализация объекта шифрования.
-	chW->setData(cgDate);
-	chW->start();//Запускаю поток.
-	typeProcessWorking = 1;*/
-
-	return 0;
 }
 
 /*
@@ -267,56 +239,11 @@ void closeDb()
 	dBi.CloseDb(); //Обязательно нужен иначе БД нельзя будет обновить.
 }
 
-//Возвращает набор данных необходимых для объекта шифрования.
-__declspec(dllexport)
-CipherWorkerData GetCipherWorkerData(string *pathsToFiles, int filesCount, char *password)
-{
-	string pswd(password);
-	QString password_ = QString::fromLocal8Bit(pswd.c_str());
-
-	QStringList paths_to_file;
-
-	for (int i = 0; i < filesCount; i++)
-	{
-		paths_to_file.append(pathsToFiles[i].c_str());
-	}
-	
-	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
-
-	CipherWorkerData cgDate; //Данные для механизма шифрования. 
-	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
-	cgDate.setProcessFiles(paths_to_file);
-	cgDate.setPassword(password_);
-	cgDate.setRAsimOpenKey(Dh_OpenKey);
-	cgDate.setKeyContainer(keyService.getContainer());
-	cgDate.setSignerIndex("003");//Не используется.
-	cgDate.setSignatureDH("abc");
-	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
-	
-	return cgDate;
-}
-
-//Конвертируем char->QString.
-QString toQString(char *password)
-{
-	string pswd(password);
-	return QString::fromLocal8Bit(pswd.c_str());
-}
-
 //Загружает ассиметричный ключ шифрования.
 __declspec(dllexport)
 int LoadAsymmetricKey(char *password, char *error)
 {
 	string Dh_OpenKey = keyService.getOpenDHkey();//Получаю открытый ключ схемы Диффи-Хэлмана.
-
-	CipherWorkerData cgDate; //Данные для механизма шифрования. 
-	cgDate.setRoseMode(true); //Включает альтернативный режим шифрования.
-	cgDate.setPassword(toQString(password));
-	cgDate.setRAsimOpenKey(Dh_OpenKey);
-	cgDate.setKeyContainer(keyService.getContainer());
-	cgDate.setSignerIndex("003");//Не используется.
-	cgDate.setSignatureDH("abc");
-	cgDate.setProcessMode(1);//Режим работы-шифрование файлов.
 
 	//Кэширую ключ асимметричного шифрования.
 	//Преобразовываю строку в 16 ричном виде в бинарный формат
@@ -414,3 +341,58 @@ int GenerateRand256(uint8_t *array, uint8_t *getZero)
 	BlockGost.generateIV(array);//Формирую случайное число размером 32байта, которое является сеансовым ключом.
 	return 1;
 }
+
+//Из контейнера возвращает открытый ключ Диффи-Хеллмана.
+__declspec(dllexport)
+string GetDhOpenKey()
+{
+  return keyService.getOpenDHkey();
+}
+
+//Возвращает контейнер ключа.
+__declspec(dllexport)
+PkContainer GetKeyContainer()
+{
+  return keyService.getContainer();
+}
+
+//Проверяет секретный ключ пользователя.
+__declspec(dllexport)
+int CheckUserKey(char *pathToKey, char *error)
+{
+	uint32_t l;
+	string path(pathToKey);
+	QString path_ = QString::fromLocal8Bit(path.c_str());
+	
+	bool errflag = keyService.CheckSK(path_, l);
+
+	if (!errflag)
+	{
+		string Err = keyService.getLastError(); //Получаю сообщение об ошибке.
+		strcpy(error, Err.c_str());
+		return 0; //Возникла ошибка.
+	}
+	
+	return 1;
+}
+
+//Дешифрует файл.
+__declspec(dllexport)
+int DecryptLocalFile(char *src_path, char *dst_dir, char *keyPassword, char *error)
+{
+	//Расшифровую файл
+	keyService.setRoseMode(); //Модифицированная версия криптосистемы.
+	cipherWorker->IsDisabledEventProcess = true; //Отключаем генерацию событий Qt.
+	cipherWorker->setRoseMode(true);
+	bool result = cipherWorker->DecryptingFile(toQString(src_path), toQString(dst_dir), "", toQString(keyPassword), keyService.getContainer());
+	
+	if (!result)
+	{
+		strcpy(error, cipherWorker->getLastError().c_str());
+		return 0;
+	}
+
+	return 1;
+}
+
+//Имена функций в dll не должны совпадать с именами в lib!

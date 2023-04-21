@@ -213,9 +213,6 @@
     <ClCompile Include="CipherGear\CipherWorker.cpp">
       <Filter>CipherGear</Filter>
     </ClCompile>
-    <ClCompile Include="CipherGear\CipherGearData.cpp">
-      <Filter>CipherGear</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_CipherGearData.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -430,9 +427,6 @@
       <Filter>CipherGear</Filter>
     </CustomBuild>
     <CustomBuild Include="CipherGear\CipherWorker.h">
-      <Filter>CipherGear</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CipherGear\CipherGearData.h">
       <Filter>CipherGear</Filter>
     </CustomBuild>
     <CustomBuild Include="CipherGear\eventsCipherWorker.h">

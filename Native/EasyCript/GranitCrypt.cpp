@@ -239,20 +239,26 @@ bool GranitCrypt::SelectPathSK(PathSettings &S)
 {
 	//Форма выбора секретного ключа
 	SelectKeyForm form_secret_key;
-
-
+	
 	if (form_secret_key.exec() == QDialog::Accepted)
 	{
 		QString SK_path = form_secret_key.KeyPath; //Путь к секретному ключу
 
+		typedef unsigned char(*CheckUserKey)(char *, char *);
+		CheckUserKey checkUserKey = (CheckUserKey)GetProcAddress(hChipperDll, "CheckUserKey");
+		
+		char* pathToKey = SK_path.toLocal8Bit().data();
+		char *error = (char*)malloc(1000);
+
 	   //Проверка файла СК
-		uint32_t l;
-		if (!Ks.CheckSK(SK_path, l))
-		{
-			QMessageBox::critical(this, StrCodec->toUnicode("Ошибка"), StrCodec->toUnicode(Ks.getLastError().c_str()));
+		if (checkUserKey(pathToKey, error) == 0)
+		{			
+			QMessageBox::critical(this, StrCodec->toUnicode("Ошибка"), StrCodec->toUnicode(error));
+			free(error);
 			return false;
 		}
-			
+		
+		free(error);
 		S.SetPathSK(SK_path);
 
 		return true;
@@ -412,83 +418,26 @@ bool GranitCrypt::maxBadAttempPswd()
 	return false;
 }
 
-
 // Нажатие на кнопку зашифровать
 void GranitCrypt::slotpushButtonCrypt()
-{	
+{
 	QString password;
-	InitSecretKey(password);
+	if (!InitSecretKey(password)) return;
 		
 	//Шифрую  все файлы
-	CryptFiles(ProcessingFiles, password);
+	CryptFiles(ProcessingFiles, password, 1);
 
 	FreeChipperDll();
 }
 
 void GranitCrypt::slotpushButtonDecrypt()
 {
-	//Загружает настройки из ini файла
-	PathSettings S; //Настройки путей.
-	LoadSettings(S);
+	QString password;
+	if (!InitSecretKey(password)) return;
 
-	Ks.setRoseMode(); //Модифицированная версия криптосистемы.
+	CryptFiles(ProcessingFiles, password, 2);
 
-	//Проверяет настроены ли пути к ск и сертификату.
-	if (S.GetPathSK().isEmpty() == 1)
-	{
-		if (!SelectPathSK(S)) return; //Выбор пути к секретному ключу и его сертификату.
-		SavePaths(3, S);//Сохраняю пути к ключу и сертификату.
-	}
-
-
-	//Загружаю контейнер секретного ключа,если он не был загружен
-	if (Ks.getKeyContainerStatus() == 0)
-		if (!Ks.LoadKey(S.GetPathSK()))
-		{
-			QMessageBox::critical(this, StrCodec->toUnicode("Ошибка"), StrCodec->toUnicode(Ks.getLastError().c_str()));
-			return;
-		}
-
-	//Получаю пароль если не получен.
-	QString Password;//Пароль
-	if (UserPassword.isEmpty())
-	{
-		if (!ShowPasswordDialog(Password)) //Отображаю диалог
-			return; //Пароль не получен
-	}
-
-
-	//Проверка правильности введенного пароля
-	if (Param.PwdIsChecked == 0)
-	{
-		if (!Ks.CheckPassword(Password))
-		{
-			QMessageBox::critical(this, StrCodec->toUnicode("Ошибка"), StrCodec->toUnicode(Ks.getLastError().c_str()));
-			UserPassword = ""; //Очистка пароля
-			if (maxBadAttempPswd()) close();
-			return;
-		}
-	}
-
-	Param.PwdIsChecked = 1; //Пароль для секреного ключа успешно проверен
-	UserPassword = Password;
-
-	CipherWorkerData cgDate; //Данные для механизма дешифрования. 
-	cgDate.setProcessFiles(ProcessingFiles);
-	cgDate.setPassword(Password);
-	cgDate.setKeyContainer(Ks.getContainer());
-	cgDate.setDbPath("");
-	cgDate.setProcessMode(2);//Режим работы-дешифрование файлов.
-	cgDate.setRoseMode(true);//Включаю режим упрощенной работы.
-
-
-	int f_count = ProcessingFiles.count(); //Количество файлов
-	allCurProcessFiles = f_count;
-
-	typeProcessWorking = 2;
-	initchW(); //Инициализация объекта шифрования.	
-	chW->setData(cgDate);
-	chW->start();//Запускаю поток.	
+	FreeChipperDll();		
 }
 
 void GranitCrypt::slotpushButtonSelectKey()
@@ -633,20 +582,32 @@ void GranitCrypt::coloringTextLine(int &line_pos, QTextCharFormat &tf, QTextEdit
 	ui.plainTextEditFiles->setExtraSelections(QList<QTextEdit::ExtraSelection>() << selection);
 }
 
-void GranitCrypt::CryptFiles(QStringList &paths_to_file, QString Password)
+void GranitCrypt::CryptFiles(QStringList &paths_to_file, QString Password, int mode)
 {
-	CipherWorkerData cgDate = GetCipherWorker(paths_to_file, Password);
+	typedef string(*GetDhOpenKey)();
+	typedef PkContainer(*GetKeyContainer)();
+
+	GetDhOpenKey getDhOpenKey = (GetDhOpenKey)GetProcAddress(hChipperDll, "GetDhOpenKey");
+	GetKeyContainer keyContainer = (GetKeyContainer)GetProcAddress(hChipperDll, "GetKeyContainer");
 
 	int f_count = paths_to_file.count(); //Количество файлов
 	allCurProcessFiles = f_count;
+	typeProcessWorking = mode;
 
 	initchW(); //Инициализация объекта шифрования.
-	chW->setData(cgDate);
+	   
+	chW->setRAsimOpenKey(getDhOpenKey());
+	chW->setKeyContainer(keyContainer());
+	chW->setProcessMode(mode);//Режим работы-шифрование файлов.
+	chW->setPassword(Password);
+	chW->setProcessFiles(paths_to_file);
+	chW->setSignerIndex("003");//Не используется.
+	chW->setSignatureDH("abc");
+	chW->setDbPath("");
+	chW->setRoseMode(true);
+		
 	chW->start();//Запускаю поток.
-	typeProcessWorking = 1;
 }
-
-
 
 void GranitCrypt::paintProcessFile(int ix)
 {
@@ -729,6 +690,9 @@ bool GranitCrypt::InitSecretKey(QString &password)
 	PathSettings S; //Настройки путей.
 	LoadSettings(S);
 
+	//Загрузка библиотеки содержащей все функции.
+	if (!LoadChipperDll()) return false;
+
 	//Проверяет настроены ли пути к ск и сертификату.
 	if (S.GetPathSK().isEmpty() == 1)
 	{
@@ -737,29 +701,21 @@ bool GranitCrypt::InitSecretKey(QString &password)
 		SavePaths(3, S);//Сохраняю пути к ключу и сертификату.
 	}
 
-	//Загрузка библиотеки содержащей все функции.
-	if (!LoadChipperDll()) return false;
-		
-	typedef unsigned char(*SetSingleModeChipper)();
 	typedef unsigned char(*LoadSecretKey)(char *lastError, char * pathToKey);
 	typedef unsigned char(*CheckPasswordForSecretKey)(char*, char*);
 	typedef unsigned char(*GetKeyContainerStatus)();
 
-	
-	SetSingleModeChipper chipperMode = (SetSingleModeChipper)GetProcAddress(hChipperDll, "SetSingleModeChipper");
-	unsigned char result = chipperMode(); //Режим работы системы шифрования.
-
 	//Загружаю контейнер секретного ключа,если он не был загружен
 	GetKeyContainerStatus containerStatus = (GetKeyContainerStatus)GetProcAddress(hChipperDll, "GetKeyContainerStatus");
 	LoadSecretKey loadKey = (LoadSecretKey)GetProcAddress(hChipperDll, "LoadSecretKey");
-		
+
 	if (containerStatus() == 0)
 	{
 		char* pathToKey = S.GetPathSK().toLocal8Bit().data();
 		char *error = (char*)malloc(2000);
 
 		if (!loadKey(error, pathToKey))
-		{
+		{			
 			ui.plainTextEditFiles->appendPlainText(StrCodec->toUnicode(error));
 			free(error);
 			return false;
@@ -796,16 +752,27 @@ bool GranitCrypt::InitSecretKey(QString &password)
 	}
 
 	Param.PwdIsChecked = 1; //Пароль для секретного ключа успешно проверен
+	UserPassword = password;
 	return true;
 }
 
 //Загружает dll библиотеку шифрования
 bool GranitCrypt::LoadChipperDll()
 {
-	hChipperDll = LoadLibraryA("LibGranitK.dll");
+	hChipperDll = LoadLibraryA("NativeDll.dll");
 	if (hChipperDll == 0)
 	{
-		ui.plainTextEditFiles->appendPlainText("LibGranitK.dll not found!");
+		ui.plainTextEditFiles->appendPlainText("NativeDll.dll not found!");
+		return false;
+	}
+    
+	//Задаем тип системы и тип ключа.
+	typedef unsigned char(*SetSingleModeChipper)();
+	SetSingleModeChipper chipperMode = (SetSingleModeChipper)GetProcAddress(hChipperDll, "SetSingleModeChipper");
+	unsigned char result = chipperMode(); //Режим работы системы шифрования.
+	if (result == 0)
+	{
+		ui.plainTextEditFiles->appendPlainText("Can't set cipher mode!");
 		return false;
 	}
 
@@ -817,25 +784,4 @@ void GranitCrypt::FreeChipperDll()
 {
 	if (hChipperDll == 0)
 		FreeLibrary(hChipperDll);
-}
-
-//Возвращает данные для шифрования файлов.
-CipherWorkerData GranitCrypt::GetCipherWorker(QStringList &paths_to_file, QString password) {
-
-	int fileCount = paths_to_file.count();
-	string* paths = new string[fileCount];
-
-	//Пути к шифруемым файлам.
-	for (int i = 0; i < fileCount; i++)
-	{
-		paths[i] = paths_to_file[i].toLocal8Bit().data();
-	}
-
-	typedef CipherWorkerData(*GetCipherWorkerData)(string *pathsToFiles, int filesCount, char *password);
-	GetCipherWorkerData getCipherWorkerData = (GetCipherWorkerData)GetProcAddress(hChipperDll, "GetCipherWorkerData");
-		
-	CipherWorkerData data = getCipherWorkerData(paths, fileCount, password.toLocal8Bit().data());
-	delete[] paths;
-
-	return data;
 }
