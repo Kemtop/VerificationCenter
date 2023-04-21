@@ -80,7 +80,7 @@
       <ModuleDefinitionFile>LibGranitK.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y  $(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\LibGranitK.dll $(SolutionDir)DLL_API_Example\DLL_API_Example\bin\x86\$(Configuration)\LibGranitK.dll</Command>
+      <Command>copy /Y  $(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\NativeDll.dll $(SolutionDir)EasyCript\Win32\$(Configuration)\NativeDll.dll</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

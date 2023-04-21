@@ -6,7 +6,6 @@
 #include "KeyService.h"
 #include "SingleSign.h"
 #include "CipherWorker.h"
-#include "CipherGearData.h"
 #include <QObject>
 #include <QFileInfo>
 #include <QDir>
@@ -24,7 +23,6 @@
 #include "AsInterpretator\AsInterpretator.h"
 #include "ASreader\ASreader.h"
 #include "VerifySign.h"
-#include "CipherGearData.h"
 #include <QThread>
 #include "eventsCipherWorker.h"
 #include "GranitDbI\GranitDbI.h"
@@ -32,7 +30,7 @@
 using std::string;
 //#include "libgranitk_global.h"
 
-KeyService keyService;
+KeyService keyService; //Объект для работы с секретным ключом.	
 GranitDbI dBi;
 SingleSign Sg;
 //Открытый ключ получателя. Им кодируется сеансовый ключ.

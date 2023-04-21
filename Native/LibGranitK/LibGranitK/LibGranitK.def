@@ -13,10 +13,13 @@ closeDb
 SetSingleModeChipper
 CheckPasswordForSecretKey
 GetKeyContainerStatus
-GetCipherWorkerData
 LoadAsymmetricKey
 LoadSignedSecretKey
 InitCipher
 ClearCipher
 CryptLocalFile
 GenerateRand256
+GetDhOpenKey
+GetKeyContainer
+CheckUserKey
+DecryptLocalFile

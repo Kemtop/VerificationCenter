@@ -31,7 +31,6 @@
 #include "GranitDbI\GranitDbI.h"
 #include "AboutProgramForm.h"
 #include "CipherWorker.h"
-#include "CipherGearData.h"
 #include "KeyService.h"
 #include "KeyGen.h"
 
@@ -85,7 +84,6 @@ private:
 	bool hasThrObj; //Флаг существования объекта шифрования. Нужно для одно поточной машины
 	// не возможно удалить объект в событии.
 	
-	KeyService Ks; //Объект для работы с секретным ключом.		
 	QTextCodec *StrCodec; //Для преобразования кодировки
 
 	//Делает видимыми компоненты, используемые для визуального отображения процесса шифрования файлов, инициализирует progress bar
@@ -144,7 +142,8 @@ private:
 	//Сохраняю массив в файл по указанному пути.
 	void saveToFile(QByteArray &Ba,QString path);
 	
-	void CryptFiles(QStringList &paths_to_file, QString Password);
+	//Шифрует/Декодирует файлы.
+	void CryptFiles(QStringList &paths_to_file, QString Password, int mode);
 
 	//Выполняет действия  выбора файлов.
 	void doOpenFiles();
@@ -168,9 +167,6 @@ private:
 
 	//Загружает ключевой контейнер.
 	bool InitSecretKey(QString &password);
-
-	//Возвращает данные для шифрования файлов.
-	CipherWorkerData GetCipherWorker(QStringList &paths_to_file, QString password);
 
 	struct Prm1
 	{
