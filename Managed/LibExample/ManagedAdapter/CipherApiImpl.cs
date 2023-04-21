@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,42 +40,25 @@ namespace ManagedAdapter
         }
 
         /// <summary>
-        /// Имя локального каталога хранения шифрованных файлов.
-        /// </summary>
-        private const string LocalStoreEncryptName = "Encrypted_files";
-
-        /// <summary>
-        /// Имя локального каталога хранения шифрованных файлов.
-        /// </summary>
-        private const string LocalStoreDecryptName = "Decrypted_files";
-
-        public string GetLocalStoreEncryptName() => LocalStoreEncryptName;
-        public string GetLocalStoreDecryptName() => LocalStoreEncryptName;
-
-        /// <summary>
         /// Создает каталог куда будут помещены файлы.
         /// </summary>
-        /// <param name="pathToCryptFile"></param>
         /// <param name="dstDirName"></param>
-        /// <param name="localStoreName"></param>
         /// <returns></returns>
-        public (bool, string dstDirName) CreateDistDir(string pathToCryptFile, string localStoreName = LocalStoreEncryptName)
+        private bool CreateDistDir(string dstDirName)
         {
             try
             {
-                string dstDirName = $"{Path.GetDirectoryName(pathToCryptFile)}\\{localStoreName}";
-
                 if (!File.Exists(dstDirName))
                 {
                     Directory.CreateDirectory(dstDirName);
                 }
 
-                return (true, dstDirName);
+                return true;
             }
             catch (Exception e)
             {
                 _lastError = $"Не удалось создать каталог хранения исходящих файлов.{e.Message}";
-                return (false, string.Empty);
+                return false;
             }
         }
 
@@ -85,6 +69,7 @@ namespace ManagedAdapter
         /// <returns></returns>
         private bool InitCipher()
         {
+            _adapter.SetSingleModeKeyType();
             //Создать делегат Func нельзя и список! Все функция разные!
             if (!_adapter.LoadSecretKey(_pathToKey)) return false;
             if (!_adapter.CheckPasswordForContainer(_password)) return false;
@@ -104,37 +89,117 @@ namespace ManagedAdapter
         }
 
         /// <summary>
-        ///  Шифрует файл.
+        /// Шифрует файл.
         /// </summary>
-        /// <param name="srcPath"></param>
-        /// <returns></returns>
-        public bool CryptlFile(string srcPath)
-        {
-            return CryptlFile(srcPath,  LocalStoreEncryptName);
-        }
-        
-        /// <summary>
-        ///  Шифрует файл.
-        /// </summary>
-        /// <param name="srcPath"></param>
+        /// <param name="srcPathToFile"></param>
         /// <param name="dstDir"></param>
         /// <returns></returns>
-        public bool CryptlFile(string srcPath, string dstDir = LocalStoreEncryptName)
+        public bool CryptlFile(string srcPathToFile, string dstDir)
         {
             ClearLastError();
-
-            _adapter.SetSingleModeKeyType();
+            
             if (!InitCipher()) return false;
 
-            //Создает предустановленную директорию куда будет помещен зашифрованный файл.
-            (bool result, string pathToCryptDir) = CreateDistDir(srcPath);
-            if (!result) return false;
+            //Создает директорию куда будет помещен зашифрованный файл.
+            if (!CreateDistDir(dstDir)) return false;
 
-            if (!_adapter.CryptlFile(srcPath, pathToCryptDir)) return false;
+            if (!_adapter.CryptlFile(srcPathToFile, dstDir)) return false;
 
             _adapter.ClearCipherWorker();
 
             return true;
+        }
+
+        /// <summary>
+        /// Декодирую файл.
+        /// </summary>
+        /// <param name="srcPathToFile"></param>
+        /// <param name="dstDir"></param>
+        /// <returns></returns>
+        public bool DecCryptlFile(string srcPathToFile, string dstDir)
+        {
+            ClearLastError();
+            
+            if (!InitCipher()) return false;
+
+            //Создает директорию куда будет помещен зашифрованный файл.
+            if (!CreateDistDir(dstDir)) return false;
+
+            if (!_adapter.DecryptlFile(srcPathToFile, dstDir, _password)) return false;
+
+            _adapter.ClearCipherWorker();
+
+            return true;
+        }
+
+        private bool Crypt(string srcPathToFile, string dstDir, Action<string> endIteration)
+        {
+            if (!_adapter.CryptlFile(srcPathToFile, dstDir)) return false;
+            endIteration(srcPathToFile);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Универсальный метод для обработки файлов.
+        /// </summary>
+        private bool ProcessFiles(string srcDir, string dstDir, Func<string, string, bool> processFunc,
+            Action<string> endIteration)
+        {
+            var listFiles = Directory.GetFiles(srcDir);
+
+            ClearLastError();
+            if (!InitCipher()) return false;
+
+            var result = Parallel.For(0, listFiles.Length, (int i, ParallelLoopState pls) =>
+            {
+                if (!processFunc(listFiles[i], dstDir))
+                {
+                    _lastError = $"Файл {listFiles[i]} {_adapter.LastError}";
+                    pls.Break();
+                }
+                endIteration(listFiles[i]);
+            });
+
+            _adapter.ClearCipherWorker();
+
+            if (!result.IsCompleted) return false;
+
+            return true;
+        }
+        
+        /// <summary>
+        /// Шифрует все файлы из каталога. После кодирования каждого файла вызывает endIteration.
+        /// </summary>
+        /// <param name="srcDir"></param>
+        /// <param name="dstDir"></param>
+        /// <param name="endIteration"></param>
+        /// <returns></returns>
+        public bool CryptlFiles(string srcDir, string dstDir, Action<string> endIteration)
+        {
+            return ProcessFiles(srcDir, dstDir, (src, dst) =>
+            {
+                if(!_adapter.CryptlFile(src,dst)) return false;
+                return true;
+            },
+            endIteration);
+        }
+
+        /// <summary>
+        /// Дешифрирует файлы.
+        /// </summary>
+        /// <param name="srcDir"></param>
+        /// <param name="dstDir"></param>
+        /// <param name="endIteration"></param>
+        /// <returns></returns>
+        public bool DecryptFiles(string srcDir, string dstDir, Action<string> endIteration)
+        {
+            return ProcessFiles(srcDir, dstDir, (src, dst) =>
+                {
+                    if (!_adapter.DecryptlFile(src, dst, _password)) return false;
+                    return true;
+                },
+                endIteration);
         }
     }
 }

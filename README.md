@@ -34,7 +34,7 @@ Qt C++,C# приложение, разработанное с использов
 <strong>Проект Lib.Tests</strong> –тесты реализации интерфейса согласования. Тесты для Api пока не реализованы, ввиду постоянных переделок c++ кода.
 </p>
 <p align="left">
-<strong>Проект LibExample</strong>-консольное приложение с демонстрационными примерами.
+<strong>Проект LibExample</strong>-<a href="./Doc/LibExample/LibExample.md">консольное приложение с демонстрационными примерами. </a>
 </p>
 <p align="left">
 Для запуска программы распакуйте Qt библиотеки Binaries\QtLibs.zip в \bin\Debug\net6.0\
