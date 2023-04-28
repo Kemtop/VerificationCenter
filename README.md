@@ -29,7 +29,7 @@ Qt C++,C#(.Net 6) проект.<br>
 </p>
 <p align="left">
 Ведется перенос С++ кода на .Net и Rust. 
-Разрабатывается облачное хранилище.
+Разрабатывается <a href="./Doc/CloudStorage/CloudStorage.md">облачное хранилище.</a>
 </p>
 <p align="left">
 <a href="./Doc/DirInfo.md">
