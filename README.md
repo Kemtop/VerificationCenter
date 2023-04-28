@@ -32,7 +32,7 @@ Qt C++,C#(.Net 6) проект.<br>
 Разрабатывается облачное хранилище.
 </p>
 <p align="left">
-<a href="./Doc/LibExample/LibExample.md">
+<a href="./Doc/DirInfo.md">
 Содержание директорий репозитория.
 </a>
 <hr>
