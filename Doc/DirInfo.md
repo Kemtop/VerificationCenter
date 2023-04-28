@@ -14,7 +14,7 @@
 <strong>Проект Lib.Tests</strong> –тесты реализации интерфейса согласования. Тесты для Api пока не реализованы, ввиду постоянных переделок c++ кода.
 </p>
 <p align="left">
-<strong>Проект LibExample</strong>-<a href="./Doc/LibExample/LibExample.md">консольное приложение с демонстрационными примерами. </a>
+<strong>Проект LibExample</strong>-<a href="./LibExample/LibExample.md">консольное приложение с демонстрационными примерами. </a>
 </p>
 <p align="left">
 <strong>Native</strong>-каталог содержит С++ библиотеку криптографии и Qt приложение. Ведется дальнейшая чистка решения.
