@@ -8,7 +8,7 @@
         /// <summary>
         /// Набор тестовых ключей шифрования. Размер ключа-32байта.
         /// </summary>
-        public static readonly byte[,] Key = 
+        public static readonly byte[,] Key =
         {
             {
                 0xe0, 0x9b, 0x75, 0x37, 0x3d, 0xe9, 0xb7, 0xfa,
@@ -101,6 +101,59 @@
                 0xbe74bf3f34750916,
                 0xf71003d96e56e510
             }
+        };
+
+        /// <summary>
+        /// Пример из ГОСТ Р 34.12—2015  Приложение А. В настоящем контрольном примере ключ имеет значение: 32 байта.
+        /// </summary>
+        internal static readonly byte[] GostKey =
+        {
+            0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+            0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+        };
+
+        /// <summary>
+        /// Тестовый пример ГОСТ Р 34.12—2015  Приложение А Пусть открытый текст, подлежащий зашифрованию, равен: 16 байт.
+        /// </summary>
+        internal static readonly byte[] GostTextToCipher =
+        {
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x00, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88,
+        };
+
+        /// <summary>
+        /// Тестовый пример ГОСТ Р 34.12—2015  Приложение А  Результатом зашифрования является шифртекст 16 байт.
+        /// </summary>
+        internal static readonly ulong[] GostCipherResult =
+        {
+            0x3024bcbe909d677f,
+            0xcdedd4b9428d465a
+        };
+
+        /// <summary>
+        /// ГОСТ Р 34.12—2015  Приложение А значение итерационных ключей.
+        /// </summary>
+        internal static readonly ulong[] GostRoundKeys =
+        {
+            0xffeeddccbbaa9988,
+            0x7766554433221100,
+            0x1032547698badcfe,
+            0xefcdab8967452301,
+            0x43436915534831db,
+            0x448cc78cef6a8d22,
+            0x68eccfe9d853453d,
+            0x04fd9f0ac4adeb15,
+            0x285e4ac468646457,
+            0xacf129f44692e5d3,
+            0x32645c16359407bd,
+            0x1b58da3428e832b5,
+            0xde45877e7540e651,
+            0xb198005a26275770,
+            0x3edd9f7b0125795a,
+            0x84f98622a2912ad7,
+            0x2331c77853e244bb,
+            0x17e5b6cd732ff3a5,
+            0x5bf4bc1674dde972,
+            0x43404a8ea8ba5d75
         };
     }
 }
