@@ -1,7 +1,7 @@
 <hr>
 </p>
 <p align="left">
-Каталог <strong>Managed</strong> содержит решение LibExample(.Net 6) и CryptoRoom(Net 6). 
+Каталог <strong>Managed</strong> содержит решение LibExample(.Net 6) и CryptoRoom(.Net 6). 
 </p>
 <p align="left">
 <strong>Решение CryptoRoom</strong> содержит:

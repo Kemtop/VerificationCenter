@@ -1,4 +1,5 @@
 ﻿using CryptoRoomLib.Cipher3412.FastConst;
+using System;
 
 namespace CryptoRoomLib.Cipher3412
 {
@@ -98,6 +99,31 @@ namespace CryptoRoomLib.Cipher3412
                     FTransformation(constantIndex++, 2 * (nextKeyIndex), 
                         2 * (nextKeyIndex + 1), roundKeys);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Шифрует блок.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="roundKeys"></param>
+        internal static unsafe void EncryptBlock(ref U128t data, ulong[] roundKeys)
+        {
+            int round = 0;
+            U128t cache = new U128t();
+            
+            fixed (ulong* roundPtr = roundKeys)
+            {
+                for (; round < 10 - 1; ++round)
+                {
+                    cache.Low = data.Low ^ *(roundPtr + 2 * round);
+                    cache.Hi = data.Hi ^ *(roundPtr + 2 * round + 1);
+
+                    LsTransformation(cache, ref data);
+                }
+
+                data.Low ^= *(roundPtr + 2 * round);
+                data.Hi ^= *(roundPtr + 2 * round + 1);
             }
         }
     }
