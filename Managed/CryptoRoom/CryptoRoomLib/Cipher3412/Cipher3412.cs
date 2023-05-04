@@ -77,7 +77,46 @@ namespace CryptoRoomLib.Cipher3412
                 *(buffPtr + leftIndex + 1) ^= *(buffPtr + rigthIndex + 1);
             }
         }
-        
+
+        /// <summary>
+        /// Выполняет быстрое нелинейное(S) преобразование 16 байтного блока.
+        /// </summary>
+        /// <param name="data"></param>
+        internal static void Stransform(ref U128t data)
+        {
+            for (int byteIndex = 0; byteIndex < 16; ++byteIndex)
+            {
+                data.SetByte(byteIndex, CipherConst3412.Pi[data.GetByte(byteIndex)]);
+            }
+        }
+
+        /// <summary>
+        /// Выполняет обратное быстрое нелинейное(S) преобразование 16 байтного блока.
+        /// </summary>
+        /// <param name="data"></param>
+        internal static void InversedStransform(ref U128t data)
+        {
+            for (int byteIndex = 0; byteIndex < 16; ++byteIndex)
+            {
+                data.SetByte(byteIndex, CipherConst3412.InversedPi[data.GetByte(byteIndex)]);
+            }
+        }
+
+        /// <summary>
+        /// Инверсное линейное(L), не линейное(S) преобразование. 
+        /// </summary>
+        internal static void InversedLStransformation(ref U128t input, ref U128t output)
+        {
+            output.Low = 0;
+            output.Hi = 0;
+
+            for (int index = 0; index < 16; ++index)
+            {
+                output.Low ^= PrecomputedInversedLSTableLeft.Matrix[index, input.GetByte(index)];
+                output.Hi ^= PrecomputedInversedLSTableRight.Matrix[index, input.GetByte(index)];
+            }
+        }
+
         /// <summary>
         /// Формирую раундовые ключи шифрования(160 байт, 20(64-bit) чисел).
         /// </summary>
@@ -98,6 +137,34 @@ namespace CryptoRoomLib.Cipher3412
                     //Выполняет итерацию сети Фейстеля.
                     FTransformation(constantIndex++, 2 * (nextKeyIndex), 
                         2 * (nextKeyIndex + 1), roundKeys);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Формирую раундовые ключи декодирования(160 байт, 20(64-bit) чисел).
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="roundKeys"></param>
+        internal static unsafe void DeploymentDecryptionRoundKeys(byte[] key, ulong[] roundKeys)
+        {
+            DeploymentEncryptionRoundKeys(key, roundKeys);
+            U128t cache;
+            U128t temp = new U128t();
+
+            fixed (ulong* roundKeysPtr = roundKeys)
+            {
+                for (int roundKeyIndex = 1; roundKeyIndex <= 8; ++roundKeyIndex)
+                {
+                    cache.Low = *(roundKeysPtr + 2 * roundKeyIndex);
+                    cache.Hi = *(roundKeysPtr + 2 * roundKeyIndex + 1);
+
+                    Stransform(ref cache);
+                    
+                    InversedLStransformation(ref cache, ref temp);
+
+                    *(roundKeysPtr + 2 * roundKeyIndex) = temp.Low;
+                    *(roundKeysPtr + 2 * roundKeyIndex + 1) = temp.Hi;
                 }
             }
         }
@@ -124,6 +191,38 @@ namespace CryptoRoomLib.Cipher3412
 
                 data.Low ^= *(roundPtr + 2 * round);
                 data.Hi ^= *(roundPtr + 2 * round + 1);
+            }
+        }
+
+        internal static unsafe void DecryptBlock(ref U128t data, ulong[] roundKeys)
+        {
+            U128t cache = new U128t();
+            int round = 10 - 1;
+
+            fixed (ulong* roundPtr = roundKeys)
+            {
+                data.Low ^= *(roundPtr + 2 * round);
+                data.Hi ^= *(roundPtr + 2 * round + 1);
+                --round;
+
+                Stransform(ref data);
+                InversedLStransformation(ref data, ref cache);
+                InversedLStransformation(ref cache, ref data);
+
+                cache.Low = data.Low ^ *(roundPtr + 2 * round);
+                cache.Hi = data.Hi ^ *(roundPtr + 2 * round + 1);
+                --round;
+
+                for (; round > 0; --round)
+                {
+                    InversedLStransformation(ref cache, ref data);
+                    cache.Low = data.Low ^ *(roundPtr + 2 * round);
+                    cache.Hi = data.Hi ^ *(roundPtr + 2 * round + 1);
+                }
+
+                InversedStransform(ref cache);
+                data.Low = cache.Low ^ *(roundPtr + 2 * round);
+                data.Hi = cache.Hi ^ *(roundPtr + 2 * round + 1);
             }
         }
     }
