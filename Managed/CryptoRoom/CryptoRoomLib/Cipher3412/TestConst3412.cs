@@ -8,7 +8,7 @@
         /// <summary>
         /// Набор тестовых ключей шифрования. Размер ключа-32байта.
         /// </summary>
-        public static readonly byte[,] Key =
+        internal static readonly byte[,] Key =
         {
             {
                 0xe0, 0x9b, 0x75, 0x37, 0x3d, 0xe9, 0xb7, 0xfa,
@@ -33,7 +33,7 @@
         /// <summary>
         /// Результат развертывания раундового ключа для Key.
         /// </summary>
-        public static readonly ulong[,] KeyDeploymentResult =
+        internal static readonly ulong[,] KeyDeploymentResult =
         {
             {
                 0xfab7e93d37759be0,
@@ -154,6 +154,86 @@
             0x17e5b6cd732ff3a5,
             0x5bf4bc1674dde972,
             0x43404a8ea8ba5d75
+        };
+
+        /// <summary>
+        /// Таблица для тестирования операций установки байт в 64 битном числе.
+        /// </summary>
+        internal static readonly ulong[] ShiftTestTable =
+        {
+            0x11111111111111e8,
+            0x111111111111e811,
+            0x1111111111e81111,
+            0x11111111e8111111,
+            0x111111e811111111,
+            0x1111e81111111111,
+            0x11e8111111111111,
+            0xe811111111111111
+        };
+
+        /// <summary>
+        /// Сдвигаемое число, тестирования операций установки байт в 64 битном числе.
+        /// </summary>
+        internal static readonly byte ShiftTestLowDigit = 0xe8;
+
+        /// <summary>
+        /// Постоянное число, тестирования операций установки байт в 64 битном числе.
+        /// </summary>
+        internal static readonly ulong ShiftTestDigit = 0x1111111111111111;
+
+        /// <summary>
+        /// Константы тестирования алгоритма декодирования - ключ.  
+        /// </summary>
+        internal static readonly byte[,] DecryptTestKey =
+        {
+            {
+                0xee, 0xa0, 0x09, 0xcc, 0x52, 0x38, 0x01, 0x35,
+                0x37, 0x59, 0x74, 0xb3, 0x0f, 0x6a, 0x81, 0xc4,
+                0xe2, 0x8b, 0x9f, 0x57, 0x8e, 0xba, 0x0a, 0xcc,
+                0x43, 0x78, 0x64, 0x57, 0x00, 0xc3, 0x12, 0xe3
+            },
+
+            //Пример из ГОСТ Р 34.12—2015  Приложение А. В настоящем контрольном примере ключ имеет значение:
+            {
+                0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+                0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10, 
+                0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+            }
+        };
+
+        /// <summary>
+        /// Константы тестирования алгоритма декодирования – закодированный текст.
+        /// </summary>
+        internal static readonly ulong[,] DecryptTestInText =
+        {
+            {
+                0xda3ecc31a05c9124,
+                0x04139dc14ab5b347
+            },
+
+            //Пример из ГОСТ Р 34.12—2015  Приложение А. Шифртекст, подлежащий расшифрованию
+            {
+                0x3024bcbe909d677f,
+                0xcdedd4b9428d465a
+            }
+        };
+
+        /// <summary>
+        /// Константы тестирования алгоритма декодирования – расшифрованный текст.
+        /// </summary>
+        internal static readonly ulong[,] DecryptTestOutText =
+        {
+            {
+                0x14353cca5619e7bd,
+                0xe6b24748662b9dc1
+            },
+
+            //Пример из ГОСТ Р 34.12—2015  Приложение А Результатом расшифрования является открытый текст
+            {
+                0x0077665544332211,
+                0x8899aabbccddeeff
+            }
         };
     }
 }
