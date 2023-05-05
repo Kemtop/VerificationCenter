@@ -6,6 +6,16 @@
     internal interface ICipherAlgoritm
     {
         /// <summary>
+        /// Размер ключа криптоалгоритма(байт).
+        /// </summary>
+        int KeySize { get; }
+
+        /// <summary>
+        /// Размер блока кодируемых данных(байт).
+        /// </summary>
+        int BlockSize { get; }
+
+        /// <summary>
         /// Развертывание раундовых ключей.
         /// </summary>
         void DeployDecryptRoundKeys(byte[] key);
