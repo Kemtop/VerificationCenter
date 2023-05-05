@@ -13,6 +13,22 @@
         }
 
         /// <summary>
+        /// Размер ключа криптоалгоритма(байт).
+        /// </summary>
+        public int KeySize
+        {
+            get => 32;
+        }
+
+        /// <summary>
+        /// Размер блока кодируемых данных(байт).
+        /// </summary>
+        public int BlockSize
+        {
+            get => 16;
+        }
+
+        /// <summary>
         /// Развертывание раундовых ключей.
         /// </summary>
         public void DeployDecryptRoundKeys(byte[] key)

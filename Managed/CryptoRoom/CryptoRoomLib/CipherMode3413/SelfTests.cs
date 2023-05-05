@@ -21,7 +21,8 @@ namespace CryptoRoomLib.CipherMode3413
             List<Func<bool>> tests = new List<Func<bool>>
             {
                 XorBlocksTest,
-                DeсryptIterationCBC
+                DeсryptIterationCBC,
+                DecryptData
             };
 
             foreach (var test in tests)
@@ -77,16 +78,8 @@ namespace CryptoRoomLib.CipherMode3413
             Block128t cBlock;
             cBlock.Low = 0xda3ecc31a05c9124;
             cBlock.Hi = 0x04139dc14ab5b347;
-
-            byte[] key = new byte[32]
-            {
-                0xee, 0xa0, 0x09, 0xcc, 0x52, 0x38, 0x01, 0x35,
-                0x37, 0x59, 0x74, 0xb3, 0x0f, 0x6a, 0x81, 0xc4,
-                0xe2, 0x8b, 0x9f, 0x57, 0x8e, 0xba, 0x0a, 0xcc,
-                0x43, 0x78, 0x64, 0x57, 0x00, 0xc3, 0x12, 0xe3
-            };
-
-            algoritm.DeployDecryptRoundKeys(key);
+            
+            algoritm.DeployDecryptRoundKeys(TestConst3413.Key);
             
             Block128t msb;
             msb.Low = 0x14353cca5642174c;
@@ -109,5 +102,29 @@ namespace CryptoRoomLib.CipherMode3413
 
             return true;
         }
+
+        /// <summary>
+        /// Тест расшифровки данных.
+        /// </summary>
+        /// <returns></returns>
+        bool DecryptData()
+        {
+            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
+            ModeCBC cbc = new ModeCBC(algoritm);
+            
+            ulong[] iv =
+            {
+                0x14353cca5642174c,
+                0xe6b24748662b9dc1,
+                0xe297262e0534dfa4,
+                0x54396d4ef127d6ce
+            };
+
+            algoritm.DeployDecryptRoundKeys(TestConst3413.Key);
+            cbc.DecryptData(iv, "Test.crypt", "Test.jpg", 142);
+
+            return true;
+        }
+
     }
 }
