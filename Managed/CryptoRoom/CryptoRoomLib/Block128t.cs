@@ -72,5 +72,15 @@ namespace CryptoRoomLib
                 default: return 0;
             }
         }
+
+        /// <summary>
+        /// Сравнивает число с собой.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Compare(Block128t value)
+        {
+            return value.Low == Low && value.Hi == Hi;
+        }
     }
 }
