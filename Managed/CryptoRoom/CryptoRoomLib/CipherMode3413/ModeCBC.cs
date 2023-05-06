@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CryptoRoomLib.AsymmetricCipher;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
 
@@ -101,7 +102,14 @@ namespace CryptoRoomLib.CipherMode3413
             using (FileStream outFile = new FileStream(outfile, FileMode.Create, FileAccess.Write))
             using (FileStream inFile = new FileStream(cryptfile, FileMode.Open, FileAccess.Read))
             {
-                var iv = FileFormat.ReadIV(inFile); //Считывает значение вектора iv.
+                ulong usefulDataSize = FileFormat.ReadDataSize(inFile); //Считывает из файла размер блока шифрованных данных.
+
+                var asymmetricData = new AsDataReader();
+                asymmetricData.Read(inFile, usefulDataSize);
+                asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
+                
+
+                var iv = FileFormat.ReadIV(inFile, usefulDataSize); //Считывает значение вектора iv.
 
                 //Читаем с места где содержатся данные.
                 inFile.Position = FileFormat.BeginDataBlock + FileFormat.DataSizeInfo;
