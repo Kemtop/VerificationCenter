@@ -1,0 +1,130 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CryptoRoomLib.AsymmetricCipher
+{
+    /// <summary>
+    /// Читает данные ассиметричной системы шифрования из файла.
+    /// </summary>
+    internal class AsDataReader
+    {
+        /// <summary>
+        /// Номер байта в заголовке который передает тип блока.
+        /// Заголовок содержит 5 байт - [тип][длина]
+        /// </summary>
+        private readonly int AsymmetricPosInHeadType = 0;
+
+        /// <summary>
+        /// Сообщение об ошибке.
+        /// </summary>
+        public string Error { get; private set; }
+
+        /// <summary>
+        /// Считанные блоки данных
+        /// </summary>
+        public List<AsBlockData> Blocks;
+
+        public AsDataReader()
+        {
+            Blocks = new List<AsBlockData>();
+        }
+
+        public void Read(FileStream inFile, ulong dataLen)
+        {
+            //Вычисляю позицию в которой заканчиваются шифрованные данные
+            dataLen += (ulong)(FileFormat.BeginDataBlock + FileFormat.DataSizeInfo); //Позиция конца блока данных
+
+            //Устанавливаю текущую позицию на начало блока данных.
+            inFile.Position = (long)dataLen;
+
+            byte[] title = new byte[FileFormat.AsymmetricHeadSize]; //Заголовок 5 байт [тип][длина] 
+
+            int blockLen = 0; //Длина блока данных ассиметричной системы.
+            
+            //Файл может содержать произвольное количество блоков данных.
+            while (inFile.Position < inFile.Length)
+            {
+                inFile.Read(title, 0, FileFormat.AsymmetricHeadSize);
+
+                //Читаю блок данных.
+                blockLen = DecodeAssymetricalDataLen(title);
+                AsBlockData block = new AsBlockData();
+                block.Type = (AsBlockDataTypes)title[AsymmetricPosInHeadType];
+                block.Data = new byte[blockLen];
+                inFile.Read(block.Data, 0, blockLen);
+                Blocks.Add(block);
+            }
+        }
+
+        /// <summary>
+        /// Получаю длину блока ассиметричных данных.
+        /// </summary>
+        /// <param name="asTitle"></param>
+        /// <returns></returns>
+        private static int DecodeAssymetricalDataLen(byte[] asTitle)
+        {
+            //Заголовок 5 байт [тип][длина] 
+            return BitConverter.ToInt32(asTitle, 1);
+        }
+
+        /// <summary>
+        /// Проверяет наличие всех необходимых блоков в файле.
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckAll()
+        {
+            List<Func<bool>> checks = new List<Func<bool>>()
+            {
+                HasSign,
+                HasSignKeyIndex
+            };
+
+            foreach (var check in checks)
+            {
+                if (!check()) return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Проверяет наличие цифровой подписи в файле.
+        /// </summary>
+        /// <returns></returns>
+        private bool HasSign()
+        {
+            var cntR = Blocks.Where(x => x.Type == AsBlockDataTypes.VectorR).Count();
+            var cntS = Blocks.Where(x => x.Type == AsBlockDataTypes.VectorS).Count();
+
+            if (cntR != 1 || cntS != 1)
+            {
+                Error = "Ошибка Пр0:В файле отсутствуют блоки подписи.";
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Проверка наличия информации об открытом ключе подписанта.
+        /// </summary>
+        /// <returns></returns>
+        private bool HasSignKeyIndex()
+        {
+            var cnt = Blocks.Where(x => x.Type == AsBlockDataTypes.SignKeyIndex).Count();
+
+            //На данный момент файл можно подписать только одной подписью.
+            if (cnt != 1)
+            {
+                Error = "Ошибка Пр1:В файле отсутствуют сведения об открытом ключе проверки подписи.";
+                return false;
+            }
+
+            return true;
+        }
+
+    }
+}
