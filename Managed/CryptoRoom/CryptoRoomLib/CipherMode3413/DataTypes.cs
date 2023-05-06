@@ -33,7 +33,16 @@ namespace CryptoRoomLib.CipherMode3413
            MSB.Low = arr[2];
            MSB.Hi = arr[3];
         }
-        
+
+        public void FromArray(byte[] buffer)
+        {
+            LSB.Low = BitConverter.ToUInt64(buffer, 0);
+            LSB.Hi = BitConverter.ToUInt64(buffer, 8);
+
+            MSB.Low = BitConverter.ToUInt64(buffer, 16);
+            MSB.Hi = BitConverter.ToUInt64(buffer, 24);
+        }
+
         /// <summary>
         /// Возвращает младший блок(16байт).
         /// </summary>

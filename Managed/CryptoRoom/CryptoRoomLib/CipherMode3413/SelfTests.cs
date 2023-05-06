@@ -22,6 +22,7 @@ namespace CryptoRoomLib.CipherMode3413
             {
                 XorBlocksTest,
                 DeсryptIterationCBC,
+                GostDecryptCbc,
                 DecryptData
             };
 
@@ -104,6 +105,62 @@ namespace CryptoRoomLib.CipherMode3413
         }
 
         /// <summary>
+        /// Тест режима работы блочного шифра на основание таблицы из ГОСТ.
+        /// А.2.4 Режим простой замены с зацеплением
+        /// </summary>
+        /// <returns></returns>
+        bool GostDecryptCbc()
+        {
+            Register256t register = new Register256t();// Регистр размером m = kn =  2*16
+            Block128t lsb = new Block128t();//значением n разрядов регистра сдвига с большими номерами
+
+            Block128t сBlock = new Block128t(); //Входящий шифротекст.
+            Block128t pBlock = new Block128t(); //Исходящий декодированный текст.
+            Block128t tmpBlock = new Block128t(); //Хранит временные данные
+
+            //Данные из примера.
+            var gostKey = TestConst3413.ExampleA2_4_key;
+            var gostIv = TestConst3413.ExampleA2_4_iv;
+            var cryptedText = TestConst3413.ExampleA2_4_cryptedText;
+            var text = TestConst3413.ExampleA2_4_text;
+            
+            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
+            ModeCBC cbc = new ModeCBC(algoritm);
+
+            algoritm.DeployDecryptRoundKeys(gostKey);
+
+            //Заполнение регистра данными IV
+            register.FromArray(gostIv);
+
+            int testWordSize = cryptedText.GetLength(1);
+            byte[] buffer = new byte[testWordSize]; 
+
+            for (int i = 0; i < cryptedText.GetLength(0); i++)
+            {
+                Buffer.BlockCopy(cryptedText, i * testWordSize,
+                    buffer, 0, testWordSize);
+
+                сBlock.FromArray(buffer);
+                cbc.IterationCBC(ref register, ref tmpBlock, ref lsb, ref сBlock, ref pBlock); //Расшифровываю
+
+                Block128t etalon = new Block128t(); //Эталон из примеров.
+
+                Buffer.BlockCopy(text, i * testWordSize,
+                    buffer, 0, testWordSize);
+                
+                etalon.FromArray(buffer);
+
+                if (!etalon.Compare(pBlock))
+                {
+                    Error = $"Error test CipherMode3413 GostDecryptCbc. Pos={i}";
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        /// <summary>
         /// Тест расшифровки данных.
         /// </summary>
         /// <returns></returns>
@@ -111,20 +168,19 @@ namespace CryptoRoomLib.CipherMode3413
         {
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
             ModeCBC cbc = new ModeCBC(algoritm);
-            
-            ulong[] iv =
-            {
-                0x14353cca5642174c,
-                0xe6b24748662b9dc1,
-                0xe297262e0534dfa4,
-                0x54396d4ef127d6ce
-            };
+
+            ulong blockCount = 0;
+            ulong blockNum = 0;
+            ulong decryptDataSize = 0;
 
             algoritm.DeployDecryptRoundKeys(TestConst3413.Key);
-            cbc.DecryptData(iv, "Test.crypt", "Test.jpg", 142);
+            cbc.DecryptData("Test.crypt", "Test.jpg",
+                (size) => { decryptDataSize = size;}, 
+                (max) => { blockCount = max; },
+                (number) => { blockNum = number; }
+            );
 
             return true;
         }
-
     }
 }
