@@ -126,5 +126,23 @@ namespace CryptoRoomLib.AsymmetricCipher
             return true;
         }
 
+        /// <summary>
+        /// Возвращает шифрованный сеансовый ключ. Если ошибка-возвращает null.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetCryptedSessionKey()
+        {
+            var keyData = Blocks.Where(x => x.Type == AsBlockDataTypes.CryptSessionKey);
+
+            if (!keyData.Any()) return null;
+
+            if (keyData.Count() > 1)
+            {
+                Error = $"Ошибка AC3: В файле несколько {keyData.Count()} блоков данных о сеансовом ключе.";
+                return null;
+            }
+
+            return keyData.First().Data;
+        }
     }
 }

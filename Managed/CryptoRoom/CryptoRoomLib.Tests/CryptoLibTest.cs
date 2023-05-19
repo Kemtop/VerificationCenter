@@ -28,5 +28,14 @@ namespace CryptoRoomLib.Tests
 
             Assert.IsTrue(res, self.Error);
         }
+
+        [Test]
+        public void AsymmetricCipherTest()
+        {
+            var self = new CryptoRoomLib.AsymmetricCipher.SelfTests();
+            var res = self.RunTests();
+
+            Assert.IsTrue(res, self.Error);
+        }
     }
 }

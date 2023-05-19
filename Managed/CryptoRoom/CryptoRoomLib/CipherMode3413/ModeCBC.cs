@@ -82,7 +82,8 @@ namespace CryptoRoomLib.CipherMode3413
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
-        public void DecryptData(string cryptfile, string outfile, Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount, Action<ulong> endIteration)
+        public void DecryptData(string cryptfile, string outfile, Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount,
+            Action<ulong> endIteration, Func<ulong, FileStream, byte[]> asReader)
         {
             Register256t register = new Register256t();// Регистр размером m = kn =  2*16
             Block128t lsb = new Block128t();//значением n разрядов регистра сдвига с большими номерами
@@ -104,10 +105,10 @@ namespace CryptoRoomLib.CipherMode3413
             {
                 ulong usefulDataSize = FileFormat.ReadDataSize(inFile); //Считывает из файла размер блока шифрованных данных.
 
-                var asymmetricData = new AsDataReader();
-                asymmetricData.Read(inFile, usefulDataSize);
-                asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
+                byte[] sessionKey = asReader(usefulDataSize, inFile); //Чтение данных ассиметричной системы. Получение сессионного ключа.
+                if (sessionKey == null) return;
                 
+                _algoritm.DeployDecryptRoundKeys(sessionKey);
 
                 var iv = FileFormat.ReadIV(inFile, usefulDataSize); //Считывает значение вектора iv.
 
