@@ -1,4 +1,5 @@
-﻿using CryptoRoomLib.Cipher3412;
+﻿using CryptoRoomLib.AsymmetricCipher;
+using CryptoRoomLib.Cipher3412;
 
 namespace CryptoRoomLib.CipherMode3413
 {
@@ -172,12 +173,36 @@ namespace CryptoRoomLib.CipherMode3413
             ulong blockCount = 0;
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
-
-            algoritm.DeployDecryptRoundKeys(TestConst3413.Key);
+            
             cbc.DecryptData("Test.crypt", "Test.jpg",
                 (size) => { decryptDataSize = size;}, 
                 (max) => { blockCount = max; },
-                (number) => { blockNum = number; }
+                (number) => { blockNum = number; },
+                //Чтение данных ассиметричной системы.
+                (usefulDataSize, inFile) =>
+                {
+                    var asymmetricData = new AsDataReader();
+                    asymmetricData.Read(inFile, usefulDataSize);
+                    asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
+
+                    var sessionKey = asymmetricData.GetCryptedSessionKey();
+
+                    if (sessionKey == null) return null; //В реальном коде вывести сообщение об ошибке.
+                    
+                    KeyDecoder kd = new KeyDecoder();
+                    byte[] decryptKey;
+
+                    var decryptResult = kd.DecryptSessionKey(AsymmetricCipher.TestConst.RsaPrivateKey, TestConst.CryptData, out decryptKey);
+
+                    //В реальном коде вывести сообщение об ошибке.
+                    if (!decryptResult)
+                    {
+                        Error = kd.Error;
+                        return null;
+                    }
+                    
+                    return decryptKey;
+                }
             );
 
             return true;

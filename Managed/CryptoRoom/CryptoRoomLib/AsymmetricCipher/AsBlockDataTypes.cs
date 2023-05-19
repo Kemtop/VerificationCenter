@@ -6,6 +6,11 @@
     internal enum AsBlockDataTypes
     {
         /// <summary>
+        /// Блок содержащий шифрованный сеансовый ключ.
+        /// </summary>
+        CryptSessionKey = 115,
+
+        /// <summary>
         /// Вектор r подписи ГОСТ 34.10-2012.
         /// </summary>
         VectorR = 116,
