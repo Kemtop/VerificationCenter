@@ -32,4 +32,14 @@
 <br>
 <strong>Native</strong>-каталог содержит С++ библиотеку криптографии и Qt приложение. Ведется дальнейшая чистка решения.
 </p>
+<br>
+<p align="left">
+<strong>Binaries\Asn1Editor</strong>-программа для просмотра файлов в формате ASN1.
+</p>
+<p align="left">
+<strong>Binaries\Binaries.zip</strong>-однокомпонентная(не требует наличия удостоверяющего центра) программа шифрования данных "Роза", написанная на Qt. Рабочая portable версия.
+</p>
+<p align="left">
+<strong>Binaries\QtLibs.zip</strong>-Dll(C++) и Qt файлы необходимые для работы библиотеки.
+</p>
 <hr>
