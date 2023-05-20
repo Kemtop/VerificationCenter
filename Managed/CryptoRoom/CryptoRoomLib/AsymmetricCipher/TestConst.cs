@@ -9,7 +9,7 @@ namespace CryptoRoomLib.AsymmetricCipher
     internal static class TestConst
     {
         /// <summary>
-        /// Тестовые ключи алгоритма RSA. Открытый ключ. PKCS #7
+        /// Тестовые ключи алгоритма RSA. Открытый ключ в формате X.509/SPKI.
         /// </summary>
         public static readonly byte[] RsaPublicKey = new byte[]
         {
@@ -85,7 +85,7 @@ namespace CryptoRoomLib.AsymmetricCipher
         };
 
         /// <summary>
-        /// Тестовые ключи алгоритма RSA. Закрытый ключ. PKCS #8
+        /// Тестовые ключи алгоритма RSA. Закрытый ключ. PKCS #8 4096 бит.
         /// </summary>
         public static readonly byte[] RsaPrivateKey = new byte[]
         {

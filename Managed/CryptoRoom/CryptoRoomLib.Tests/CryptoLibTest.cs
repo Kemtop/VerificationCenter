@@ -1,5 +1,6 @@
 using CryptoRoomLib.Cipher3412;
 using CryptoRoomLib.CipherMode3413;
+using CryptoRoomLib.KeyGenerator;
 
 namespace CryptoRoomLib.Tests
 {
@@ -33,6 +34,26 @@ namespace CryptoRoomLib.Tests
         public void AsymmetricCipherTest()
         {
             var self = new CryptoRoomLib.AsymmetricCipher.SelfTests();
+            var res = self.RunTests();
+
+            Assert.IsTrue(res, self.Error);
+        }
+
+        [Test]
+        public void SecretKeyMakerTest()
+        {
+            SecretKeyMaker maker = new SecretKeyMaker();
+            var res = maker.CreateKeyFileNoReq();
+            Assert.IsTrue(res);
+        }
+
+        /// <summary>
+        /// Тест хеш функции ГОСТ 34.11-2012.
+        /// </summary>
+        [Test]
+        public void Hash3411Test()
+        {
+            var self = new Hash3411.SelfTests();
             var res = self.RunTests();
 
             Assert.IsTrue(res, self.Error);
