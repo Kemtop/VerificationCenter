@@ -58,5 +58,17 @@ namespace CryptoRoomLib.Tests
 
             Assert.IsTrue(res, self.Error);
         }
+
+        /// <summary>
+        /// Тест алгоритмов генерации секретного ключа.
+        /// </summary>
+        [Test]
+        public void KeyGeneratorTest()
+        {
+            var self = new KeyGenerator.SelfTests();
+            var res = self.RunTests();
+
+            Assert.IsTrue(res, self.Error);
+        }
     }
 }

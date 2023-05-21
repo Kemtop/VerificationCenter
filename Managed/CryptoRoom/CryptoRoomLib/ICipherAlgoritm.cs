@@ -25,5 +25,11 @@
         /// </summary>
         /// <param name="block"></param>
         void DecryptBlock(ref Block128t block);
+
+        // <summary>
+        /// Шифрует блок.
+        /// </summary>
+        /// <param name="block"></param>
+        void EncryptBlock(ref Block128t block);
     }
 }
