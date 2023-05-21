@@ -1,6 +1,7 @@
 ﻿using CryptoRoomLib.AsymmetricCipher;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,11 +36,29 @@ namespace CryptoRoomLib.KeyGenerator
 
             container.DateBegin = DateTime.Now;
             container.DateEnd = DateTime.Now.AddYears(1);
-
+            
             CreateRSAKeyPair(container, 4096);
             
             return true;
         }
+
+        /// <summary>
+        /// Генерация ключевой пары для накладывания и проверки подписи.
+        /// </summary>
+        /// <param name="container"></param>
+        private void СreateSignKey(SecretKeyContainer container)
+        {
+
+        }
+
+        /// <summary>
+        /// Шифрует секретный ключ проверки подписи  ГОСТ 34.11-2012 на хэши.
+        /// </summary>
+        public void CryptEcSecretKey(byte[] cipherKey, byte[] iv, byte[] ecKey)
+        {
+            
+        }
+
 
         /// <summary>
         /// Создает ключевые паря для алгоритма RSA.

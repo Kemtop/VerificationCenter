@@ -49,5 +49,19 @@
             block.Low = data.Low;
             block.Hi = data.Hi;
         }
+
+        /// <summary>
+        /// Шифруем блок.
+        /// </summary>
+        /// <param name="block"></param>
+        public void EncryptBlock(ref Block128t block)
+        {
+            U128t data = new U128t(block.Low, block.Hi);
+
+            Logic3412.EncryptBlock(ref data, _roundKeys);
+
+            block.Low = data.Low;
+            block.Hi = data.Hi;
+        }
     }
 }
