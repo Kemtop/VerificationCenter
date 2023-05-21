@@ -27,9 +27,53 @@ namespace CryptoRoomLib.KeyGenerator
         private const int SignKeySaltLength = 17;
 
         /// <summary>
+        /// Алгоритм открытого ключа подписи.
+        /// </summary>
+        private const string PublicKeySignAlgoritmOid = "1.2.643.7.1.1.1.2";
+
+        /// <summary>
+        /// Идентификатор эллиптической кривой на основании которой создается ключ.
+        /// </summary>
+        private const string EcOid = "1.2.643.7.1.2.1.2.2";
+
+        /// <summary>
+        /// Константа защиты ключевого контейнера.
+        /// </summary>
+        private const string KeyChipperConstant = "17dfbfc9acfa787e242d75c7f0764bfd83e79eef08d4581a881527d92dbad1d4";
+
+        /// <summary>
+        /// Размер заголовка ключа. 16(iv) + 4(длина шифрованного блока)
+        /// </summary>
+        private const int KeyTitleSize = 20;
+
+        //Размер Заголовока файла-служебная информация [7-байт служебной информации][Заголовок 47байт][Хэш контента 256бит]
+        //[Длина контейнера ключа 4байта][[iv 16байт][4байта длина контейнера]Контейнер]
+        private const int KeyHeadLen = 90;
+
+        /// <summary>
+        /// Первые 7 байт содержащих что то вроде версии ключа.
+        /// </summary>
+        private byte[] KeyHeadText = new byte[7]{0xf9,0xc5, 0xa8, 0xd3, 0x47, 0xb6, 0x3a};
+
+        /// <summary>
+        /// Название программы для которой используется ключ.
+        /// </summary>
+        private const string ProgramText = "Little Rose radials security protection system ";
+
+        /// <summary>
+        /// Сообщение об ошибке.
+        /// </summary>
+        public string LastError { get; set; }
+
+        /// <summary>
+        /// Последнее возникшее исключение.
+        /// </summary>
+        private string _lastException = string.Empty;
+
+        /// <summary>
         /// Формирует секретный ключ, без генерации запроса на получение сертификата.
         /// </summary>
-        public bool CreateKeyFileNoReq(string password)
+        public bool CreateKeyFileNoReq(string password, string pathToSave)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             byte[] passwordArray = Encoding.GetEncoding(1251).GetBytes(password);
@@ -55,18 +99,13 @@ namespace CryptoRoomLib.KeyGenerator
             СreateSignKey(container, passwordArray);
             CreateRSAKeyPair(container, 4096);
             
-            XmlDocument xmlDocument = new XmlDocument();
-            XmlSerializer serializer = new XmlSerializer(container.GetType());
-            var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            container.KeyGenTimeStamp = DateTime.Now; //Время и дата когда ключ был сгенерирован.
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, container, emptyNamespaces);
-                stream.Position = 0;
-                xmlDocument.Load(stream);
-                xmlDocument.Save("key.grk");
-                stream.Close();
-            }
+            //Дополнительные параметры для использования в будущем.
+            container.ReservedParameter0 = "0";
+            container.ReservedParameter1 = "1";
+
+            KeyСontainerToFile(container, pathToSave);
             
             return true;
         }
@@ -133,6 +172,8 @@ namespace CryptoRoomLib.KeyGenerator
             container.OpenSignKeyPointX = "3316a15ccbb75a466e733d45b394abb8677664c9313ab44d26f690af43b46a36744a3689ecc4aaba6004d400dd85127b243f6339de27feb8628e352fe892a3e8";
             container.OpenSignKeyPointY = "4717de15337ae417d19d856c2daae1070c0c0aac03334ee11ce5305f0fa092172ee4c24c00d959b11f8577f8382c0c1722e6915b8823770b2d51b0d25b023a7c";
 
+            container.PublicKeyAlgoritmOid = PublicKeySignAlgoritmOid;
+            container.EcOid = EcOid;
         }
 
         /// <summary>
@@ -176,6 +217,112 @@ namespace CryptoRoomLib.KeyGenerator
 
             var hasher = new Hash3411.Hash3411();
             hasher.Hash256(data, result);
+        }
+
+        /// <summary>
+        /// Сохраняет контейнер ключа в файл
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="PathToSave"></param>
+        /// <returns></returns>
+        private bool KeyСontainerToFile(SecretKeyContainer container, string pathToSave)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            XmlSerializer serializer = new XmlSerializer(container.GetType());
+            var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+
+            var strXml = string.Empty;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, container, emptyNamespaces);
+                stream.Position = 0;
+                xmlDocument.Load(stream);
+                StringWriter sw = new StringWriter();
+                XmlTextWriter xw = new XmlTextWriter(sw);
+                xmlDocument.WriteTo(xw);
+
+                strXml = sw.ToString();
+
+                xmlDocument.Save("key.grk");
+                stream.Close();
+            }
+            
+            if(!PackContainer(strXml, out byte[] package))
+            {
+                LastError = "Ошибка W0: Ошибка упаковки.";
+                return false;
+            }
+
+            //Вычисляет хэш256 контейнера.
+            var hasher = new Hash3411.Hash3411();
+            byte[] hashContainer = new byte[Hash3411.Hash3411.Hash256Size];
+
+            hasher.Hash256(package, hashContainer);
+
+            //Дополнение файла служебной информацией
+            byte[] fileHead = new byte[KeyHeadLen];//Заголовок файла-служебная информация
+            SetServiceInformation(fileHead, hashContainer, package.Length);
+
+            return true;
+        }
+        
+        private void SetServiceInformation(byte[] head, byte[] hash, int conteinerLen)
+        {
+            //Формирую заголовок файла [7-байт служебной информации]
+             Buffer.BlockCopy(KeyHeadText, 0, head, 0,KeyHeadText.Length);
+
+            //Название программы ProgramText [Заголовок 47байт]
+            byte[] programText = Encoding.ASCII.GetBytes(ProgramText);
+            Buffer.BlockCopy(programText, 0, head, KeyHeadText.Length, programText.Length);
+
+            //Хэш 32 байта
+            Buffer.BlockCopy(hash, 0, head, KeyHeadText.Length + programText.Length, hash.Length);
+
+            //Размер блока данных 4байта
+            byte[] len = BitConverter.GetBytes(conteinerLen);
+            Buffer.BlockCopy(len, 0, head, KeyHeadText.Length + programText.Length + hash.Length, len.Length);
+        }
+        
+        /// <summary>
+        /// Запаковывает(шифрует) контейнер секретного ключа.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        private bool PackContainer(string container, out byte[] package)
+        {
+            try
+            {
+                //Генерация вектора инициализации для шифрования
+                byte[] iv = CipherTools.GenerateRand(16);
+
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+                byte[] containerArray = Encoding.GetEncoding(1251).GetBytes(container);
+
+                var cipherKey = Convert.FromHexString(KeyChipperConstant);
+
+                //Выполняю шифрование в режиме обратной связи по шифротексту
+                CryptEcSecretKey(cipherKey, iv, containerArray);
+
+                //Размер заголовка. 16(iv) + 4(длина не шифрованного блока)
+                package = new byte[KeyTitleSize + containerArray.Length];
+
+                Buffer.BlockCopy(iv, 0, package, 0, iv.Length);
+
+                byte[] len = BitConverter.GetBytes(containerArray.Length);
+                Buffer.BlockCopy(len, 0, package, iv.Length, KeyTitleSize - iv.Length);
+
+                Buffer.BlockCopy(containerArray, 0, package, KeyTitleSize, containerArray.Length);
+            }
+            catch (Exception e)
+            {
+                package = new byte[0];
+                _lastException = e.Message;
+                return false;
+            }
+
+            return true;
         }
     }
 }

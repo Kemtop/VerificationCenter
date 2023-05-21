@@ -43,7 +43,7 @@ namespace CryptoRoomLib.Tests
         public void SecretKeyMakerTest()
         {
             SecretKeyMaker maker = new SecretKeyMaker();
-            var res = maker.CreateKeyFileNoReq("ТестовыйПароль99EngLater");
+            var res = maker.CreateKeyFileNoReq("ТестовыйПароль99EngLater", "key.grk");
             //var res = maker.CreateKeyFileNoReq("12345678");
             
             Assert.IsTrue(res);
