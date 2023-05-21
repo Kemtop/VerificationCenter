@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace CryptoRoomLib.KeyGenerator
 {
@@ -10,67 +11,108 @@ namespace CryptoRoomLib.KeyGenerator
     /// Контейнер секретного ключа.
     /// Большинство полей требуются для поддержки стандарта.
     /// </summary>
-    internal class SecretKeyContainer
+    [XmlRoot("PkContainer")]
+    public class SecretKeyContainer
     {
         /// <summary>
         /// Версия  ключа
         /// </summary>
+        [XmlElement(ElementName = "P0")]
         public string KeyVersion { get; set; }
 
         /// <summary>
         /// Версия программы генератора ключа
         /// </summary>
+        [XmlElement(ElementName = "P1")]
         public string KeyGenVersion { get; set; }
 
         /// <summary>
         /// Наименование организации.
         /// </summary>
+        [XmlElement(ElementName = "P2")]
         public string OrgName { get; set; }
 
         /// <summary>
         /// Код организации.
         /// </summary>
+        [XmlElement(ElementName = "P3")]
         public string OrgCode { get; set; }
 
         /// <summary>
         /// Подразделение.
         /// </summary>
+        [XmlElement(ElementName = "P4")]
         public string Department { get; set; }
 
         /// <summary>
         /// Телефон.
         /// </summary>
+        [XmlElement(ElementName = "P5")]
         public string PhoneNumber { get; set; }
 
         /// <summary>
         /// Фамилия лица создавшего ключ.
         /// </summary>
+        [XmlElement(ElementName = "P6")]
         public string Familia { get; set; }
 
         /// <summary>
         /// Имя лица создавшего ключ.
         /// </summary>
+        [XmlElement(ElementName = "P7")]
         public string Imia { get; set; }
 
         /// <summary>
         /// Отчество лица создавшего ключ.
         /// </summary>
+        [XmlElement(ElementName = "P8")]
         public string Otchestvo { get; set; }
 
         /// <summary>
         /// Дата и время создания ключа.
         /// </summary>
+        [XmlElement(ElementName = "P9")]
         public DateTime DateBegin { get; set; }
 
         /// <summary>
         /// Дата и время окончания действия ключа.
         /// </summary>
+
+        [XmlElement(ElementName = "P10")]
         public DateTime DateEnd { get; set; }
 
         /// <summary>
         /// Шифрованный секретный ключ подписи файлов.
         /// </summary>
+
+        [XmlElement(ElementName = "P11")]
         public string CryptSignKey { get; set; }
+
+        /// <summary>
+        /// Соль для декодирования закрытого ключа подписи.
+        /// </summary>
+        [XmlElement(ElementName = "P12")]
+        public string SaltCryptSignKey { get; set; }
+
+        /// <summary>
+        /// Начальный вектор для декодирования закрытого ключа подписи.
+        /// </summary>
+        [XmlElement(ElementName = "P14")]
+        public string IvCryptSignKey { get; set; }
+
+        /// <summary>
+        /// Открытый ключ подписи, координата X.
+        /// </summary>
+
+        [XmlElement(ElementName = "P16")]
+        public string OpenSignKeyPointX { get; set; }
+
+        /// <summary>
+        /// Открытый ключ подписи, координата Y.
+        /// </summary>
+
+        [XmlElement(ElementName = "P17")]
+        public string OpenSignKeyPointY { get; set; }
 
         /// <summary>
         ///  Соль для декодирование ключа подписи.

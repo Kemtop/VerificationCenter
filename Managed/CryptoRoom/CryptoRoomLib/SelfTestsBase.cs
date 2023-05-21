@@ -10,7 +10,7 @@
         /// <summary>
         /// Сообщение об ошибке.
         /// </summary>
-        public string Error { get; private set; }
+        public string Error { get; set; }
 
         public SelfTestsBase()
         {
