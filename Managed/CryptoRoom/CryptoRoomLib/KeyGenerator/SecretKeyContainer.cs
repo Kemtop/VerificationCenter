@@ -95,10 +95,22 @@ namespace CryptoRoomLib.KeyGenerator
         public string SaltCryptSignKey { get; set; }
 
         /// <summary>
+        /// Дополнительный параметры для использования в будущем.
+        /// </summary>
+        [XmlElement(ElementName = "P13")]
+        public string ReservedParameter0 { get; set; }
+
+        /// <summary>
         /// Начальный вектор для декодирования закрытого ключа подписи.
         /// </summary>
         [XmlElement(ElementName = "P14")]
         public string IvCryptSignKey { get; set; }
+        
+        /// <summary>
+        /// Время и дата когда ключ был сгенерирован.
+        /// </summary>
+        [XmlElement(ElementName = "P15")]
+        public DateTime KeyGenTimeStamp { get; set; }
 
         /// <summary>
         /// Открытый ключ подписи, координата X.
@@ -123,5 +135,23 @@ namespace CryptoRoomLib.KeyGenerator
         /// Вектор инициализации IV
         /// </summary>
         public string IV { get; set; }
+
+        /// <summary>
+        /// Идентификатор алгоритма открытого ключа подписи.
+        /// </summary>
+        [XmlElement(ElementName = "P22")]
+        public string PublicKeyAlgoritmOid { get; set; }
+        
+        /// <summary>
+        /// Дополнительный параметры для использования в будущем.
+        /// </summary>
+        [XmlElement(ElementName = "P23")]
+        public string ReservedParameter1 { get; set; }
+
+        /// <summary>
+        /// Идентификатор эллиптической кривой на основании которой был создан ключ подписи.
+        /// </summary>
+        [XmlElement(ElementName = "P24")]
+        public string EcOid { get; set; }
     }
 }
