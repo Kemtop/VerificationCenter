@@ -69,6 +69,25 @@
                 сBlock.ToArray(tmp);
                 Buffer.BlockCopy(tmp, 0, src, i * _algoritm.BlockSize, _algoritm.BlockSize);
             }
+
+            int tail = src.Length % _algoritm.BlockSize;
+
+            if (tail != 0)
+            {
+                //Блок текста из предыдущей итерации.
+                сBlock.FromArray(tmp);
+
+                //Копируем блок текста подлежащий кодированию.
+                Array.Clear(tmp);
+                Buffer.BlockCopy(src, _algoritm.BlockSize * blockCount, tmp, 0, tail);
+                tmpBlock.FromArray(tmp);
+
+                IterationCFB(ref сBlock, ref tmpBlock);
+
+                //Копирую результат.
+                сBlock.ToArray(tmp);
+                Buffer.BlockCopy(tmp, 0, src, _algoritm.BlockSize * blockCount, tail);
+            }
         }
     }
 }

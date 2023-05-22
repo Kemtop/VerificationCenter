@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using System.Xml;
 using System.Xml.Serialization;
 using CryptoRoomLib.Models;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections;
 
 namespace CryptoRoomLib.KeyGenerator
 {
@@ -42,23 +44,28 @@ namespace CryptoRoomLib.KeyGenerator
         private const string KeyChipperConstant = "17dfbfc9acfa787e242d75c7f0764bfd83e79eef08d4581a881527d92dbad1d4";
 
         /// <summary>
-        /// Размер заголовка ключа. 16(iv) + 4(длина шифрованного блока)
+        /// Размер заголовка контейнера. 16(iv) + 4(длина шифрованного блока)
         /// </summary>
-        private const int KeyTitleSize = 20;
+        private const int СontainerTitleSize = 20;
 
         //Размер Заголовока файла-служебная информация [7-байт служебной информации][Заголовок 47байт][Хэш контента 256бит]
         //[Длина контейнера ключа 4байта][[iv 16байт][4байта длина контейнера]Контейнер]
-        private const int KeyHeadLen = 90;
+        public static int KeyHeadLen = 90;
 
         /// <summary>
         /// Первые 7 байт содержащих что то вроде версии ключа.
         /// </summary>
-        private byte[] KeyHeadText = new byte[7]{0xf9,0xc5, 0xa8, 0xd3, 0x47, 0xb6, 0x3a};
+        public static byte[] KeyHeadText = new byte[7]{0xf9,0xc5, 0xa8, 0xd3, 0x47, 0xb6, 0x3a};
 
         /// <summary>
         /// Название программы для которой используется ключ.
         /// </summary>
-        private const string ProgramText = "Little Rose radials security protection system ";
+        public static string ProgramText = "Little Rose radials security protection system ";
+
+        /// <summary>
+        /// Количество байт содержащих длину контейнера секретного ключа.
+        /// </summary>
+        public static int KeyContainerLen = 4;
 
         /// <summary>
         /// Сообщение об ошибке.
@@ -69,6 +76,17 @@ namespace CryptoRoomLib.KeyGenerator
         /// Последнее возникшее исключение.
         /// </summary>
         private string _lastException = string.Empty;
+
+        /// <summary>
+        /// Размер блока симметричного шифра используемого для кодирования.
+        /// </summary>
+        private int _blockCipherSize;
+        
+        public SecretKeyMaker()
+        {
+            var alg = new ModifyAlgoritm3412();
+            _blockCipherSize = alg.BlockSize;
+        }
 
         /// <summary>
         /// Формирует секретный ключ, без генерации запроса на получение сертификата.
@@ -97,13 +115,13 @@ namespace CryptoRoomLib.KeyGenerator
             container.DateEnd = DateTime.Now.AddYears(1);
 
             СreateSignKey(container, passwordArray);
-            CreateRSAKeyPair(container, 4096);
+            CreateRsaKey(container, 4096, passwordArray);
             
             container.KeyGenTimeStamp = DateTime.Now; //Время и дата когда ключ был сгенерирован.
 
             //Дополнительные параметры для использования в будущем.
             container.ReservedParameter0 = "0";
-            container.ReservedParameter1 = "1";
+            container.ReservedParameter1 = "8bDkhN935SYik36i";
 
             KeyСontainerToFile(container, pathToSave);
             
@@ -163,7 +181,7 @@ namespace CryptoRoomLib.KeyGenerator
             };
 
 
-            CryptEcSecretKey(hashPassword, iv, sc);
+            CryptSecretKey(hashPassword, iv, sc);
 
             container.CryptSignKey = Convert.ToHexString(sc).ToLower();
             container.IvCryptSignKey = Convert.ToHexString(iv).ToLower();
@@ -175,33 +193,7 @@ namespace CryptoRoomLib.KeyGenerator
             container.PublicKeyAlgoritmOid = PublicKeySignAlgoritmOid;
             container.EcOid = EcOid;
         }
-
-        /// <summary>
-        /// Шифрует секретный ключ проверки подписи  ГОСТ 34.11-2012 на хэши.
-        /// </summary>
-        public void CryptEcSecretKey(byte[] cipherKey, byte[] iv, byte[] ecKey)
-        {
-            ICipherAlgoritm algoritm = new ModifyAlgoritm3412();
-            algoritm.DeployDecryptRoundKeys(cipherKey);
-            ModeCFB cfb = new ModeCFB(algoritm);
-
-            cfb.CfbEncrypt(ecKey, iv);
-        }
         
-        /// <summary>
-        /// Создает ключевые паря для алгоритма RSA.
-        /// </summary>
-        private void CreateRSAKeyPair(SecretKeyContainer container, int keySize)
-        {
-            using (RSA rsa = RSA.Create())
-            {
-                rsa.KeySize = keySize;
-
-                var privateKey = rsa.ExportPkcs8PrivateKey();
-                var publicKey = rsa.ExportSubjectPublicKeyInfo();
-            }
-        }
-
         /// <summary>
         /// Хэширует пароль с солью.
         /// </summary>
@@ -228,6 +220,7 @@ namespace CryptoRoomLib.KeyGenerator
         private bool KeyСontainerToFile(SecretKeyContainer container, string pathToSave)
         {
             XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.PreserveWhitespace = true;
             XmlSerializer serializer = new XmlSerializer(container.GetType());
             var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
 
@@ -243,17 +236,17 @@ namespace CryptoRoomLib.KeyGenerator
                 xmlDocument.WriteTo(xw);
 
                 strXml = sw.ToString();
-
-                xmlDocument.Save("key.grk");
                 stream.Close();
             }
-            
-            if(!PackContainer(strXml, out byte[] package))
+
+            strXml = strXml.Replace("\r", string.Empty);
+
+            if (!PackContainer(strXml, out byte[] package))
             {
                 LastError = "Ошибка W0: Ошибка упаковки.";
                 return false;
             }
-
+            
             //Вычисляет хэш256 контейнера.
             var hasher = new Hash3411.Hash3411();
             byte[] hashContainer = new byte[Hash3411.Hash3411.Hash256Size];
@@ -264,9 +257,32 @@ namespace CryptoRoomLib.KeyGenerator
             byte[] fileHead = new byte[KeyHeadLen];//Заголовок файла-служебная информация
             SetServiceInformation(fileHead, hashContainer, package.Length);
 
+            string result = System.Text.Encoding.ASCII.GetString(fileHead);
+
+            try
+            {
+                using (FileStream outFile = new FileStream(pathToSave, FileMode.Create, FileAccess.Write))
+                {
+                    outFile.Write(fileHead, 0, fileHead.Length);
+                    outFile.Write(package, 0, package.Length);
+                    outFile.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                _lastException = e.Message;
+                return false;
+            }
+            
             return true;
         }
-        
+
+        /// <summary>
+        /// Формирует заголовок файла содержащий служебную информацию.
+        /// </summary>
+        /// <param name="head"></param>
+        /// <param name="hash"></param>
+        /// <param name="conteinerLen"></param>
         private void SetServiceInformation(byte[] head, byte[] hash, int conteinerLen)
         {
             //Формирую заголовок файла [7-байт служебной информации]
@@ -294,7 +310,7 @@ namespace CryptoRoomLib.KeyGenerator
             try
             {
                 //Генерация вектора инициализации для шифрования
-                byte[] iv = CipherTools.GenerateRand(16);
+                byte[] iv = CipherTools.GenerateRand(_blockCipherSize);
 
                 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
@@ -303,22 +319,80 @@ namespace CryptoRoomLib.KeyGenerator
                 var cipherKey = Convert.FromHexString(KeyChipperConstant);
 
                 //Выполняю шифрование в режиме обратной связи по шифротексту
-                CryptEcSecretKey(cipherKey, iv, containerArray);
+                CryptSecretKey(cipherKey, iv, containerArray);
 
                 //Размер заголовка. 16(iv) + 4(длина не шифрованного блока)
-                package = new byte[KeyTitleSize + containerArray.Length];
+                package = new byte[СontainerTitleSize + containerArray.Length];
 
                 Buffer.BlockCopy(iv, 0, package, 0, iv.Length);
 
                 byte[] len = BitConverter.GetBytes(containerArray.Length);
-                Buffer.BlockCopy(len, 0, package, iv.Length, KeyTitleSize - iv.Length);
+                Buffer.BlockCopy(len, 0, package, iv.Length, СontainerTitleSize - iv.Length);
 
-                Buffer.BlockCopy(containerArray, 0, package, KeyTitleSize, containerArray.Length);
+                Buffer.BlockCopy(containerArray, 0, package, СontainerTitleSize, containerArray.Length);
             }
             catch (Exception e)
             {
                 package = new byte[0];
                 _lastException = e.Message;
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Создает ключевые пары для алгоритма RSA.
+        /// </summary>
+        private void CreateRsaKey(SecretKeyContainer container, int keySize, byte[] password)
+        {
+            byte[] privateKey;
+            byte[] publicKey;
+            using (RSA rsa = RSA.Create())
+            {
+                rsa.KeySize = keySize;
+
+                privateKey = rsa.ExportPkcs8PrivateKey();
+                publicKey = rsa.ExportSubjectPublicKeyInfo();
+            }
+
+            //Генерирую 17байтную соль. Соль случайное число.
+            var salt = CipherTools.GenerateRand(_blockCipherSize + 1);
+
+            //Вычисляю хэш соленого пароля
+            byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
+
+            HashedPassword(salt, password, hashPassword);
+
+            //Генерирую вектор инициализации
+            var iv = CipherTools.GenerateRand(_blockCipherSize);
+
+            //Шифрую закрытый ключ алгоритма RSA. В качестве ключа шифра используется хэш.
+            CryptSecretKey(hashPassword, iv, privateKey);
+
+            container.CryptRsaPrivateKey = Convert.ToHexString(privateKey).ToLower();
+            container.RsaIv = Convert.ToHexString(iv).ToLower();
+            container.RsaSalt = Convert.ToHexString(salt).ToLower();
+            container.RsaPublicKey = Convert.ToHexString(publicKey).ToLower();
+        }
+
+        /// <summary>
+        /// Шифрую секретный ключ.
+        /// </summary>
+        /// <returns></returns>
+        public bool CryptSecretKey(byte[] cipherKey, byte[] iv, byte[] privateKey)
+        {
+            try
+            {
+                ICipherAlgoritm algoritm = new ModifyAlgoritm3412();
+                algoritm.DeployDecryptRoundKeys(cipherKey);
+                ModeCFB cfb = new ModeCFB(algoritm);
+
+                cfb.CfbEncrypt(privateKey, iv);
+            }
+            catch (Exception e)
+            {
+                _lastException = $"В методе CryptSecretKey возникло исключение: {e.Message}";
                 return false;
             }
 

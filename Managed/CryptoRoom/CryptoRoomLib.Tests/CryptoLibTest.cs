@@ -50,6 +50,18 @@ namespace CryptoRoomLib.Tests
         }
 
         /// <summary>
+        /// Загружает секретный ключ и проверяет его.
+        /// </summary>
+        [Test]
+        public void KeyServiceLoadKeyTest()
+        {
+            KeyService service = new KeyService();
+            var res = service.LoadKey("key.grk");
+            
+            Assert.IsTrue(res, service.LastError);
+        }
+        
+        /// <summary>
         /// Тест хеш функции ГОСТ 34.11-2012.
         /// </summary>
         [Test]
