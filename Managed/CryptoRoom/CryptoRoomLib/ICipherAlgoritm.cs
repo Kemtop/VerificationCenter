@@ -3,7 +3,7 @@
     /// <summary>
     /// Алгоритм шифрования.
     /// </summary>
-    internal interface ICipherAlgoritm
+    public interface ICipherAlgoritm
     {
         /// <summary>
         /// Размер ключа криптоалгоритма(байт).
