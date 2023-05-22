@@ -127,15 +127,29 @@ namespace CryptoRoomLib.KeyGenerator
         public string OpenSignKeyPointY { get; set; }
 
         /// <summary>
-        ///  Соль для декодирование ключа подписи.
+        /// Шифрованное значение закрытого ключа RSA.
         /// </summary>
-        public string CryptSignSalt { get; set; }
+        [XmlElement(ElementName = "P18")] 
+        public string CryptRsaPrivateKey { get; set; }
 
         /// <summary>
-        /// Вектор инициализации IV
+        /// Значение вектора iv для закрытого ключа RSA. Для расшифровки.
         /// </summary>
-        public string IV { get; set; }
+        [XmlElement(ElementName = "P19")]
+        public string RsaIv { get; set; }
 
+        /// <summary>
+        /// Открытый ключ RSA.
+        /// </summary>
+        [XmlElement(ElementName = "P20")]
+        public string RsaPublicKey { get; set; }
+
+        /// <summary>
+        /// Соль для закрытого ключа RSA. Для расшифровки.
+        /// </summary>
+        [XmlElement(ElementName = "P21")]
+        public string RsaSalt { get; set; }
+        
         /// <summary>
         /// Идентификатор алгоритма открытого ключа подписи.
         /// </summary>

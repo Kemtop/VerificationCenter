@@ -134,7 +134,7 @@ namespace CryptoRoomLib.KeyGenerator
             };
 
             SecretKeyMaker sm = new SecretKeyMaker();
-            sm.CryptEcSecretKey(cipherKey, iv, sc);
+            sm.CryptSecretKey(cipherKey, iv, sc);
             
             if (!cryptSc.SequenceEqual(sc))
             {
