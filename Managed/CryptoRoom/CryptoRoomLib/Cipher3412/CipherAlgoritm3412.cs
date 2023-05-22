@@ -3,7 +3,7 @@
     /// <summary>
     /// Реализация алгоритма ГОСТ 34.12-2015. 
     /// </summary>
-    internal class CipherAlgoritm3412 : ICipherAlgoritm
+    public class CipherAlgoritm3412 : ICipherAlgoritm
     {
         private ulong[] _roundKeys;
 

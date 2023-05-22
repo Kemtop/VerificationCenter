@@ -9,7 +9,7 @@ namespace CryptoRoomLib
     /// <summary>
     /// 128 битный тип данных.
     /// </summary>
-    internal struct Block128t
+    public struct Block128t
     {
         /// <summary>
         /// Младший 64 битный блок.

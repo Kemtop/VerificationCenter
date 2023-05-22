@@ -19,7 +19,7 @@ namespace CryptoRoomLib.CipherMode3413
     /// согласно ГОСТ 34.13-2015
     /// (Cipher Block Chaining, СВС)
     /// </summary>
-    internal class ModeCBC
+    public class ModeCBC : IBlockCipherMode
     {
         private readonly ICipherAlgoritm _algoritm;
         public ModeCBC(ICipherAlgoritm algoritm)
@@ -82,7 +82,7 @@ namespace CryptoRoomLib.CipherMode3413
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
-        public void DecryptData(string cryptfile, string outfile, Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount,
+        public bool DecryptData(string cryptfile, string outfile, Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount,
             Action<ulong> endIteration, Func<ulong, FileStream, byte[]> asReader)
         {
             Register256t register = new Register256t();// Регистр размером m = kn =  2*16
@@ -106,7 +106,7 @@ namespace CryptoRoomLib.CipherMode3413
                 ulong usefulDataSize = FileFormat.ReadDataSize(inFile); //Считывает из файла размер блока шифрованных данных.
 
                 byte[] sessionKey = asReader(usefulDataSize, inFile); //Чтение данных ассиметричной системы. Получение сессионного ключа.
-                if (sessionKey == null) return;
+                if (sessionKey == null) return false;
                 
                 _algoritm.DeployDecryptRoundKeys(sessionKey);
 
@@ -162,6 +162,8 @@ namespace CryptoRoomLib.CipherMode3413
                 inFile.Close();
                 outFile.Close();
             }
+
+            return true;
         }
     }
 }

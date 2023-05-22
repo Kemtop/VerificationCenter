@@ -25,7 +25,7 @@ namespace CryptoRoomLib.CipherMode3413
                 XorBlocksTest,
                 DeсryptIterationCBC,
                 GostDecryptCbc,
-                DecryptData,
+                //DecryptData,
                 TestCfbEncrypt
             };
 
@@ -164,7 +164,7 @@ namespace CryptoRoomLib.CipherMode3413
         }
 
         /// <summary>
-        /// Тест расшифровки данных.
+        /// Тест расшифровки данных. Пример использующий константы и внешний файл. Не задействован в тестах.
         /// </summary>
         /// <returns></returns>
         bool DecryptData()

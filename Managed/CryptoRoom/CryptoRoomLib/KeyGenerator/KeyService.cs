@@ -1,4 +1,9 @@
-﻿using System;
+﻿using CryptoRoomLib.AsymmetricCipher;
+using CryptoRoomLib.Cipher3412;
+using CryptoRoomLib.CipherMode3413;
+using Org.BouncyCastle.Crypto.IO;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Diagnostics.Metrics;
@@ -6,18 +11,53 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace CryptoRoomLib.KeyGenerator
 {
     /// <summary>
     /// Содержит все необходимые методы для чтения секретного ключа(файл который храниться у пользователя) системы.
     /// </summary>
-    public class KeyService
+    public class KeyService : IKeyService
     {
+        /// <summary>
+        /// Последнее исключение.
+        /// </summary>
+        private string _lastException;
+
         /// <summary>
         /// Последнее сообщение об ошибке.
         /// </summary>
-        public string LastError { get; set; }
+        private string _lastError;
+
+        /// <summary>
+        /// Последнее сообщение об ошибке.
+        /// </summary>
+        public string LastError
+        {
+            get
+            {
+                if (_lastException == null) return _lastError;
+
+                return _lastError + $" Исключение: {_lastException}";
+            }
+
+            set
+            {
+                _lastError = value;
+            }
+        }
+
+        /// <summary>
+        /// Контейнер секретного ключа.
+        /// </summary>
+        public SecretKeyContainer KeyContainer;
+
+        /// <summary>
+        /// Закрытый ключ ассиметричной системы.
+        /// </summary>
+        private byte[] _rsaPrivateKey;
 
         /// <summary>
         /// Считывает контейнер ключа из файла. Расшифровывает его, помещает в объект ключа KeyContainer.
@@ -29,12 +69,22 @@ namespace CryptoRoomLib.KeyGenerator
             //Проверка существования файла
             if (!File.Exists(pathToSecretKey))
             {
-                LastError = $"ОШИБКА Л0:Не удалось найти файл ключа по указанному пути: {pathToSecretKey}. Убедитесь что флеш накопитель вставлен в компьютер.";
+                LastError = $"ОШИБКА Л0: Не удалось найти файл ключа по указанному пути: {pathToSecretKey}. Убедитесь что флеш накопитель вставлен в компьютер.";
                 return false;
             }
 
             //Проверка секретного ключа и получение контейнера.
             if (!CheckSK(pathToSecretKey, out byte[] container)) return false;
+
+            //Длина меньше блока iv(16) и блока описания длины данных(4)
+            if(container.Length < SecretKeyMaker.СontainerTitleSize)
+            {
+                LastError = "ОШИБКА Л4: Неверный  файл секретного ключа.";
+                return false;
+            }
+
+            KeyContainer = DeserializeKeyContainer(SecretKeyMaker.UnpackSKContainer(container));
+            if(KeyContainer == null) return false;
             
             return true;
         }
@@ -97,7 +147,8 @@ namespace CryptoRoomLib.KeyGenerator
             }
             catch (Exception e)
             {
-                LastError = $"ОШИБКА Р2:Не удалось считать файл секретного ключа. Исключение:{e.Message}";
+                _lastException = e.Message;
+                LastError = $"ОШИБКА Р2:Не удалось считать файл секретного ключа.";
                 return false;
             }
 
@@ -141,7 +192,7 @@ namespace CryptoRoomLib.KeyGenerator
             //Длина ключа не может быть менее чем заголовок + контейнер.
             if (fileSize < SecretKeyMaker.KeyHeadLen + containerLen)
             {
-                LastError = "ОШИБКА Р6:Не верный размер файла секретного ключа.";
+                LastError = "ОШИБКА Р6: Неверный размер файла секретного ключа.";
                 return 0;
             }
 
@@ -175,6 +226,105 @@ namespace CryptoRoomLib.KeyGenerator
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Преобразовываю контейнер в объект.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        private SecretKeyContainer DeserializeKeyContainer(byte[] container)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            string containerText = Encoding.GetEncoding(1251).GetString(container);
+            
+            try
+            {
+                //Определяю имя корневого элемента.
+                System.Reflection.MemberInfo info = typeof(SecretKeyContainer);
+                var attributes = info.GetCustomAttributes(true);
+
+                var rootName = ((XmlRootAttribute)attributes.Where(x => x is XmlRootAttribute).FirstOrDefault()).ElementName;
+                
+                if (!containerText.Contains($"<{rootName}>"))
+                {
+                    LastError = "ОШИБКА Л5: Неверный  файл секретного ключа.";
+                    return null;
+                }
+
+                using (MemoryStream stream = new MemoryStream(container))
+                {
+                    var serializer = new XmlSerializer(typeof(SecretKeyContainer));
+                    return (SecretKeyContainer)serializer.Deserialize(stream);
+                }
+            }
+            catch (Exception e)
+            {
+                _lastException = e.Message;
+                LastError = $"ОШИБКА Л6: Неверный  файл секретного ключа.";
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Проверяет пароль для ключа.
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckPassword(string password)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            byte[] passwordArray = Encoding.GetEncoding(1251).GetBytes(password);
+
+            SecretKeyMaker maker = new SecretKeyMaker();
+
+            //Вычисляю хэш соленого пароля
+            byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
+
+            var salt = Convert.FromHexString(KeyContainer.RsaSalt);
+
+            maker.HashedPassword(salt, passwordArray, hashPassword);
+            
+            byte[] privateKey = Convert.FromHexString(KeyContainer.CryptRsaPrivateKey);
+            byte[] publicKey = Convert.FromHexString(KeyContainer.RsaPublicKey);
+            byte[] iv = Convert.FromHexString(KeyContainer.RsaIv);
+
+            maker.DecryptSecretKey(hashPassword, iv, privateKey);
+
+            Span<byte> publicKeySpan = publicKey;
+            Span<byte> privateKeySpan = privateKey;
+
+            try
+            {
+                KeyDecoder kd = new KeyDecoder();
+
+                //Если пользователь ввел неправильный пароль, то расшифрованный ключ выглядит не как ASN1,
+                //и провайдер его не может загрузить вызывая исключение.
+                if (!kd.CheckKeyPair(privateKey, publicKey))
+                {
+                    LastError = "Неправильная ключевая пара.";
+                    return false;
+                }
+
+                _rsaPrivateKey = privateKey;
+            }
+            catch (Exception e)
+            {
+                _lastException = e.Message;
+                LastError = "Неверный пароль.";
+                return false;
+            }
+            
+            //Добавить проверку ключа подписи.
+            return true;
+        }
+
+        /// <summary>
+        /// Возвращает закрытый ключ ассиметричной системы шифрования.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetPrivateAsymmetricKey()
+        {
+            return _rsaPrivateKey;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace CryptoRoomLib.KeyGenerator
         /// <summary>
         /// Размер заголовка контейнера. 16(iv) + 4(длина шифрованного блока)
         /// </summary>
-        private const int СontainerTitleSize = 20;
+        public static int СontainerTitleSize = 20;
 
         //Размер Заголовока файла-служебная информация [7-байт служебной информации][Заголовок 47байт][Хэш контента 256бит]
         //[Длина контейнера ключа 4байта][[iv 16байт][4байта длина контейнера]Контейнер]
@@ -121,13 +121,35 @@ namespace CryptoRoomLib.KeyGenerator
 
             //Дополнительные параметры для использования в будущем.
             container.ReservedParameter0 = "0";
-            container.ReservedParameter1 = "8bDkhN935SYik36i";
+            container.ReservedParameter1 = "1";
 
             KeyСontainerToFile(container, pathToSave);
             
             return true;
         }
 
+        /// <summary>
+        /// Сохраняет контейнер в файл.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="pathToSave"></param>
+        /// <returns></returns>
+        public bool SaveToFile(SecretKeyContainer container, string pathToSave)
+        {
+            try
+            {
+                KeyСontainerToFile(container, pathToSave);
+            }
+            catch (Exception e)
+            {
+                _lastException = e.Message;
+                LastError = "Ошибка сохранения.";
+                return false;
+            }
+            
+            return true;
+        }
+        
         /// <summary>
         /// Генерация ключевой пары для накладывания и проверки подписи.
         /// </summary>
@@ -392,11 +414,63 @@ namespace CryptoRoomLib.KeyGenerator
             }
             catch (Exception e)
             {
-                _lastException = $"В методе CryptSecretKey возникло исключение: {e.Message}";
+                LastError = $"В методе CryptSecretKey возникло исключение: {e.Message}";
                 return false;
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Расшифровывает секретный ключ.
+        /// </summary>
+        /// <param name="cipherKey"></param>
+        /// <param name="iv"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
+        public bool DecryptSecretKey(byte[] cipherKey, byte[] iv, byte[] privateKey)
+        {
+            try
+            {
+                ICipherAlgoritm algoritm = new ModifyAlgoritm3412();
+                algoritm.DeployDecryptRoundKeys(cipherKey);
+                ModeCFB cfb = new ModeCFB(algoritm);
+
+                cfb.CfbDecrypt(privateKey, iv);
+            }
+            catch (Exception e)
+            {
+                LastError = $"В методе DecryptSecretKey возникло исключение: {e.Message}";
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Расшифровывает контейнер секретного ключа и проверяю его заголовок, в случает ошибки = null.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        public static byte[] UnpackSKContainer(byte[] container)
+        {
+            var alg = new ModifyAlgoritm3412();
+
+            byte[] initVector = new byte[alg.BlockSize];
+            Buffer.BlockCopy(container, 0, initVector, 0, alg.BlockSize);
+
+            byte[] cryptedMessage = new byte[container.Length - SecretKeyMaker.СontainerTitleSize];
+            Buffer.BlockCopy(container, SecretKeyMaker.СontainerTitleSize, cryptedMessage, 0, cryptedMessage.Length);
+
+            var cipherKey = Convert.FromHexString(KeyChipperConstant);
+
+            ICipherAlgoritm algoritm = new ModifyAlgoritm3412();
+            algoritm.DeployDecryptRoundKeys(cipherKey);
+            ModeCFB cfb = new ModeCFB(algoritm);
+
+            cfb.CfbDecrypt(cryptedMessage, initVector);
+            
+            return cryptedMessage;
         }
     }
 }
