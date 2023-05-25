@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>default</LangVersion>
+    <AssemblyName>VanishBox</AssemblyName>
+    <RootNamespace>VanishBox</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaXaml Remove="Models\**" />
+	<AvaloniaResource Include="Assets\**" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Aura.UI" Version="0.1.4.2" />
+		<PackageReference Include="Aura.UI.FluentTheme" Version="0.1.4.2" />
+		<PackageReference Include="Avalonia" Version="11.0.0-preview8" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview8" />
+		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview8" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview8" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="ReactiveUI.Drawing" Version="18.4.44" />
+		<PackageReference Include="Splat.DependencyInjection.SourceGenerator" Version="1.1.93">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+    <ItemGroup>
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.AuraUI\MvvmDialogs.Avalonia.AuraUI.csproj" />
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.DialogHost\MvvmDialogs.Avalonia.DialogHost.csproj" />
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.Fluent\MvvmDialogs.Avalonia.Fluent.csproj" />
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.MessageBox\MvvmDialogs.Avalonia.MessageBox.csproj" />
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia\MvvmDialogs.Avalonia.csproj" />
+    <ProjectReference Include="..\HanumanInstitute.MvvmDialogs\src\MvvmDialogs\MvvmDialogs.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\" />
+    </ItemGroup>
+</Project>

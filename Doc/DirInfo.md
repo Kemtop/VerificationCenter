@@ -14,6 +14,12 @@
   <p>
      <strong>CryptoRoomApp</strong>-демо пример для работы с библиотекой(в разработке).
   </p> 
+  <p>
+    <strong>HanumanInstitute.MvvmDialogs</strong>-библиотека, упрощающая  открытие диалогов из модели представления при использовании MVVM (https://github.com/mysteryx93/HanumanInstitute.MvvmDialogs).
+  </p>
+  <p>
+  <strong>VanishBox</strong>-программа шифрования файлов (в разработке).
+  </p>
 </p>
 <br>
 <p align="left">
