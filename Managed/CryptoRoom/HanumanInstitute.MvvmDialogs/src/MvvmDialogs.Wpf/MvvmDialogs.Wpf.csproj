@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <AssemblyTitle>MVVM Dialogs for WPF</AssemblyTitle>
+    <Title>MVVM Dialogs for WPF</Title>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../StrongName.snk</AssemblyOriginatorKeyFile>
+    <PackageId>HanumanInstitute.MvvmDialogs.Wpf</PackageId>
+    <AssemblyName>HanumanInstitute.MvvmDialogs.Wpf</AssemblyName>
+    <RootNamespace>HanumanInstitute.MvvmDialogs.Wpf</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PackageIcon>icon_64x64.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MvvmDialogs\MvvmDialogs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon_64x64.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\StrongName.snk">
+      <Link>StrongName.snk</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+  </ItemGroup>
+
+</Project>
