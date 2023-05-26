@@ -9,23 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoRoomLib", "CryptoRoom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoRoomLib.Tests", "CryptoRoomLib.Tests\CryptoRoomLib.Tests.csproj", "{9428D63A-CE57-487A-AA87-872DDDB09E4A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VanishBox", "VanishBox\VanishBox.csproj", "{3240A7C3-3A5F-43CB-9BC1-46BFB4CB1B66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VanishBox", "VanishBox\VanishBox.csproj", "{20A81591-22AA-4A8E-83E5-EAA40ADFAC07}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HanumanInstitute.MvvmDialogs", "HanumanInstitute.MvvmDialogs", "{EB7D429D-6353-4249-AEC1-35404CC63253}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ui", "Ui", "{8445A4CF-B93D-48A0-99E5-385251843CFD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2C771628-B63E-4D50-8F20-DFB2AC54BBAB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs\MvvmDialogs.csproj", "{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs.Avalonia", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia\MvvmDialogs.Avalonia.csproj", "{E60C8F7C-892D-4976-9DA4-AF44B40CD86C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs.Avalonia.AuraUI", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.AuraUI\MvvmDialogs.Avalonia.AuraUI.csproj", "{2120F998-38A7-418E-9655-3BB1E6266485}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs.Avalonia.DialogHost", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.DialogHost\MvvmDialogs.Avalonia.DialogHost.csproj", "{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs.Avalonia.Fluent", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.Fluent\MvvmDialogs.Avalonia.Fluent.csproj", "{A753CCEF-53DC-4484-81BE-F61AEE2EE26F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvvmDialogs.Avalonia.MessageBox", "HanumanInstitute.MvvmDialogs\src\MvvmDialogs.Avalonia.MessageBox\MvvmDialogs.Avalonia.MessageBox.csproj", "{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageBox.Avalonia", "Ui\MessageBox.Avalonia\MessageBox.Avalonia.csproj", "{58E69006-D8A3-47F4-9A76-88BB2C14D00D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,46 +33,20 @@ Global
 		{9428D63A-CE57-487A-AA87-872DDDB09E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9428D63A-CE57-487A-AA87-872DDDB09E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9428D63A-CE57-487A-AA87-872DDDB09E4A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3240A7C3-3A5F-43CB-9BC1-46BFB4CB1B66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3240A7C3-3A5F-43CB-9BC1-46BFB4CB1B66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3240A7C3-3A5F-43CB-9BC1-46BFB4CB1B66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3240A7C3-3A5F-43CB-9BC1-46BFB4CB1B66}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E60C8F7C-892D-4976-9DA4-AF44B40CD86C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E60C8F7C-892D-4976-9DA4-AF44B40CD86C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E60C8F7C-892D-4976-9DA4-AF44B40CD86C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E60C8F7C-892D-4976-9DA4-AF44B40CD86C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2120F998-38A7-418E-9655-3BB1E6266485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2120F998-38A7-418E-9655-3BB1E6266485}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2120F998-38A7-418E-9655-3BB1E6266485}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2120F998-38A7-418E-9655-3BB1E6266485}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A753CCEF-53DC-4484-81BE-F61AEE2EE26F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A753CCEF-53DC-4484-81BE-F61AEE2EE26F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A753CCEF-53DC-4484-81BE-F61AEE2EE26F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A753CCEF-53DC-4484-81BE-F61AEE2EE26F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20A81591-22AA-4A8E-83E5-EAA40ADFAC07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20A81591-22AA-4A8E-83E5-EAA40ADFAC07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20A81591-22AA-4A8E-83E5-EAA40ADFAC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20A81591-22AA-4A8E-83E5-EAA40ADFAC07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58E69006-D8A3-47F4-9A76-88BB2C14D00D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58E69006-D8A3-47F4-9A76-88BB2C14D00D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58E69006-D8A3-47F4-9A76-88BB2C14D00D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58E69006-D8A3-47F4-9A76-88BB2C14D00D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2C771628-B63E-4D50-8F20-DFB2AC54BBAB} = {EB7D429D-6353-4249-AEC1-35404CC63253}
-		{D25AA986-D5AB-4B7B-A5B2-C3E23C5EA28B} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
-		{E60C8F7C-892D-4976-9DA4-AF44B40CD86C} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
-		{2120F998-38A7-418E-9655-3BB1E6266485} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
-		{6FAFFCC0-8D3F-4227-B0F5-A5B42868DF6D} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
-		{A753CCEF-53DC-4484-81BE-F61AEE2EE26F} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
-		{749A45E0-EAD3-4EB2-A7A9-F0FBCF4FDDF6} = {2C771628-B63E-4D50-8F20-DFB2AC54BBAB}
+		{58E69006-D8A3-47F4-9A76-88BB2C14D00D} = {8445A4CF-B93D-48A0-99E5-385251843CFD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C249F6DF-7F11-49C2-93F0-7855E0C54A9C}
