@@ -3,13 +3,6 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Avalonia.Controls;
-using Avalonia.Media.Imaging;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Models;
-using MessageBoxAvaloniaEnums = MessageBox.Avalonia.Enums;
 
 namespace VanishBox.ViewModels
 {
@@ -17,38 +10,68 @@ namespace VanishBox.ViewModels
     {
         public ObservableCollection<string> FilesPaths { get; private set; } = new();
 
-        public ReactiveCommand<object, Unit> SelectFilesCommand { get; }
-
-        public ReactiveCommand<object, Unit> ResetSettingsCommand { get; }
-
-        private string[] _selectedFiles { get; set; }
-
-        public MainWindowViewModel()
-        {
-            SelectFilesCommand = ReactiveCommand.CreateFromTask<object>(async (sender) =>
-            {
-                await SelectFilesAsync(sender);
-            });
-
-            ResetSettingsCommand = ReactiveCommand.CreateFromTask<object>(async (sender) =>
-            {
-                await ResetSettings(sender);
-            });
-        }
-        
         /// <summary>
         /// Выбрать файлы которые требуется зашифровать/расшифровать.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <returns></returns>
-        private async Task SelectFilesAsync(object sender)
+        public ReactiveCommand<Unit, Unit> SelectFilesCommand { get; }
+
+        /// <summary>
+        /// Сбросить настройки программы.
+        /// </summary>
+        public ReactiveCommand<Unit, Unit> ResetSettingsCommand { get; }
+
+        /// <summary>
+        /// Сгенерировать ключ.
+        /// </summary>
+        public ReactiveCommand<Unit, Unit> GeneratedKeyCommand { get; }
+
+        /// <summary>
+        /// Ввод пароля и пути сохранения секретного ключа.
+        /// </summary>
+        public Interaction<PasswordInputWindowViewModel, UserKeyViewModel?> ShowKeyParamDialog { get; }
+
+        /// <summary>
+        /// Сбросить настройки программы.
+        /// </summary>
+        public Interaction<string, bool> ResetSettingsDialog { get; }
+
+        /// <summary>
+        /// Выбрать файлы которые требуется зашифровать/расшифровать.
+        /// </summary>
+        public Interaction<object, string[]?> SelectFilesDialog { get; }
+
+        private string[] _selectedFiles { get; set; }
+        
+        public MainWindowViewModel()
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "Выбрать файлы";
-            dialog.AllowMultiple = true;
-            dialog.Filters.Add(new FileDialogFilter() { Name = "All", Extensions = { "*" } });
-            _selectedFiles = await dialog.ShowAsync(sender as Window);
-            
+            SelectFilesDialog = new Interaction<object, string[]?>();
+            ResetSettingsDialog = new Interaction<string, bool>();
+            ShowKeyParamDialog = new Interaction<PasswordInputWindowViewModel, UserKeyViewModel?>();
+
+            SelectFilesCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+               await SelectFiles();
+            });
+
+            ResetSettingsCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await ResetSettings();
+            });
+
+            GeneratedKeyCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await GeneratedKey();
+            });
+        }
+
+        /// <summary>
+        /// Выбрать файлы которые требуется зашифровать/расшифровать.
+        /// </summary>
+        /// <returns></returns>
+        public async Task SelectFiles()
+        {
+            _selectedFiles = await SelectFilesDialog.Handle(new object());
+
             FilesPaths.Clear();
             foreach (var item in _selectedFiles)
             {
@@ -57,34 +80,31 @@ namespace VanishBox.ViewModels
         }
 
         /// <summary>
-        /// Сброс настроек программы.
+        /// Сбросить настройки программы.
         /// </summary>
-        /// <param name="sender"></param>
         /// <returns></returns>
-        private async Task ResetSettings(object sender)
+        public async Task ResetSettings()
         {
-            var buttonNo = new ButtonDefinition { Name = "Нет", IsDefault = true };
+            var result = await ResetSettingsDialog.Handle("Вы действительно хотите сбросить настройки?");
+            if (result == false) return;
 
-            var messageBoxCustomWindow = MessageBoxManager
-                .GetMessageBoxCustomWindow(new MessageBoxCustomParamsWithImage
-                {
-                    Topmost = true,
-                    ContentMessage = "Вы действительно хотите сбросить настройки?",
-                    Icon = new Bitmap("./Assets/info.png"),
-                    
-                    ButtonDefinitions = new[]
-                    {
-                        new ButtonDefinition { Name = "Да", IsCancel = true },
-                        buttonNo
-                    },
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    WindowIcon = new WindowIcon("./Assets/info.png"),
-                });
+            FilesPaths.Clear();
+            FilesPaths.Add("Настройки сброшены.");
+        }
 
-            var result = await messageBoxCustomWindow.ShowDialog(sender as Window);
+        /// <summary>
+        /// Сгенерировать ключ.
+        /// </summary>
+        /// <returns></returns>
+        public async Task GeneratedKey()
+        {
+            var keyParam = new PasswordInputWindowViewModel();
+            var result = await ShowKeyParamDialog.Handle(keyParam);
+            if (result == null) return;
 
-            if(result == buttonNo.Name) return;
-            
+            FilesPaths.Clear(); //Тест.
+            FilesPaths.Add(result.Password);
+            FilesPaths.Add(result.Path);
         }
     }
 }
