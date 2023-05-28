@@ -15,10 +15,10 @@
      <strong>CryptoRoomApp</strong>-демо пример для работы с библиотекой(в разработке).
   </p> 
   <p>
-    <strong>HanumanInstitute.MvvmDialogs</strong>-библиотека, упрощающая  открытие диалогов из модели представления при использовании MVVM (https://github.com/mysteryx93/HanumanInstitute.MvvmDialogs).
+    <strong>Ui\MessageBox.Avalonia </strong>-библиотека диалоговых окон  AvaloniaUI и MVVM (https://github.com/AvaloniaCommunity/MessageBox.Avalonia).
   </p>
   <p>
-  <strong>VanishBox</strong>-программа шифрования файлов (в разработке).
+  <strong>VanishBox</strong>-программа шифрования файлов (в разработке), для UI используется Avalonia-11.0.0-preview8.
   </p>
 </p>
 <br>
