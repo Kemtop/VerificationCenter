@@ -24,7 +24,7 @@
                     VerticalAlignment="Top">
 			<Menu>
 				<MenuItem Header="Файл">
-					<MenuItem Header="Открыть" Command="{Binding SelectFilesCommand}" CommandParameter="{Binding $parent[Window]}">
+					<MenuItem Header="Открыть" Command="{Binding SelectFilesCommand}">
 						<MenuItem.Icon>
 							<Image Source="/Assets/open.png" />
 						</MenuItem.Icon>
@@ -36,12 +36,12 @@
 					</MenuItem>
 				</MenuItem>
 				<MenuItem Header="Настройки">
-					<MenuItem Header="Сгенерировать ключ">
+					<MenuItem Header="Сгенерировать ключ" Command="{Binding GeneratedKeyCommand}">
 						<MenuItem.Icon>
 							<Image Source="/Assets/key.png" />
 						</MenuItem.Icon>
 					</MenuItem>
-					<MenuItem Header="Сброс настроек"  Command="{Binding ResetSettingsCommand}"  CommandParameter="{Binding $parent[Window]}">
+					<MenuItem Header="Сброс настроек" Command="{Binding ResetSettingsCommand}">
 						<MenuItem.Icon>
 							<Image Source="/Assets/reset.png"/>
 						</MenuItem.Icon>

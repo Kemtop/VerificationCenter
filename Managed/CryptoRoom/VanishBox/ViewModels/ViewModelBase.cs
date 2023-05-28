@@ -4,5 +4,6 @@ namespace VanishBox.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {
+
     }
 }
