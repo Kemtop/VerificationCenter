@@ -25,11 +25,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
 
 
   <ItemGroup>
+    <ProjectReference Include="..\CryptoRoomLib\CryptoRoomLib.csproj" />
     <ProjectReference Include="..\Ui\MessageBox.Avalonia\MessageBox.Avalonia.csproj" />
   </ItemGroup>
 

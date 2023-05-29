@@ -21,6 +21,9 @@ namespace VanishBox.Views
                 ViewModel!.ResetSettingsDialog.RegisterHandler(_dialogService.ShowConfirmDialogAsync);
                 ViewModel!.SelectFilesDialog.RegisterHandler(_dialogService.SelectFilesAsync);
                 ViewModel!.AboutProgramDialog.RegisterHandler(ShowAboutProgramDialogAsync);
+                ViewModel!.SelectPathToKeyDialog.RegisterHandler(ShowSelectPathToKeyDialogAsync);
+                ViewModel!.RequirePasswordDialog.RegisterHandler(ShowRequirePasswordDialogAsync);
+                ViewModel!.ShowErrorDialog.RegisterHandler(_dialogService.ShowErrorDialogAsync);
             });
         }
        
@@ -49,6 +52,32 @@ namespace VanishBox.Views
             dialog.DataContext = interaction.Input;
             await dialog.ShowDialog(this);
             interaction.SetOutput(new Unit());
+        }
+
+        /// <summary>
+        /// Окно выбора пути к секретному ключу.
+        /// </summary>
+        private async Task ShowSelectPathToKeyDialogAsync(InteractionContext<Unit, string> interaction)
+        {
+            var dialog = new SelectPathToKeyWindow();
+            dialog.DataContext = new SelectPathToKeyViewModel();
+
+            var result = await dialog.ShowDialog<string>(this);
+            interaction.SetOutput(result);
+        }
+
+        /// <summary>
+        /// Окно ввода пароля.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        private async Task ShowRequirePasswordDialogAsync(InteractionContext<Unit, string> interaction)
+        {
+            var dialog = new RequirePasswordWindow();
+            dialog.DataContext = new RequirePasswordViewModel();
+
+            var result = await dialog.ShowDialog<string>(this);
+            interaction.SetOutput(result);
         }
     }
 }

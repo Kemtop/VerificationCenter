@@ -122,12 +122,12 @@ namespace VanishBox.ViewModels
         /// <returns></returns>
         private string CheckFields()
         {
-            if (String.IsNullOrEmpty(Password)) return "Введите пароль.";
-            if (String.IsNullOrEmpty(PasswordConfirm)) return "Введите подтверждение пароля.";
+            if (string.IsNullOrEmpty(Password)) return "Введите пароль.";
+            if (string.IsNullOrEmpty(PasswordConfirm)) return "Введите подтверждение пароля.";
 
             if (Password != PasswordConfirm) return "Пароль и подтверждение не совпадают.";
 
-            if (String.IsNullOrEmpty(PathToSaveDir)) return "Не выбран каталог сохранения ключа.";
+            if (string.IsNullOrEmpty(PathToSaveDir)) return "Не выбран каталог сохранения ключа.";
 
             return null;
         }

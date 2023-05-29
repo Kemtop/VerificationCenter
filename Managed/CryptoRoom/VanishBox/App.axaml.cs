@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Configuration;
 using ReactiveUI;
 using Splat;
+using VanishBox.Appsettings;
 using VanishBox.ViewModels;
 using VanishBox.Views;
 
@@ -20,11 +21,12 @@ namespace VanishBox
 
         public override void OnFrameworkInitializationCompleted()
         {
+           
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel(new Settings(), new CipherService()),
                 };
             }
 
