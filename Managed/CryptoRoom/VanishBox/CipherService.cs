@@ -73,7 +73,7 @@ namespace VanishBox
             {
                 textIteration($"Расшифровывание файла {file}");
 
-                bool result = worker.DecryptingFile(file, "",
+                bool result = worker.DecryptingFile(file, "", "Test1.jpg",
                     (size) => { decryptDataSize = size; },
                     (max) => { blockCount = max; },
                     (number) =>

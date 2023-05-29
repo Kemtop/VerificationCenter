@@ -139,7 +139,7 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.DecryptingFile("Test.crypt", "", 
+            res = worker.DecryptingFile("Test.crypt", "", "Test1.jpg",
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; });
