@@ -40,14 +40,14 @@ namespace CryptoRoomLib
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
         /// <returns></returns>
-        public bool DecryptingFile(string srcPath, string dstDir, Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
+        public bool DecryptingFile(string srcPath, string dstDir, string resultFileName, Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
             Action<ulong> endIteration)
         {
             ulong blockCount = 0;
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            return _blockCipherMode.DecryptData(srcPath, "Test1.jpg", setDataSize, setMaxBlockCount, endIteration,
+            return _blockCipherMode.DecryptData(srcPath, resultFileName, setDataSize, setMaxBlockCount, endIteration,
                 //Чтение данных ассиметричной системы.
                 (usefulDataSize, inFile) =>
                 {
