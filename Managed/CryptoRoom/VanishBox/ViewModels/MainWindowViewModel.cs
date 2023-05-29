@@ -8,7 +8,45 @@ namespace VanishBox.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public ObservableCollection<string> FilesPaths { get; private set; } = new();
+        private string _infoText;
+        /// <summary>
+        /// Текст выводимый в окне.
+        /// </summary>
+        public string InfoText
+        {
+            get => _infoText;
+            set => this.RaiseAndSetIfChanged(ref _infoText, value);
+        }
+
+        private bool _showProgressControls;
+        /// <summary>
+        /// Отображать компоненты информирующее о прогрессе выполняемой операции.
+        /// </summary>
+        public bool ShowProgressControls
+        {
+            get => _showProgressControls;
+            set => this.RaiseAndSetIfChanged(ref _showProgressControls, value);
+        }
+
+        private string _progressText;
+        /// <summary>
+        /// Текст с информацией о текущей операции.
+        /// </summary>
+        public string ProgressText
+        {
+            get => _progressText;
+            set => this.RaiseAndSetIfChanged(ref _progressText, value);
+        }
+
+        private int _progressValue;
+        /// <summary>
+        /// Значение прогресса 0-100%.
+        /// </summary>
+        public int ProgressValue
+        {
+            get => _progressValue;
+            set => this.RaiseAndSetIfChanged(ref _progressValue, value);
+        }
 
         /// <summary>
         /// Выбрать файлы которые требуется зашифровать/расшифровать.
@@ -26,6 +64,26 @@ namespace VanishBox.ViewModels
         public ReactiveCommand<Unit, Unit> GeneratedKeyCommand { get; }
 
         /// <summary>
+        /// О программе.
+        /// </summary>
+        public ReactiveCommand<Unit, Unit> AboutProgramCommand { get; }
+
+        /// <summary>
+        /// Закрыть окно.
+        /// </summary>
+        public ReactiveCommand<Unit, object> ExitCommand { get; }
+
+        /// <summary>
+        /// Зашифровать.
+        /// </summary>
+        public ReactiveCommand<Unit, Unit> CryptCommand { get; }
+
+        /// <summary>
+        /// Расшифровать.
+        /// </summary>
+        public ReactiveCommand<Unit, Unit> DecryptCommand { get; }
+
+        /// <summary>
         /// Ввод пароля и пути сохранения секретного ключа.
         /// </summary>
         public Interaction<PasswordInputWindowViewModel, UserKeyViewModel?> ShowKeyParamDialog { get; }
@@ -40,6 +98,11 @@ namespace VanishBox.ViewModels
         /// </summary>
         public Interaction<object, string[]?> SelectFilesDialog { get; }
 
+        /// <summary>
+        /// Окно "О программе".
+        /// </summary>
+        public Interaction<AboutProgramViewModel, Unit> AboutProgramDialog { get; }
+
         private string[] _selectedFiles { get; set; }
         
         public MainWindowViewModel()
@@ -47,6 +110,18 @@ namespace VanishBox.ViewModels
             SelectFilesDialog = new Interaction<object, string[]?>();
             ResetSettingsDialog = new Interaction<string, bool>();
             ShowKeyParamDialog = new Interaction<PasswordInputWindowViewModel, UserKeyViewModel?>();
+            AboutProgramDialog = new Interaction<AboutProgramViewModel, Unit>();
+
+            ExitCommand = ReactiveCommand.Create(() => new object());
+            CryptCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await CryptFiles();
+            });
+
+            DecryptCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await DecryptFiles();
+            });
 
             SelectFilesCommand = ReactiveCommand.CreateFromTask(async () =>
             {
@@ -62,6 +137,13 @@ namespace VanishBox.ViewModels
             {
                 await GeneratedKey();
             });
+
+            AboutProgramCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                await AboutProgramDialog.Handle(new AboutProgramViewModel());
+            });
+
+            SetUserInfoText();
         }
 
         /// <summary>
@@ -71,11 +153,10 @@ namespace VanishBox.ViewModels
         public async Task SelectFiles()
         {
             _selectedFiles = await SelectFilesDialog.Handle(new object());
-
-            FilesPaths.Clear();
+            
             foreach (var item in _selectedFiles)
             {
-                FilesPaths.Add(item);
+                AppendInfoText(item);
             }
         }
 
@@ -88,8 +169,7 @@ namespace VanishBox.ViewModels
             var result = await ResetSettingsDialog.Handle("Вы действительно хотите сбросить настройки?");
             if (result == false) return;
 
-            FilesPaths.Clear();
-            FilesPaths.Add("Настройки сброшены.");
+            AppendInfoText("Настройки сброшены.");
         }
 
         /// <summary>
@@ -102,9 +182,52 @@ namespace VanishBox.ViewModels
             var result = await ShowKeyParamDialog.Handle(keyParam);
             if (result == null) return;
 
-            FilesPaths.Clear(); //Тест.
-            FilesPaths.Add(result.Password);
-            FilesPaths.Add(result.Path);
+             //Тест.
+            AppendInfoText(result.Password);
+            AppendInfoText(result.Path);
+        }
+
+        /// <summary>
+        /// Задает справочный текст в информационном окне.
+        /// </summary>
+        private void SetUserInfoText()
+        {
+            string infoText = "Для начала работы в меню \"Файл\" выберите \"Открыть\", выделите файлы требующие обработки.";
+            AppendInfoText(infoText);
+        }
+
+        /// <summary>
+        /// Выводит текст в информационное окно.
+        /// </summary>
+        /// <param name="text"></param>
+        private void AppendInfoText(string text)
+        {
+            InfoText += $"{text}\r\n";
+        }
+
+        /// <summary>
+        /// Шифрует  все файлы.
+        /// </summary>
+        /// <returns></returns>
+        private async Task CryptFiles()
+        {
+            ShowProgressControls = true;
+
+            while (ProgressValue < 100)
+            {
+                ProgressText = $"Выполненно {ProgressValue}%";
+                await Task.Delay(700);
+                ProgressValue++;
+            }
+        }
+
+        /// <summary>
+        /// Расшифровать все файлы.
+        /// </summary>
+        /// <returns></returns>
+        private async Task DecryptFiles()
+        {
+            ShowProgressControls = true;
         }
     }
 }
