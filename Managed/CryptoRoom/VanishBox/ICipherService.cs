@@ -18,5 +18,17 @@ namespace VanishBox
         /// </summary>
         /// <returns></returns>
         bool CheckPassword(string password, string pathToKey);
+
+        /// <summary>
+        /// Шифрует/расшифровывает файлы.
+        /// </summary>
+        /// <param name="paths"></param>
+        /// <param name="direction"></param>
+        /// <param name="sendInfo"></param>
+        /// <param name="progressIteration"></param>
+        /// <param name="textIteration"></param>
+        /// <returns></returns>
+        public bool RunOperation(string[] paths, bool direction, Action<string> sendInfo,
+            Action<int> progressIteration, Action<string> textIteration);
     }
 }

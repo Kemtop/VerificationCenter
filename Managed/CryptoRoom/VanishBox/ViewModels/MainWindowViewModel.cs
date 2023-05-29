@@ -280,6 +280,26 @@ namespace VanishBox.ViewModels
             }
 
             ShowProgressControls = true;
+
+            await Task.Run(() =>
+            {
+                var complete = _cipherService.RunOperation(_selectedFiles, false, (text) =>
+                {
+
+                }, (progress) =>
+                {
+                    ProgressValue = progress;
+                }, (textProgress) =>
+                {
+                    ProgressText = textProgress;
+                });
+
+
+                if (!complete)
+                {
+                    AppendInfoText(_cipherService.LastError);
+                }
+            });
         }
 
         /// <summary>
