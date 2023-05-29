@@ -1,6 +1,9 @@
+using System.IO;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.Configuration;
 using ReactiveUI;
 using Splat;
 using VanishBox.ViewModels;
