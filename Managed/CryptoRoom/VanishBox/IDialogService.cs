@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 
 namespace VanishBox
 {
@@ -11,6 +12,20 @@ namespace VanishBox
         /// <param name="interaction"></param>
         /// <returns></returns>
         Task SelectDirAsync(InteractionContext<object, string?> interaction);
+
+        /// <summary>
+        /// Выбрать файл.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        Task SelectFileAsync(InteractionContext<object, string[]?> interaction);
+
+        /// <summary>
+        /// Выбрать файл.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        Task SelectFileFilterAsync(InteractionContext<object, string[]?> interaction, FileDialogFilter filter);
 
         /// <summary>
         /// Выбрать файлы из каталога.

@@ -15,13 +15,51 @@ namespace VanishBox
         {
             _parentWindow = parentWindow;
         }
-        
+
+        /// <summary>
+        /// Выбрать файл.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        public async Task SelectFileAsync(InteractionContext<object, string[]?> interaction)
+        {
+            await SelectAnyFilesAsync(interaction, new FileDialogFilter() { Name = "All", Extensions = { "*" } }, false);
+        }
+
+        /// <summary>
+        /// Выбрать файл.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        public async Task SelectFileFilterAsync(InteractionContext<object, string[]?> interaction, FileDialogFilter filter)
+        {
+            await SelectAnyFilesAsync(interaction, filter, false);
+        }
+
+        /// <summary>
+        /// Выбрать файлы.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <param name="allowMultiple"></param>
+        /// <returns></returns>
         public async Task SelectFilesAsync(InteractionContext<object, string[]?> interaction)
         {
+            await SelectAnyFilesAsync(interaction, new FileDialogFilter() { Name = "All", Extensions = { "*" } });
+        }
+
+        /// <summary>
+        /// Выбрать файлы.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <param name="allowMultiple"></param>
+        /// <returns></returns>
+        public async Task SelectAnyFilesAsync(InteractionContext<object, string[]?> interaction,
+            FileDialogFilter filter, bool allowMultiple = true )
+        {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "Выбрать файлы";
-            dialog.AllowMultiple = true;
-            dialog.Filters.Add(new FileDialogFilter() { Name = "All", Extensions = { "*" } });
+            dialog.Title = allowMultiple ? "Выбрать файлы" : "Выбрать файл";
+            dialog.AllowMultiple = allowMultiple;
+            dialog.Filters.Add(filter);
             var result = await dialog.ShowAsync(_parentWindow);
             interaction.SetOutput(result);
         }

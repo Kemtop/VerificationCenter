@@ -3,11 +3,22 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using VanishBox.Appsettings;
 
 namespace VanishBox.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        /// <summary>
+        /// Настройки программы.
+        /// </summary>
+        private ISettings _settings;
+
+        /// <summary>
+        /// Логика шифрования.
+        /// </summary>
+        private ICipherService _cipherService;
+
         private string _infoText;
         /// <summary>
         /// Текст выводимый в окне.
@@ -103,14 +114,42 @@ namespace VanishBox.ViewModels
         /// </summary>
         public Interaction<AboutProgramViewModel, Unit> AboutProgramDialog { get; }
 
+        /// <summary>
+        /// Окно выбора пути к секретному ключу.
+        /// </summary>
+        public Interaction<Unit, string> SelectPathToKeyDialog { get; }
+
+        /// <summary>
+        /// Окно ввода пароля.
+        /// </summary>
+        /// <param name="interaction"></param>
+        /// <returns></returns>
+        public Interaction<Unit, string> RequirePasswordDialog { get; }
+
+        /// <summary>
+        /// Отображает диалог с сообщением об ошибке.
+        /// </summary>
+        public Interaction<string, string?> ShowErrorDialog { get; }
+
         private string[] _selectedFiles { get; set; }
+
+        /// <summary>
+        /// Пароль к ключу.
+        /// </summary>
+        private string _passwordToKey;
         
-        public MainWindowViewModel()
+        public MainWindowViewModel(ISettings settings, ICipherService cipherService)
         {
+            _settings = settings;
+            _cipherService = cipherService;
+
             SelectFilesDialog = new Interaction<object, string[]?>();
             ResetSettingsDialog = new Interaction<string, bool>();
             ShowKeyParamDialog = new Interaction<PasswordInputWindowViewModel, UserKeyViewModel?>();
             AboutProgramDialog = new Interaction<AboutProgramViewModel, Unit>();
+            SelectPathToKeyDialog = new Interaction<Unit, string>();
+            RequirePasswordDialog = new Interaction<Unit, string>();
+            ShowErrorDialog = new Interaction<string, string?>();
 
             ExitCommand = ReactiveCommand.Create(() => new object());
             CryptCommand = ReactiveCommand.CreateFromTask(async () =>
@@ -227,7 +266,56 @@ namespace VanishBox.ViewModels
         /// <returns></returns>
         private async Task DecryptFiles()
         {
+            var pathToKey = await GetPathToKey();
+            if (pathToKey == null) return;
+
+            var result = await GetPasswordToKey();
+            if(result == null) return;
+
+            if (!_cipherService.CheckPassword(_passwordToKey, pathToKey))
+            {
+                await ShowErrorDialog.Handle(_cipherService.LastError);
+                _passwordToKey = string.Empty;
+                return;
+            }
+
             ShowProgressControls = true;
         }
+
+        /// <summary>
+        /// Возвращает путь к секретному ключу. Если путь не задан – отображает диалоговое окно. Сохраняет полученный путь.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetPathToKey()
+        {
+            if (string.IsNullOrEmpty(_settings.AppSettings.PathSecretKey))
+            {
+                var path = await SelectPathToKeyDialog.Handle(new Unit());
+                if (path != null)
+                {
+                    _settings.AppSettings.PathSecretKey = path;
+                    _settings.Save();
+                }
+                return path;
+            }
+
+            return _settings.AppSettings.PathSecretKey;
+        }
+
+        /// <summary>
+        /// Возвращает пароль. Если пароль не вводился первый раз в программу – отображает диалоговое окно.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetPasswordToKey()
+        {
+            if(!string.IsNullOrEmpty(_passwordToKey)) return _passwordToKey;
+
+            var result = await RequirePasswordDialog.Handle(new Unit());
+            if (result == null) return null;
+
+            _passwordToKey = result;
+            return _passwordToKey;
+        }
+
     }
 }
