@@ -11,7 +11,7 @@ namespace CryptoRoomLib.Tests
         {
         }
 
-        [Test, Order(1)]
+        [Test, Order(11)]
         public void CryptoLibTest()
         {
             //Запускает внутренние тесты алгоритма.
@@ -139,7 +139,7 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.DecryptingFile("Test.crypt", "Test1.jpg",
+            res = worker.DecryptingFile("Test.crypt", "Test.jpg",
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; });
@@ -147,5 +147,31 @@ namespace CryptoRoomLib.Tests
             Assert.IsTrue(res);
         }
 
+        [Test, Order(1)]
+        public void CryptingFile()
+        {
+            KeyService keyService = new KeyService();
+            var res = keyService.LoadKey("key.grk");
+            Assert.IsTrue(res, keyService.LastError);
+
+            res = keyService.CheckPassword("12345678");
+            Assert.IsTrue(res, keyService.LastError);
+
+            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
+            IBlockCipherMode cipherMode = new ModeCBC(algoritm);
+
+            CipherWorker worker = new CipherWorker(keyService, cipherMode);
+
+            ulong blockCount = 0;
+            ulong blockNum = 0;
+            ulong decryptDataSize = 0;
+
+            res = worker.CryptingFile("Test.jpg", "Test.crypt",
+                (size) => { decryptDataSize = size; },
+                (max) => { blockCount = max; },
+                (number) => { blockNum = number; });
+
+            Assert.IsTrue(res);
+        }
     }
 }
