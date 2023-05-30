@@ -29,6 +29,14 @@
         }
 
         /// <summary>
+        /// Развертывание раундовых ключей шифрования.
+        /// </summary>
+        public void DeployСryptRoundKeys(byte[] key)
+        {
+            Logic3412.DeploymentEncryptionRoundKeys(key, _roundKeys);
+        }
+
+        /// <summary>
         /// Развертывание раундовых ключей.
         /// </summary>
         public void DeployDecryptRoundKeys(byte[] key)

@@ -30,6 +30,7 @@ namespace CryptoRoomLib.Cipher3412
                 GostExampleTest,
                 GostWithRoundKeysTest,
                 DecryptionTest,
+                EncryptionTest,
                 ModifyAlg3412MathTest,
                 ModifyAlg3412Test
             };
@@ -151,6 +152,41 @@ namespace CryptoRoomLib.Cipher3412
                 if (t.Low != TestConst3412.ShiftTestTable[i])
                 {
                     Error = $"Error tests shift operation.Iteration={i}";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Тестирование алгоритма шифрования.
+        /// </summary>
+        /// <returns></returns>
+        private bool EncryptionTest()
+        {
+            var roundKeys = new ulong[20];
+            var key = new byte[32];
+
+            for (int i = 0; i < TestConst3412.EncryptTestKey.GetLength(0); i++)
+            {
+                Array.Clear(roundKeys, 0, roundKeys.Length);
+                Array.Clear(key, 0, key.Length);
+
+                Buffer.BlockCopy(TestConst3412.EncryptTestKey, 32 * i, key, 0, 32);
+
+                Logic3412.DeploymentEncryptionRoundKeys(key, roundKeys);
+
+                U128t data;
+                data.Low = TestConst3412.EncryptTestInText[i, 0];
+                data.Hi = TestConst3412.EncryptTestInText[i, 1];
+
+                Logic3412.EncryptBlock(ref data, roundKeys);
+
+                if (data.Low != TestConst3412.EncryptTestOutText[i, 0] ||
+                    data.Hi != TestConst3412.EncryptTestOutText[i, 1])
+                {
+                    Error = $"Encrypt test error. Pos={i}";
                     return false;
                 }
             }
