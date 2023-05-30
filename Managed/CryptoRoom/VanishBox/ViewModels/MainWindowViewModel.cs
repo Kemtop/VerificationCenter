@@ -285,7 +285,7 @@ namespace VanishBox.ViewModels
             {
                 var complete = _cipherService.RunOperation(_selectedFiles, false, (text) =>
                 {
-
+                    AppendInfoText(text);
                 }, (progress) =>
                 {
                     ProgressValue = progress;
@@ -299,6 +299,8 @@ namespace VanishBox.ViewModels
                 {
                     AppendInfoText(_cipherService.LastError);
                 }
+
+                ShowProgressControls = false;
             });
         }
 

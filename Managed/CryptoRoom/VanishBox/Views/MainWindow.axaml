@@ -3,11 +3,11 @@
         xmlns:vm="using:VanishBox.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="618"
+        mc:Ignorable="d"
         x:Class="VanishBox.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         CanResize="False"
-        Width="1000" Height="618"
+        Width="700" Height="433"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/app.ico"
         Title="Программа защиты данных VanishBox">
@@ -19,7 +19,7 @@
     </Design.DataContext>
 
 	<Border Background="LightBlue" BorderBrush="Black" BorderThickness="0" Padding="0">
-		<StackPanel Background="White" Width="1000" Height="618"
+		<StackPanel Background="White" Width="700" Height="433"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Top">
 			<Menu>
@@ -57,7 +57,7 @@
 			</Menu>
 			<Grid VerticalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto"
                   Margin="5,5,5,5">
-				<TextBox Grid.Row="0" Grid.Column="0" AcceptsReturn="True" Width="990" Height="490"
+				<TextBox Grid.Row="0" Grid.Column="0" AcceptsReturn="True" Width="690" Height="305"
                                      TextWrapping="Wrap" HorizontalAlignment="Left"
                                      IsReadOnly="True"
                                      Text="{Binding InfoText}"
