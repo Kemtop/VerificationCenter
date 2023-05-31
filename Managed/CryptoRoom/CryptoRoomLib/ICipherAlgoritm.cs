@@ -31,5 +31,10 @@
         /// </summary>
         /// <param name="block"></param>
         void EncryptBlock(ref Block128t block);
+
+        /// <summary>
+        /// Развертывание раундовых ключей шифрования.
+        /// </summary>
+        void DeployСryptRoundKeys(byte[] key);
     }
 }

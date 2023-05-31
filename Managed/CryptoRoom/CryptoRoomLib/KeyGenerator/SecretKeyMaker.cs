@@ -55,7 +55,7 @@ namespace CryptoRoomLib.KeyGenerator
         /// <summary>
         /// Первые 7 байт содержащих что то вроде версии ключа.
         /// </summary>
-        public static byte[] KeyHeadText = new byte[7]{0xf9,0xc5, 0xa8, 0xd3, 0x47, 0xb6, 0x3a};
+        public static byte[] KeyHeadText = FileFormat.FirstText;
 
         /// <summary>
         /// Название программы для которой используется ключ.

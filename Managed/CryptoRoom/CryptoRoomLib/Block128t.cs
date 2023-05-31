@@ -30,7 +30,10 @@ namespace CryptoRoomLib
         public void FromArray(byte[] buffer)
         {
             Low = BitConverter.ToUInt64(buffer, 0);
-            Hi = BitConverter.ToUInt64(buffer, 8);
+            if (buffer.Length > 8)
+            {
+                Hi = BitConverter.ToUInt64(buffer, 8);
+            }
         }
 
         /// <summary>

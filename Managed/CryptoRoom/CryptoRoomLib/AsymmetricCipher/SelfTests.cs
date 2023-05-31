@@ -30,8 +30,9 @@ namespace CryptoRoomLib.AsymmetricCipher
             List<Func<bool>> tests = new List<Func<bool>>
             {
                 TestDecryptSessionKey,
-                CheckKeyPairTest
-            };
+                CheckKeyPairTest,
+                CryptDecryptSessionKeyTest
+        };
 
             foreach (var test in tests)
             {
@@ -81,5 +82,36 @@ namespace CryptoRoomLib.AsymmetricCipher
             return true;
         }
 
+        /// <summary>
+        /// Тест шифрования/расшифровывания сеансового ключа.
+        /// </summary>
+        /// <returns></returns>
+        private bool CryptDecryptSessionKeyTest()
+        {
+            Span<byte> publicKey = TestConst.RsaPublicKey;
+            Span<byte> privateKey = TestConst.RsaPrivateKey;
+
+            KeyDecoder kd = new KeyDecoder();
+
+            if (!kd.EncryptSessionKey(publicKey, TestConst.SessionKey, out byte[] cryptKey))
+            {
+                Error = kd.Error;
+                return false;
+            }
+
+            if (!kd.DecryptSessionKey(privateKey, cryptKey, out byte[] decryptKey))
+            {
+                Error = kd.Error;
+                return false;
+            }
+
+            if (!decryptKey.SequenceEqual(TestConst.SessionKey))
+            {
+                Error = "Ошибка CryptDecryptSessionKeyTest.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

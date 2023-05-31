@@ -60,6 +60,11 @@ namespace CryptoRoomLib.KeyGenerator
         private byte[] _rsaPrivateKey;
 
         /// <summary>
+        /// Открытый ключ ассиметричной системы.
+        /// </summary>
+        private byte[] _rsaPublicKey;
+        
+        /// <summary>
         /// Считывает контейнер ключа из файла. Расшифровывает его, помещает в объект ключа KeyContainer.
         /// </summary>
         /// <param name="pathToSecretKey"></param>
@@ -306,6 +311,7 @@ namespace CryptoRoomLib.KeyGenerator
                 }
 
                 _rsaPrivateKey = privateKey;
+                _rsaPublicKey = publicKey;
             }
             catch (Exception e)
             {
@@ -325,6 +331,15 @@ namespace CryptoRoomLib.KeyGenerator
         public byte[] GetPrivateAsymmetricKey()
         {
             return _rsaPrivateKey;
+        }
+
+        /// <summary>
+        /// Возвращает открытый ключ ассиметричной системы шифрования.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetPublicAsymmetricKey()
+        {
+            return _rsaPublicKey;
         }
     }
 }
