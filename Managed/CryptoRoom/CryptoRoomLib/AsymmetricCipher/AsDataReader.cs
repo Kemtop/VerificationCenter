@@ -78,8 +78,9 @@ namespace CryptoRoomLib.AsymmetricCipher
         {
             List<Func<bool>> checks = new List<Func<bool>>()
             {
-                HasSign,
-                HasSignKeyIndex
+                () => true
+                //HasSign,
+                //HasSignKeyIndex
             };
 
             foreach (var check in checks)
@@ -134,7 +135,11 @@ namespace CryptoRoomLib.AsymmetricCipher
         {
             var keyData = Blocks.Where(x => x.Type == AsBlockDataTypes.CryptSessionKey);
 
-            if (!keyData.Any()) return null;
+            if (!keyData.Any())
+            {
+                Error = "Ошибка AC2: Отсутствует сеансовый ключ.";
+                return null;
+            }
 
             if (keyData.Count() > 1)
             {

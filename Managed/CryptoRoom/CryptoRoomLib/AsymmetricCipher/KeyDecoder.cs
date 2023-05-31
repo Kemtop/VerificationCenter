@@ -57,21 +57,42 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// <summary>
         /// Декодирует сеансовый ключ шифрования.
         /// </summary>
-        public bool DecryptSessionKey(Span<byte> privateKeyPtr, byte[] cryptData, out byte[] encryptKey)
+        public bool DecryptSessionKey(Span<byte> privateKeyPtr, byte[] cryptData, out byte[] decryptKey)
         {
-            int bytesRead = 0;
             using (RSACryptoServiceProvider provider = new RSACryptoServiceProvider())
             {
-                provider.ImportPkcs8PrivateKey(privateKeyPtr, out bytesRead);
-
                 try
                 {
-                    encryptKey = provider.Decrypt(TestConst.CryptData, true);
+                    provider.ImportPkcs8PrivateKey(privateKeyPtr, out int bytesRead);
+                    decryptKey = provider.Decrypt(cryptData, true);
                 }
                 catch (Exception e)
                 {
                     Error = $"Ошибка AS3: Не удалось расшифровать сеансовый ключ. Возможно файл был предназначен не вам. Возникло исключение:{e.Message}";
-                    encryptKey = new byte[] { };
+                    decryptKey = new byte[] { };
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Кодирует сеансовый ключ шифрования.
+        /// </summary>
+        public bool EncryptSessionKey(Span<byte> publicKeyPtr, byte[] sessionKey, out byte[] cryptKey)
+        {
+            using (RSACryptoServiceProvider provider = new RSACryptoServiceProvider())
+            {
+                try
+                {
+                    provider.ImportSubjectPublicKeyInfo(publicKeyPtr, out int bytesRead);
+                    cryptKey = provider.Encrypt(sessionKey, true);
+                }
+                catch (Exception e)
+                {
+                    Error = $"Ошибка AS4: Не удалось зашифровать сеансовый ключ. Возникло исключение:{e.Message}";
+                    cryptKey = new byte[] { };
                     return false;
                 }
             }

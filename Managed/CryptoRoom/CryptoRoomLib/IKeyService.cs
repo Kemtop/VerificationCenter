@@ -17,5 +17,12 @@ namespace CryptoRoomLib
         /// </summary>
         /// <returns></returns>
         byte[] GetPrivateAsymmetricKey();
+
+
+        /// <summary>
+        /// Возвращает открытый ключ ассиметричной системы шифрования.
+        /// </summary>
+        /// <returns></returns>
+        byte[] GetPublicAsymmetricKey();
     }
 }

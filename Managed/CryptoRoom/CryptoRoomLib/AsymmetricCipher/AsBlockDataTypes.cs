@@ -6,6 +6,11 @@
     internal enum AsBlockDataTypes
     {
         /// <summary>
+        /// Хеш открытого ключа получателя. Алгоритм RSA.
+        /// </summary>
+        RsaPublicKeyHash = 114,
+
+        /// <summary>
         /// Блок содержащий шифрованный сеансовый ключ.
         /// </summary>
         CryptSessionKey = 115,

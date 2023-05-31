@@ -26,13 +26,13 @@ namespace CryptoRoomLib
         /// <summary>
         /// Кодирует данные.
         /// </summary>
-        /// <param name="cryptfile"></param>
+        /// <param name="srcfile"></param>
         /// <param name="outfile"></param>
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
-        bool CryptData(string cryptfile, string outfile, Action<ulong> setDataSize,
+        bool CryptData(string srcfile, string outfile, Action<ulong> setDataSize,
             Action<ulong> setMaxBlockCount,
-            Action<ulong> endIteration, Func<ulong, FileStream, byte[]> asReader);
+            Action<ulong> endIteration, Func<byte[], byte[]> asReader);
     }
 }

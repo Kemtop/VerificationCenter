@@ -97,33 +97,23 @@ namespace CryptoRoomLib
 
             return _blockCipherMode.CryptData(srcPath, resultFileName, setDataSize, setMaxBlockCount, endIteration,
                 //Чтение данных ассиметричной системы.
-                (usefulDataSize, inFile) =>
+                (sessionKey) =>
                 {
-                    var asymmetricData = new AsDataReader();
-                    asymmetricData.Read(inFile, usefulDataSize);
-                    asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
-
-                    var sessionKey = asymmetricData.GetCryptedSessionKey();
-
-                    if (sessionKey == null)
-                    {
-                        LastError = asymmetricData.Error;
-                        return null; //В реальном коде вывести сообщение об ошибке.
-                    }
-
                     KeyDecoder kd = new KeyDecoder();
-                    byte[] decryptKey;
+                    byte[] cryptKey;
 
-                    var decryptResult = kd.DecryptSessionKey(_keyService.GetPrivateAsymmetricKey(), sessionKey, out decryptKey);
-
-                    //В реальном коде вывести сообщение об ошибке.
-                    if (!decryptResult)
+                    var encryptResult = kd.EncryptSessionKey(_keyService.GetPublicAsymmetricKey(), sessionKey, out cryptKey);
+                    if (!encryptResult)
                     {
                         LastError = kd.Error;
                         return null;
                     }
 
-                    return decryptKey;
+                    var asWriter = new AsDataWriter();
+                    asWriter.AddRsaHash(new byte[37]);
+                    asWriter.AddCryptedBlockKey(cryptKey);
+
+                    return asWriter.GetData();
                 }
             );
         }

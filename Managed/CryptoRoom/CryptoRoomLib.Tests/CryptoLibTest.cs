@@ -116,6 +116,33 @@ namespace CryptoRoomLib.Tests
 
             Assert.IsTrue(res, self.Error);
         }
+        
+        [Test, Order(9)]
+        public void CryptingFile()
+        {
+            KeyService keyService = new KeyService();
+            var res = keyService.LoadKey("key.grk");
+            Assert.IsTrue(res, keyService.LastError);
+
+            res = keyService.CheckPassword("12345678");
+            Assert.IsTrue(res, keyService.LastError);
+
+            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
+            IBlockCipherMode cipherMode = new ModeCBC(algoritm);
+
+            CipherWorker worker = new CipherWorker(keyService, cipherMode);
+
+            ulong blockCount = 0;
+            ulong blockNum = 0;
+            ulong decryptDataSize = 0;
+
+            res = worker.CryptingFile("Test1.jpg", "Test1.crypt",
+                (size) => { decryptDataSize = size; },
+                (max) => { blockCount = max; },
+                (number) => { blockNum = number; });
+
+            Assert.IsTrue(res, worker.LastError);
+        }
 
         /// <summary>
         /// Ðאסרטפנמגûגאוע פאיכ.
@@ -139,39 +166,13 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.DecryptingFile("Test.crypt", "Test.jpg",
+            res = worker.DecryptingFile("Test1.crypt", "Test2.jpg",
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; });
-
-            Assert.IsTrue(res);
+            
+            Assert.IsTrue(res, worker.LastError);
         }
 
-        [Test, Order(1)]
-        public void CryptingFile()
-        {
-            KeyService keyService = new KeyService();
-            var res = keyService.LoadKey("key.grk");
-            Assert.IsTrue(res, keyService.LastError);
-
-            res = keyService.CheckPassword("12345678");
-            Assert.IsTrue(res, keyService.LastError);
-
-            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
-            IBlockCipherMode cipherMode = new ModeCBC(algoritm);
-
-            CipherWorker worker = new CipherWorker(keyService, cipherMode);
-
-            ulong blockCount = 0;
-            ulong blockNum = 0;
-            ulong decryptDataSize = 0;
-
-            res = worker.CryptingFile("Test.jpg", "Test.crypt",
-                (size) => { decryptDataSize = size; },
-                (max) => { blockCount = max; },
-                (number) => { blockNum = number; });
-
-            Assert.IsTrue(res);
-        }
     }
 }

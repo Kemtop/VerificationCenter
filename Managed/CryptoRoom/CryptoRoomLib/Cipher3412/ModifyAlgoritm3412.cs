@@ -149,7 +149,12 @@
 
             block.FromArray(buffer);
         }
-        
+
+        public void DeployСryptRoundKeys(byte[] key)
+        {
+            DeployDecryptRoundKeys(key);
+        }
+
         /// <summary>
         /// Заполняет словари с перестановками.
         /// </summary>
