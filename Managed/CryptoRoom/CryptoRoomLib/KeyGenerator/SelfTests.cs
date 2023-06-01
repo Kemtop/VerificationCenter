@@ -68,7 +68,7 @@ namespace CryptoRoomLib.KeyGenerator
 
             if (!etalonResult.SequenceEqual(result))
             {
-                Error = "HashSecretKeyTest: Ошибка проверки метода хеширования пароля.";
+                LastError = "HashSecretKeyTest: Ошибка проверки метода хеширования пароля.";
                 return false;
             }
 
@@ -79,7 +79,7 @@ namespace CryptoRoomLib.KeyGenerator
 
             if (!passwordArray.SequenceEqual(password))
             {
-                Error = "HashSecretKeyTest: Ошибка проверки метода хеширования пароля.";
+                LastError = "HashSecretKeyTest: Ошибка проверки метода хеширования пароля.";
                 return false;
             }
             
@@ -138,7 +138,7 @@ namespace CryptoRoomLib.KeyGenerator
             
             if (!cryptSc.SequenceEqual(sc))
             {
-                Error = "CryptEcSecretKeyTest: Ошибка проверки шифрования ключа подписи.";
+                LastError = "CryptEcSecretKeyTest: Ошибка проверки шифрования ключа подписи.";
                 return false;
             }
 

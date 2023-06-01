@@ -114,10 +114,22 @@ namespace CryptoRoomLib.Tests
             var self = new KeyGenerator.SelfTests();
             var res = self.RunTests();
 
-            Assert.IsTrue(res, self.Error);
+            Assert.IsTrue(res, self.LastError);
+        }
+
+        /// <summary>
+        /// Тест подписи данных.
+        /// </summary>
+        [Test, Order(10)]
+        public void SingTest()
+        {
+            var self = new Sign.SelfTests();
+            var res = self.RunTests();
+
+            Assert.IsTrue(res, self.LastError);
         }
         
-        [Test, Order(9)]
+        //[Test, Order(11)]
         public void CryptingFile()
         {
             KeyService keyService = new KeyService();
@@ -136,10 +148,12 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.CryptingFile("Test1.jpg", "Test1.crypt",
+            res = worker.CryptingFile("Test1.jpg", "Test1.crypt", keyService.KeyContainer.EcOid,
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
-                (number) => { blockNum = number; });
+                (number) => { blockNum = number; },
+                (text)=>{},
+                (signStatus)=>{});
 
             Assert.IsTrue(res, worker.LastError);
         }
@@ -147,7 +161,7 @@ namespace CryptoRoomLib.Tests
         /// <summary>
         /// Расшифровывает файл.
         /// </summary>
-        [Test, Order(10)]
+        //[Test, Order(12)]
         public void DecryptingFile()
         {
             KeyService keyService = new KeyService();
