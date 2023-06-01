@@ -78,8 +78,7 @@ namespace CryptoRoomLib.AsymmetricCipher
         {
             List<Func<bool>> checks = new List<Func<bool>>()
             {
-                () => true
-                //HasSign,
+                HasSign,
                 //HasSignKeyIndex
             };
 

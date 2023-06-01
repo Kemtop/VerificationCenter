@@ -37,7 +37,6 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// </summary>
         public void AddRsaHash(byte[] hash)
         {
-            var block = new AsBlockData();
             Blocks.Add(new AsBlockData()
             {
                 Type = AsBlockDataTypes.RsaPublicKeyHash,
@@ -50,11 +49,34 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// </summary>
         public void AddCryptedBlockKey(byte[] key)
         {
-            var block = new AsBlockData();
             Blocks.Add(new AsBlockData()
             {
                 Type = AsBlockDataTypes.CryptSessionKey,
                 Data = key
+            });
+        }
+
+        /// <summary>
+        /// Создает блок с вектором подписи.
+        /// </summary>
+        public void SignR(byte[] data)
+        {
+            Blocks.Add(new AsBlockData()
+            {
+                Type = AsBlockDataTypes.VectorR,
+                Data = data
+            });
+        }
+
+        /// <summary>
+        /// Создает блок с вектором подписи.
+        /// </summary>
+        public void SignS(byte[] data)
+        {
+            Blocks.Add(new AsBlockData()
+            {
+                Type = AsBlockDataTypes.VectorS,
+                Data = data
             });
         }
 

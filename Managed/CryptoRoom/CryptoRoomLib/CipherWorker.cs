@@ -97,8 +97,8 @@ namespace CryptoRoomLib
         /// <param name="ecOid">Идентификатор эллиптической кривой.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
         /// <returns></returns>
-        public bool CryptingFile(string srcPath, string resultFileName, string ecOid, Action<ulong> setDataSize,
-            Action<ulong> setMaxBlockCount,
+        public bool CryptingFile(string srcPath, string resultFileName, string ecOid, byte[] signPrivateKey,
+            Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
             Action<ulong> endIteration, Action<string> sendMessage, Action<int> signProcessStatus)
         {
             ulong blockCount = 0;
@@ -129,7 +129,7 @@ namespace CryptoRoomLib
 
             if (!result) return false;
 
-            if (!SignFile(resultFileName, sendMessage, ecOid, signProcessStatus)) return false;
+            if (!SignFile(resultFileName, sendMessage, ecOid, signPrivateKey, signProcessStatus)) return false;
 
             return true;
         }
@@ -140,7 +140,7 @@ namespace CryptoRoomLib
         /// <param name="file"></param>
         /// <param name="sendMessage"></param>
         /// <returns></returns>
-        private bool SignFile(string srcfile, Action<string> sendMessage, string ecOid, Action<int> signProcessStatus)
+        private bool SignFile(string srcfile, Action<string> sendMessage, string ecOid, byte[] signPrivateKey, Action<int> signProcessStatus)
         {
             FileInfo fi = new FileInfo(srcfile);
 
@@ -152,7 +152,7 @@ namespace CryptoRoomLib
 
             signProcessStatus(1); //Информирую UI о начале процесса подписи.
             
-            using (FileStream inFile = new FileStream(srcfile, FileMode.Open, FileAccess.Read))
+            using (FileStream inFile = new FileStream(srcfile, FileMode.Open, FileAccess.ReadWrite))
             {
                 inFile.Seek(FileFormat.BeginDataBlock, SeekOrigin.Begin);
                 byte[] fileData = new byte[fi.Length - FileFormat.BeginDataBlock];
@@ -169,7 +169,14 @@ namespace CryptoRoomLib
                 EcPoint p = new EcPoint(curve, true);
 
                 CreateSign signGen = new CreateSign();
-                var sign = signGen.Sign(new BigInteger(78), fileData, p);
+                var sign = signGen.Sign(new BigInteger(signPrivateKey), fileData, p);
+
+                var asWriter = new AsDataWriter();
+                asWriter.SignR(sign.VectorR.ToArray().Select(c => (byte)c).ToArray());
+                asWriter.SignS(sign.VectorR.ToArray().Select(c => (byte)c).ToArray());
+
+                inFile.Write(asWriter.GetData());
+                inFile.Close();
             }
 
             return true;
