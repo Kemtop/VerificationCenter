@@ -10,11 +10,11 @@
         /// <summary>
         /// Сообщение об ошибке.
         /// </summary>
-        public string Error { get; set; }
+        public string LastError { get; set; }
 
         public SelfTestsBase()
         {
-            Error = string.Empty;
+            LastError = string.Empty;
             _tests = new List<Func<bool>>();
         }
 
