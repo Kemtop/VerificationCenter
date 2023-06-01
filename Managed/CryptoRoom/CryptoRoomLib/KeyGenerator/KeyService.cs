@@ -1,6 +1,7 @@
 ﻿using CryptoRoomLib.AsymmetricCipher;
 using CryptoRoomLib.Cipher3412;
 using CryptoRoomLib.CipherMode3413;
+using CryptoRoomLib.Sign;
 using Org.BouncyCastle.Crypto.IO;
 using System;
 using System.Collections;
@@ -9,6 +10,7 @@ using System.Data.SqlTypes;
 using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -63,7 +65,12 @@ namespace CryptoRoomLib.KeyGenerator
         /// Открытый ключ ассиметричной системы.
         /// </summary>
         private byte[] _rsaPublicKey;
-        
+
+        /// <summary>
+        /// Закрытый ключ подписи.
+        /// </summary>
+        private byte[] _signPrivateKey;
+
         /// <summary>
         /// Считывает контейнер ключа из файла. Расшифровывает его, помещает в объект ключа KeyContainer.
         /// </summary>
@@ -297,7 +304,7 @@ namespace CryptoRoomLib.KeyGenerator
 
             Span<byte> publicKeySpan = publicKey;
             Span<byte> privateKeySpan = privateKey;
-
+            
             try
             {
                 KeyDecoder kd = new KeyDecoder();
@@ -312,6 +319,21 @@ namespace CryptoRoomLib.KeyGenerator
 
                 _rsaPrivateKey = privateKey;
                 _rsaPublicKey = publicKey;
+
+                //Распаковка ключа подписи.
+                var signPrivateKey = UnpackSignPrivateKey(passwordArray);
+
+                EcPoint q = new EcPoint();
+                q.X = new BigInteger(FromHex(KeyContainer.OpenSignKeyPointX));
+                q.Y = new BigInteger(FromHex(KeyContainer.OpenSignKeyPointY));
+
+                if (!CheckEcPair(signPrivateKey, q))
+                {
+                    LastError = "Неправильная ключевая пара подписи.";
+                    return false;
+                }
+
+                _signPrivateKey = signPrivateKey;
             }
             catch (Exception e)
             {
@@ -321,6 +343,51 @@ namespace CryptoRoomLib.KeyGenerator
             }
             
             //Добавить проверку ключа подписи.
+            return true;
+        }
+
+        /// <summary>
+        /// Извлекает ключ подписи из контейнера ключа.
+        /// </summary>
+        private byte[] UnpackSignPrivateKey(byte[] passwordArray)
+        {
+            SecretKeyMaker maker = new SecretKeyMaker();
+
+            //Вычисляю хэш соленого пароля
+            byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
+
+            var salt = Convert.FromHexString(KeyContainer.SaltCryptSignKey); //Соль в 16 ричном формате
+
+            maker.HashedPassword(salt, passwordArray, hashPassword);
+
+            byte[] privateKey = Convert.FromHexString(KeyContainer.CryptSignKey);
+            byte[] iv = FromHex(KeyContainer.IvCryptSignKey);
+
+            maker.DecryptSecretKey(hashPassword, iv, privateKey);
+
+            return privateKey;
+        }
+
+        /// <summary>
+        /// Проверка ключевой пары подписи.
+        /// </summary>
+        bool CheckEcPair(byte[] signPrivateKey, EcPoint publicKey)
+        {
+            var curve = EcGroups.GetCurve(KeyContainer.EcOid);
+            if (curve == null)
+            {
+                LastError = "Ошибка Sk0: Не удалось определить параметры кривой.";
+                return false;
+            }
+
+            //Создаю точку с указанными в кривой координатами точки P.
+            EcPoint p = new EcPoint(curve, true);
+            var q1 = PointMath.GenPublicKey(new BigInteger(signPrivateKey), p); //Генерирую открытый ключ.
+            
+            //Проверка координат
+            if (q1.X != publicKey.X) return false;
+            if (q1.Y != publicKey.Y) return false;
+
             return true;
         }
 
@@ -340,6 +407,25 @@ namespace CryptoRoomLib.KeyGenerator
         public byte[] GetPublicAsymmetricKey()
         {
             return _rsaPublicKey;
+        }
+
+        /// <summary>
+        /// Возвращает закрытый ключ подписи.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetSignPrivateKey()
+        {
+            return _signPrivateKey;
+        }
+
+        /// <summary>
+        /// Конвертирует 16 ричную строку в число, при необходимости дополняет строку нулем. 
+        /// </summary>
+        /// <returns></returns>
+        private byte[] FromHex(string hex)
+        {
+            if (hex.Length % 2 != 0) hex = "0" + hex;
+            return Convert.FromHexString(hex);
         }
     }
 }

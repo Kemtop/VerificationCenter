@@ -129,7 +129,7 @@ namespace CryptoRoomLib.Tests
             Assert.IsTrue(res, self.LastError);
         }
         
-        //[Test, Order(11)]
+        [Test, Order(11)]
         public void CryptingFile()
         {
             KeyService keyService = new KeyService();
@@ -149,6 +149,7 @@ namespace CryptoRoomLib.Tests
             ulong decryptDataSize = 0;
 
             res = worker.CryptingFile("Test1.jpg", "Test1.crypt", keyService.KeyContainer.EcOid,
+                keyService.GetSignPrivateKey(),
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; },
@@ -161,7 +162,7 @@ namespace CryptoRoomLib.Tests
         /// <summary>
         /// Ðאסרטפנמגûגאוע פאיכ.
         /// </summary>
-        //[Test, Order(12)]
+        [Test, Order(12)]
         public void DecryptingFile()
         {
             KeyService keyService = new KeyService();
