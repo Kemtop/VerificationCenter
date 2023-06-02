@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CryptoRoomLib.AsymmetricCipher
+﻿namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Читает данные ассиметричной системы шифрования из файла.
@@ -21,6 +15,11 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// Сообщение об ошибке.
         /// </summary>
         public string Error { get; private set; }
+
+        /// <summary>
+        /// Позиция в файле начала блока подписи.
+        /// </summary>
+        public long BeginSignBlockPosition { get; private set; }
 
         /// <summary>
         /// Считанные блоки данных
@@ -54,6 +53,10 @@ namespace CryptoRoomLib.AsymmetricCipher
                 AsBlockData block = new AsBlockData();
                 block.Type = (AsBlockDataTypes)title[AsymmetricPosInHeadType];
                 block.Data = new byte[blockLen];
+
+                //Позиция в файле начала блока данных.
+                if (block.Type == AsBlockDataTypes.VectorR) BeginSignBlockPosition = inFile.Position - title.Length;
+
                 inFile.Read(block.Data, 0, blockLen);
                 Blocks.Add(block);
             }
@@ -79,7 +82,7 @@ namespace CryptoRoomLib.AsymmetricCipher
             List<Func<bool>> checks = new List<Func<bool>>()
             {
                 HasSign,
-                //HasSignKeyIndex
+                HasSignKeyIndex
             };
 
             foreach (var check in checks)
@@ -147,6 +150,24 @@ namespace CryptoRoomLib.AsymmetricCipher
             }
 
             return keyData.First().Data;
+        }
+
+        /// <summary>
+        /// Возвращает вектор подписи R.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetVectorR()
+        {
+            return Blocks.Where(x => x.Type == AsBlockDataTypes.VectorR).First().Data;
+        }
+
+        /// <summary>
+        /// Возвращает вектор подписи S.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetVectorS()
+        {
+            return Blocks.Where(x => x.Type == AsBlockDataTypes.VectorS).First().Data;
         }
     }
 }

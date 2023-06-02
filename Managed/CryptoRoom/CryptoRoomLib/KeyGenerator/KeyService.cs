@@ -1,8 +1,7 @@
-﻿using CryptoRoomLib.AsymmetricCipher;
+﻿using CryptoRoomLib.AsymmetricInformation;
 using CryptoRoomLib.Cipher3412;
 using CryptoRoomLib.CipherMode3413;
 using CryptoRoomLib.Sign;
-using Org.BouncyCastle.Crypto.IO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -70,6 +70,11 @@ namespace CryptoRoomLib.KeyGenerator
         /// Закрытый ключ подписи.
         /// </summary>
         private byte[] _signPrivateKey;
+
+        /// <summary>
+        /// Открытый ключ подписи.
+        /// </summary>
+        public EcPoint EcPublicKey { get; set; }
 
         /// <summary>
         /// Считывает контейнер ключа из файла. Расшифровывает его, помещает в объект ключа KeyContainer.
@@ -322,8 +327,16 @@ namespace CryptoRoomLib.KeyGenerator
 
                 //Распаковка ключа подписи.
                 var signPrivateKey = UnpackSignPrivateKey(passwordArray);
+                
+                var curve = EcGroups.GetCurve(KeyContainer.EcOid);
+                if (curve == null)
+                {
+                    LastError = "Ошибка Sg5: Не удалось определить параметры кривой.";
+                    return false;
+                }
 
-                EcPoint q = new EcPoint();
+                //Создаю точку с указанными в кривой координатами точки P.
+                EcPoint q = new EcPoint(curve, true);
                 q.X = new BigInteger(FromHex(KeyContainer.OpenSignKeyPointX));
                 q.Y = new BigInteger(FromHex(KeyContainer.OpenSignKeyPointY));
 
@@ -333,6 +346,7 @@ namespace CryptoRoomLib.KeyGenerator
                     return false;
                 }
 
+                EcPublicKey = q; 
                 _signPrivateKey = signPrivateKey;
             }
             catch (Exception e)

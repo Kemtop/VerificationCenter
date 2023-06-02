@@ -1,6 +1,7 @@
-﻿using CryptoRoomLib.AsymmetricCipher;
+﻿using CryptoRoomLib.AsymmetricInformation;
 using CryptoRoomLib.Cipher3412;
 using System.Security.Cryptography;
+using CryptoRoomLib.Models;
 
 namespace CryptoRoomLib.CipherMode3413
 {
@@ -162,54 +163,7 @@ namespace CryptoRoomLib.CipherMode3413
             
             return true;
         }
-
-        /// <summary>
-        /// Тест расшифровки данных. Пример использующий константы и внешний файл. Не задействован в тестах.
-        /// </summary>
-        /// <returns></returns>
-        bool DecryptData()
-        {
-            ICipherAlgoritm algoritm = new CipherAlgoritm3412();
-            ModeCBC cbc = new ModeCBC(algoritm);
-
-            ulong blockCount = 0;
-            ulong blockNum = 0;
-            ulong decryptDataSize = 0;
-            
-            cbc.DecryptData("Test.crypt", "Test.jpg",
-                (size) => { decryptDataSize = size;}, 
-                (max) => { blockCount = max; },
-                (number) => { blockNum = number; },
-                //Чтение данных ассиметричной системы.
-                (usefulDataSize, inFile) =>
-                {
-                    var asymmetricData = new AsDataReader();
-                    asymmetricData.Read(inFile, usefulDataSize);
-                    asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
-
-                    var sessionKey = asymmetricData.GetCryptedSessionKey();
-
-                    if (sessionKey == null) return null; //В реальном коде вывести сообщение об ошибке.
-                    
-                    KeyDecoder kd = new KeyDecoder();
-                    byte[] decryptKey;
-
-                    var decryptResult = kd.DecryptSessionKey(AsymmetricCipher.TestConst.RsaPrivateKey, TestConst.CryptData, out decryptKey);
-
-                    //В реальном коде вывести сообщение об ошибке.
-                    if (!decryptResult)
-                    {
-                        Error = kd.Error;
-                        return null;
-                    }
-                    
-                    return decryptKey;
-                }
-            );
-
-            return true;
-        }
-
+        
         /// <summary>
         /// Тестирование режима шифрования CFB(режим обратной связи по шифротексту).
         /// </summary>

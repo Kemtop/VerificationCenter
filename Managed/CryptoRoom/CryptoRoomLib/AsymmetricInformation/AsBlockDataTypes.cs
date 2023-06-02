@@ -1,4 +1,4 @@
-﻿namespace CryptoRoomLib.AsymmetricCipher
+﻿namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Типы блоков ассиметричной системы шифрования.
