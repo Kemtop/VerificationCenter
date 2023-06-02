@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Avalonia.Controls.Shapes;
 using Path = System.IO.Path;
 using System.Xml.Linq;
+using System.Diagnostics;
+using System.Threading;
 
 namespace VanishBox
 {
@@ -90,6 +92,7 @@ namespace VanishBox
             {
                 var resultFileName = RemoveCryptExtension(Path.GetFileName(file));
                 resultFileName = Path.Combine(dstDir, resultFileName);
+                var fileName = Path.GetFileName(resultFileName);
 
                 /*
                 Проверка наличия файлa в папке. 
@@ -99,12 +102,15 @@ namespace VanishBox
                 */
                 if (File.Exists(resultFileName))
                 {
-                    sendInfo($"Файл {Path.GetFileName(resultFileName)} существует. Действий не требуется.");
+                    sendInfo($"Файл {fileName} существует. Действий не требуется.");
                     continue;
                 }
 
                 textIteration($"{processText} {file}");
 
+                Stopwatch stopwatch = new Stopwatch(); //Измерение времени операции.
+                int steps = 1;
+                
                 bool result = worker.DecryptingFile(file, resultFileName, _keyService.GetPrivateAsymmetricKey(),
                     _keyService.KeyContainer.EcOid, _keyService.EcPublicKey,
                     (size) => { decryptDataSize = size; },
@@ -116,10 +122,20 @@ namespace VanishBox
                     }, 
                     (text) =>
                     {
+                        if (stopwatch.IsRunning)
+                        {
+                            stopwatch.Stop();
+                            TimeSpan time = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
+                            sendInfo($"Обработка {fileName} шаг {steps} завершена. Затрачено {String.Format("{0:hh\\:mm\\:ss\\:fff}", time)} .");
+                            steps++;
+                        }
+
+                        if (!stopwatch.IsRunning) stopwatch.Start();
+
                         textIteration($"{text} {file}");
                     });
 
-                sendInfo($"Файл {Path.GetFileName(file)} {resultText}. Сохранен как {Path.GetFileName(resultFileName)}.");
+                sendInfo($"Файл {fileName} {resultText}. Сохранен как {Path.GetFileName(resultFileName)}.");
             }
 
             return true;

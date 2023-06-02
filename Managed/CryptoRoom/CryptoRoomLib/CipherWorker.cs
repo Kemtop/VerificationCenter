@@ -78,6 +78,7 @@ namespace CryptoRoomLib
             bool result = _blockCipherMode.DecryptData(srcPath, resultFileName, commonInfo,
                 setDataSize, setMaxBlockCount, endIteration);
 
+            sendProcessText("Завершено");
             if (!result)
             {
                 LastError = _blockCipherMode.LastError;
