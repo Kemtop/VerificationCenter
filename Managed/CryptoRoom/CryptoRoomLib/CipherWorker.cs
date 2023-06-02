@@ -1,4 +1,4 @@
-﻿using CryptoRoomLib.AsymmetricCipher;
+﻿using CryptoRoomLib.AsymmetricInformation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using CryptoRoomLib.Sign;
 using System.Security.Cryptography;
 using System.Drawing;
 using System.Numerics;
+using CryptoRoomLib.Models;
 
 namespace CryptoRoomLib
 {
@@ -17,28 +18,17 @@ namespace CryptoRoomLib
     public class CipherWorker
     {
         /// <summary>
-        /// Сервис для работы с секретным ключом пользователя.
-        /// </summary>
-        private readonly IKeyService _keyService;
-
-        /// <summary>
         /// Режим работы блочного шифра.
         /// </summary>
         private readonly IBlockCipherMode _blockCipherMode;
-
-        /// <summary>
-        /// Размер файла в байтах, который будет подписан. Свыше указанного размера – файл подписан не будет (операция будет выполняться долго).
-        /// </summary>
-        private const int SignAllowSize = 1900000000;
 
         /// <summary>
         /// Последнее сообщение об ошибке.
         /// </summary>
         public string LastError { get; set; }
 
-        public CipherWorker(IKeyService keyService, IBlockCipherMode blockCipherMode)
+        public CipherWorker(IBlockCipherMode blockCipherMode)
         {
-            _keyService = keyService;
             _blockCipherMode = blockCipherMode; 
         }
 
@@ -49,44 +39,52 @@ namespace CryptoRoomLib
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
         /// <returns></returns>
-        public bool DecryptingFile(string srcPath, string resultFileName, Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
-            Action<ulong> endIteration)
+        public bool DecryptingFile(string srcPath, string resultFileName, byte[] privateAsymmetricKey,
+            string ecOid, EcPoint ecPublicKey,
+            Action<ulong> setDataSize, Action<ulong> setMaxBlockCount, Action<ulong> endIteration,
+            Action<string> sendProcessText)
         {
-            ulong blockCount = 0;
-            ulong blockNum = 0;
-            ulong decryptDataSize = 0;
+            var commonInfo = FileFormat.ReadFileInfo(srcPath);
+            if (commonInfo == null)
+            {
+                LastError = FileFormat.LastError;
+                return false;
+            }
 
-            return _blockCipherMode.DecryptData(srcPath, resultFileName, setDataSize, setMaxBlockCount, endIteration,
-                //Чтение данных ассиметричной системы.
-                (usefulDataSize, inFile) =>
-                {
-                    var asymmetricData = new AsDataReader();
-                    asymmetricData.Read(inFile, usefulDataSize);
-                    asymmetricData.CheckAll(); //Добавить возврат ошибки. Можно расспаралелить.
+            KeyDecoder kd = new KeyDecoder();
+            byte[] decryptKey;
 
-                    var sessionKey = asymmetricData.GetCryptedSessionKey();
+            var decryptResult = kd.DecryptSessionKey(privateAsymmetricKey,  commonInfo.CryptedSessionKey,
+                out decryptKey);
 
-                    if (sessionKey == null)
-                    {
-                        LastError = asymmetricData.Error;
-                        return null; //В реальном коде вывести сообщение об ошибке.
-                    }
-                       
-                    KeyDecoder kd = new KeyDecoder();
-                    byte[] decryptKey;
+            commonInfo.SessionKey = decryptKey;
 
-                    var decryptResult = kd.DecryptSessionKey(_keyService.GetPrivateAsymmetricKey(), sessionKey, out decryptKey);
+            //В реальном коде вывести сообщение об ошибке.
+            if (!decryptResult)
+            {
+                LastError = kd.Error;
+                return false;
+            }
 
-                    //В реальном коде вывести сообщение об ошибке.
-                    if (!decryptResult)
-                    {
-                        LastError = kd.Error;
-                        return null;
-                    }
+            sendProcessText("Проверка подписи");
+            var signTools = new SignTools();
+            if (!signTools.CheckSign(srcPath, commonInfo, ecOid, ecPublicKey))
+            {
+                LastError = signTools.LastError;
+                return false;
+            }
 
-                    return decryptKey;
-                }
-            );
+            sendProcessText("Расшифровывание файла");
+            bool result = _blockCipherMode.DecryptData(srcPath, resultFileName, commonInfo,
+                setDataSize, setMaxBlockCount, endIteration);
+
+            if (!result)
+            {
+                LastError = _blockCipherMode.LastError;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -97,86 +95,48 @@ namespace CryptoRoomLib
         /// <param name="ecOid">Идентификатор эллиптической кривой.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
         /// <returns></returns>
-        public bool CryptingFile(string srcPath, string resultFileName, string ecOid, byte[] signPrivateKey,
+        public bool CryptingFile(string srcPath, string resultFileName, byte[] publicAsymmetricKey, string ecOid, byte[] signPrivateKey, EcPoint ecPublicKey,
             Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
             Action<ulong> endIteration, Action<string> sendMessage, Action<int> signProcessStatus)
         {
-            ulong blockCount = 0;
-            ulong blockNum = 0;
-            ulong decryptDataSize = 0;
+            CommonFileInfo info = new CommonFileInfo();
 
-            bool result = _blockCipherMode.CryptData(srcPath, resultFileName, setDataSize, setMaxBlockCount, endIteration,
-                //Чтение данных ассиметричной системы.
-                (sessionKey) =>
-                {
-                    KeyDecoder kd = new KeyDecoder();
-                    byte[] cryptKey;
+            FileInfo fi = new FileInfo(srcPath);
+            info.FileLength = (ulong)fi.Length; //Размер исходного файла в байтах.
+            
+            info.FileHead = FileFormat.CreateCryptFileTitle(info.FileLength, _blockCipherMode.Algoritm);
+            info.SessionKey = CipherTools.GenerateRand(32); //Формирую случайное число размером 32байта, которое является сеансовым ключом.
+            KeyDecoder kd = new KeyDecoder();
+            byte[] cryptKey;
 
-                    var encryptResult = kd.EncryptSessionKey(_keyService.GetPublicAsymmetricKey(), sessionKey, out cryptKey);
-                    if (!encryptResult)
-                    {
-                        LastError = kd.Error;
-                        return null;
-                    }
-
-                    var asWriter = new AsDataWriter();
-                    asWriter.AddRsaHash(new byte[37]);
-                    asWriter.AddCryptedBlockKey(cryptKey);
-
-                    return asWriter.GetData();
-                }
-            );
-
-            if (!result) return false;
-
-            if (!SignFile(resultFileName, sendMessage, ecOid, signPrivateKey, signProcessStatus)) return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Подпись файла.
-        /// </summary>
-        /// <param name="file"></param>
-        /// <param name="sendMessage"></param>
-        /// <returns></returns>
-        private bool SignFile(string srcfile, Action<string> sendMessage, string ecOid, byte[] signPrivateKey, Action<int> signProcessStatus)
-        {
-            FileInfo fi = new FileInfo(srcfile);
-
-            if (fi.Length > SignAllowSize)
+            var encryptResult = kd.EncryptSessionKey(publicAsymmetricKey, info.SessionKey, out cryptKey);
+            if (!encryptResult)
             {
-                sendMessage($"Файл  более {String.Format("{0:0.00}", (float)SignAllowSize / 1024 / 1024)}Мб, подписан не будет.");
-                return true;
+                LastError = kd.Error;
+                return false;
             }
 
-            signProcessStatus(1); //Информирую UI о начале процесса подписи.
-            
-            using (FileStream inFile = new FileStream(srcfile, FileMode.Open, FileAccess.ReadWrite))
+            //Сведения о шифрованном сеансовом ключе, в виде блоков ASN1.
+            var asWriter = new AsDataWriter();
+            asWriter.AddRsaHash(new byte[37]);
+            asWriter.AddCryptedBlockKey(cryptKey);
+
+            info.BlockData = asWriter.GetData();
+
+            bool result = _blockCipherMode.CryptData(srcPath, resultFileName, info, 
+                setDataSize, setMaxBlockCount, endIteration);
+
+            if (!result)
             {
-                inFile.Seek(FileFormat.BeginDataBlock, SeekOrigin.Begin);
-                byte[] fileData = new byte[fi.Length - FileFormat.BeginDataBlock];
-                inFile.Read(fileData);
+                LastError = _blockCipherMode.LastError;
+                return false;
+            }
 
-                var curve = EcGroups.GetCurve(ecOid);
-                if (curve == null)
-                {
-                    LastError = "Ошибка Sg3.1: Не удалось определить параметры кривой.";
-                    return false;
-                }
-
-                //Создаю точку с указанными в кривой координатами точки P
-                EcPoint p = new EcPoint(curve, true);
-
-                CreateSign signGen = new CreateSign();
-                var sign = signGen.Sign(new BigInteger(signPrivateKey), fileData, p);
-
-                var asWriter = new AsDataWriter();
-                asWriter.SignR(sign.VectorR.ToArray().Select(c => (byte)c).ToArray());
-                asWriter.SignS(sign.VectorR.ToArray().Select(c => (byte)c).ToArray());
-
-                inFile.Write(asWriter.GetData());
-                inFile.Close();
+            var signTools = new SignTools();
+            if (!signTools.SignFile(resultFileName, sendMessage, ecOid, signPrivateKey, ecPublicKey))
+            {
+                LastError = signTools.LastError;
+                return false;
             }
 
             return true;

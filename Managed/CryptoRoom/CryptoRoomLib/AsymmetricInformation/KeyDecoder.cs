@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace CryptoRoomLib.AsymmetricCipher
+namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Декодирует сеансовый ключ шифрования.

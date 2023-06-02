@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CryptoRoomLib.AsymmetricCipher
+﻿namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Набор встроенных тестов для проверки правильности алгоритма.
@@ -51,7 +45,7 @@ namespace CryptoRoomLib.AsymmetricCipher
             KeyDecoder kd = new KeyDecoder();
             byte[] sessionKey;
 
-            kd.DecryptSessionKey(AsymmetricCipher.TestConst.RsaPrivateKey, TestConst.CryptData, out sessionKey);
+            kd.DecryptSessionKey(TestConst.RsaPrivateKey, TestConst.CryptData, out sessionKey);
 
             if (!sessionKey.SequenceEqual(TestConst.SessionKey))
             {

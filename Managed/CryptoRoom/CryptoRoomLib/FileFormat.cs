@@ -1,4 +1,5 @@
-﻿using CryptoRoomLib.AsymmetricCipher;
+﻿using CryptoRoomLib.AsymmetricInformation;
+using CryptoRoomLib.Models;
 using System.Text;
 using static System.Reflection.Metadata.BlobBuilder;
 
@@ -90,7 +91,12 @@ namespace CryptoRoomLib
         /// Заголовок 5 байт [тип][длина]
         /// </summary>
         internal static readonly int AsymmetricHeadSize = 5;
-
+        
+        /// <summary>
+        /// Последнее сообщение об ошибке.
+        /// </summary>
+        public static string LastError { get; set; }
+        
         /// <summary>
         /// Считывает из файла размер блока шифрованных данных.
         /// </summary>
@@ -162,6 +168,45 @@ namespace CryptoRoomLib
             Buffer.BlockCopy(fileLenInfo, 0, fileTitle, curentArrayPos, fileLenInfo.Length);
 
             return fileTitle;
+        }
+
+        /// <summary>
+        /// Получает основную информацию из файла.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static CommonFileInfo ReadFileInfo(string fileName)
+        {
+            using (FileStream inFile = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+            {
+                CommonFileInfo info = new CommonFileInfo();
+                info.UserDataSize = FileFormat.ReadDataSize(inFile); //Считывает из файла размер блока шифрованных данных.
+
+                //Чтение данных ассиметричной системы. Получение сессионного ключа.
+                var asymmetricData = new AsDataReader();
+                asymmetricData.Read(inFile, info.UserDataSize);
+                if (!asymmetricData.CheckAll())
+                {
+                    LastError = asymmetricData.Error;
+                    return null;
+                }
+
+                info.CryptedSessionKey = asymmetricData.GetCryptedSessionKey();
+                info.VectorR = asymmetricData.GetVectorR();
+                info.VectorS = asymmetricData.GetVectorS();
+                info.BeginSignBlockPosition = asymmetricData.BeginSignBlockPosition;
+
+                if (info.CryptedSessionKey == null)
+                {
+                    LastError = asymmetricData.Error;
+                    return null;
+                }
+                
+                info.Iv = FileFormat.ReadIV(inFile, info.UserDataSize); //Считывает значение вектора iv.
+                info.BeginDataPosition = FileFormat.BeginDataBlock + FileFormat.DataSizeInfo;
+
+                return info;
+            }
         }
     }
 }

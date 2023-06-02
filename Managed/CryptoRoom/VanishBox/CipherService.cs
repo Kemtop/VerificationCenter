@@ -84,7 +84,7 @@ namespace VanishBox
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
             IBlockCipherMode cipherMode = new ModeCBC(algoritm);
 
-            CipherWorker worker = new CipherWorker(_keyService, cipherMode);
+            CipherWorker worker = new CipherWorker(cipherMode);
             
             foreach (var file in paths)
             {
@@ -105,13 +105,18 @@ namespace VanishBox
 
                 textIteration($"{processText} {file}");
 
-                bool result = worker.DecryptingFile(file, resultFileName,
+                bool result = worker.DecryptingFile(file, resultFileName, _keyService.GetPrivateAsymmetricKey(),
+                    _keyService.KeyContainer.EcOid, _keyService.EcPublicKey,
                     (size) => { decryptDataSize = size; },
                     (max) => { blockCount = max; },
                     (number) =>
                     {
                         double progress = ((double)number / blockCount) * 100;
                         progressIteration((int)progress);
+                    }, 
+                    (text) =>
+                    {
+                        textIteration($"{text} {file}");
                     });
 
                 sendInfo($"Файл {Path.GetFileName(file)} {resultText}. Сохранен как {Path.GetFileName(resultFileName)}.");

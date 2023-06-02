@@ -9,6 +9,7 @@ namespace CryptoRoomLib.Sign
     {
         public SelfTests()
         {
+            AppendFunc(PaddingLeftTest);
             AppendFunc(CoordUnpackTest);
             AppendFunc(SignTest);
         }
@@ -58,7 +59,7 @@ namespace CryptoRoomLib.Sign
             //Создаю точку с указанными в кривой координатами точки P.
             EcPoint p = new EcPoint(curve, true);
 
-            CreateSign signGen = new CreateSign();
+            SignTools signToolsGen = new SignTools();
 
             string text = "Alice and Bob are fictional characters commonly used as placeholders " +
                           "in discussions about cryptographic systems and protocols, and in " +
@@ -79,9 +80,9 @@ namespace CryptoRoomLib.Sign
             EcPoint Q = new EcPoint();
             Q = PointMath.GenPublicKey(d, p); //Открытый ключ.
 
-            var sign = signGen.Sign(d, message, p);
+            var sign = signToolsGen.Sign(d, message, p);
            
-            bool result = signGen.Verify(message, sign, Q, p);
+            bool result = signToolsGen.Verify(message, sign, Q, p);
             if (!result)
             {
                 LastError = "SignTest: Ошибка проверки подписи.";
@@ -89,13 +90,31 @@ namespace CryptoRoomLib.Sign
             }
 
             message[0] = 0;
-            result = signGen.Verify(message, sign, Q, p);
+            result = signToolsGen.Verify(message, sign, Q, p);
             if (result)
             {
                 LastError = "SignTest: Неверный алгоритм проверки подписи";
                 return false;
             }
             
+            return true;
+        }
+
+        /// <summary>
+        /// Дополнение массива до кратной длины.
+        /// </summary>
+        /// <returns></returns>
+        private bool PaddingLeftTest()
+        {
+            byte[] message = new byte[63];
+            var result = CipherTools.PaddingLeft(message);
+
+            if (result.Length != message.Length + 1)
+            {
+                LastError = "Ошибка теста дополнения нулями слева.";
+                return false;
+            }
+
             return true;
         }
     }

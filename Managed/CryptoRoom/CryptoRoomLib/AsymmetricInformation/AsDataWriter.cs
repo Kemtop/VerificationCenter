@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CryptoRoomLib.Sign;
 
-namespace CryptoRoomLib.AsymmetricCipher
+namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Создает данные ассиметричной системы шифрования.
@@ -59,7 +54,7 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// <summary>
         /// Создает блок с вектором подписи.
         /// </summary>
-        public void SignR(byte[] data)
+        private void SignR(byte[] data)
         {
             Blocks.Add(new AsBlockData()
             {
@@ -71,7 +66,7 @@ namespace CryptoRoomLib.AsymmetricCipher
         /// <summary>
         /// Создает блок с вектором подписи.
         /// </summary>
-        public void SignS(byte[] data)
+        private void SignS(byte[] data)
         {
             Blocks.Add(new AsBlockData()
             {
@@ -80,6 +75,35 @@ namespace CryptoRoomLib.AsymmetricCipher
             });
         }
 
+        /// <summary>
+        /// Индекс открытого ключа подписанта.
+        /// </summary>
+        /// <param name="data"></param>
+        private void SignedIndex(byte[] data)
+        {
+            Blocks.Add(new AsBlockData()
+            {
+                Type = AsBlockDataTypes.SignKeyIndex,
+                Data = data
+            });
+        }
+
+        /// <summary>
+        /// Создает блок содержащий сведения о подписи.
+        /// </summary>
+        /// <param name="sign"></param>
+        /// <param name="signIndex"></param>
+        /// <returns></returns>
+        public byte[] CreateSignBlock(Signature sign, byte[] signIndex)
+        {
+            //Порядок блоков обязателен! Встречая блок R – определяем позицию в файле где начинается подпись.
+            SignR(CipherTools.PaddingLeft(sign.R.getBytes()));
+            SignS(CipherTools.PaddingLeft(sign.S.getBytes()));
+            SignedIndex(signIndex);
+
+            return GetData();
+        }
+        
         /// <summary>
         /// На основании блоков формирует бинарную последовательность похожую на ASN1.
         /// [тип блока  1 байт][длина данных 4 байта][данные]

@@ -1,4 +1,6 @@
-﻿namespace CryptoRoomLib.CipherMode3413
+﻿using CryptoRoomLib.Models;
+
+namespace CryptoRoomLib.CipherMode3413
 {
     /// <summary>
     /// Реализация режима работы блочного шифра - режим простой замены с зацеплением,
@@ -13,6 +15,14 @@
         /// Сообщение об ошибке.
         /// </summary>
         public string LastError { get; set; }
+
+        public ICipherAlgoritm Algoritm
+        {
+            get
+            {
+                return _algoritm;
+            }
+        }
 
         public ModeCBC(ICipherAlgoritm algoritm)
         {
@@ -83,7 +93,7 @@
             //Заполнение старших бит значением блока шифротекста
             register.MSB = tmpBlock;
         }
-
+        
         /// <summary>
         /// Декодирует данные.
         /// </summary>
@@ -92,8 +102,8 @@
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
-        public bool DecryptData(string cryptfile, string outfile, Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount,
-            Action<ulong> endIteration, Func<ulong, FileStream, byte[]> asReader)
+        public bool DecryptData(string cryptfile, string outfile, CommonFileInfo info,
+            Action<ulong> setDataSize ,Action<ulong> setMaxBlockCount, Action<ulong> endIteration)
         {
             Register256t register = new Register256t();// Регистр размером m = kn =  2*16
             Block128t lsb = new Block128t();//значением n разрядов регистра сдвига с большими номерами
@@ -113,21 +123,14 @@
             using (FileStream outFile = new FileStream(outfile, FileMode.Create, FileAccess.Write))
             using (FileStream inFile = new FileStream(cryptfile, FileMode.Open, FileAccess.Read))
             {
-                ulong usefulDataSize = FileFormat.ReadDataSize(inFile); //Считывает из файла размер блока шифрованных данных.
-
-                byte[] sessionKey = asReader(usefulDataSize, inFile); //Чтение данных ассиметричной системы. Получение сессионного ключа.
-                if (sessionKey == null) return false;
-                
-                _algoritm.DeployDecryptRoundKeys(sessionKey);
-
-                var iv = FileFormat.ReadIV(inFile, usefulDataSize); //Считывает значение вектора iv.
+                _algoritm.DeployDecryptRoundKeys(info.SessionKey);
 
                 //Читаем с места где содержатся данные.
-                inFile.Position = FileFormat.BeginDataBlock + FileFormat.DataSizeInfo;
+                inFile.Position = info.BeginDataPosition;
                 inFile.Read(buffSpan);
                 сBlock.FromArray(readBuffer);
 
-                register.FromArray(iv); //Заполнение регистра данными IV
+                register.FromArray(info.Iv); //Заполнение регистра данными IV
                 IterationCBC(ref register, ref tmpBlock, ref lsb, ref сBlock, ref pBlock);
 
                 //Первый блок является длиной данных-вынести в логику формирования файла.
@@ -184,12 +187,10 @@
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
         /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
         /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
-        public bool CryptData(string srcfile, string outfile, Action<ulong> setDataSize,
-            Action<ulong> setMaxBlockCount,
-            Action<ulong> endIteration, Func<byte[], byte[]> asGenerator)
+        public bool CryptData(string srcfile, string outfile, CommonFileInfo info, Action<ulong> setDataSize,
+            Action<ulong> setMaxBlockCount, Action<ulong> endIteration)
         {
-            FileInfo fi = new FileInfo(srcfile);
-            ulong srcFileLen = (ulong)fi.Length; //Размер исходного файла в байтах
+            ulong srcFileLen = info.FileLength; //Размер исходного файла в байтах
 
             //Нeт механизма обработки файлов менее BlockSize. При желании можно сделать.
             if (srcFileLen < (ulong)_algoritm.BlockSize)
@@ -198,10 +199,9 @@
                 return false;
             }
             
-            byte[] sessionKey = CipherTools.GenerateRand(32); //Формирую случайное число размером 32байта, которое является сеансовым ключом.
             byte[] iv = CipherTools.GenerateRand(32); //Формирую случайный начальный вектор(32байта).
            
-            _algoritm.DeployСryptRoundKeys(sessionKey);
+            _algoritm.DeployСryptRoundKeys(info.SessionKey);
 
             Register256t register = new Register256t();// Регистр размером m = kn =  2*16
             Block128t lsb = new Block128t();//значением n разрядов регистра сдвига с большими номерами
@@ -209,11 +209,9 @@
             Block128t cBlock = new Block128t(); //Входящий шифротекст.
             Block128t pBlock = new Block128t(); //Исходящий декодированный текст.
             Block128t tmpBlock = new Block128t(); //Хранит временные данные
-
-
+            
             register.FromArray(iv); //Заполнение регистра данными IV
-
-
+            
             //Шифрование размера файла
             byte[] fileLen = BitConverter.GetBytes(srcFileLen);
             tmpBlock.FromArray(fileLen);
@@ -236,8 +234,7 @@
             using (FileStream outFile = new FileStream(outfile, FileMode.Create, FileAccess.Write))
             using (FileStream inFile = new FileStream(srcfile, FileMode.Open, FileAccess.Read))
             {
-                byte[] fileHead = FileFormat.CreateCryptFileTitle(srcFileLen, _algoritm);
-                outFile.Write(fileHead, 0, fileHead.Length);
+                outFile.Write(info.FileHead);
 
                 ulong blockCount = srcFileLen / (ulong)_algoritm.BlockSize; //Количество блоков в сообщении
 
@@ -293,15 +290,7 @@
                 }
                 
                 outFile.Write(iv);
-
-                var data = asGenerator(sessionKey); //Чтение данных ассиметричной системы. Получение сессионного ключа.
-                if (data == null)
-                {
-                    outFile.Close();
-                    return false;
-                }
-
-                outFile.Write(data, 0, data.Length);
+                outFile.Write(info.BlockData);
                 outFile.Close();
             }
 

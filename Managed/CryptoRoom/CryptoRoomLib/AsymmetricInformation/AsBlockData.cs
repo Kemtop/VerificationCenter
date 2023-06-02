@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CryptoRoomLib.AsymmetricCipher
+﻿namespace CryptoRoomLib.AsymmetricInformation
 {
     /// <summary>
     /// Хранит блоки данных, в которых передается иформация для ассиметричного шифрования.

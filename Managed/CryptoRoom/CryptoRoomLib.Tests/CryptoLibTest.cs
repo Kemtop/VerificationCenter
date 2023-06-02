@@ -33,7 +33,7 @@ namespace CryptoRoomLib.Tests
         [Test, Order(3)]
         public void AsymmetricCipherTest()
         {
-            var self = new CryptoRoomLib.AsymmetricCipher.SelfTests();
+            var self = new CryptoRoomLib.AsymmetricInformation.SelfTests();
             var res = self.RunTests();
 
             Assert.IsTrue(res, self.Error);
@@ -142,14 +142,14 @@ namespace CryptoRoomLib.Tests
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
             IBlockCipherMode cipherMode = new ModeCBC(algoritm);
 
-            CipherWorker worker = new CipherWorker(keyService, cipherMode);
+            CipherWorker worker = new CipherWorker(cipherMode);
 
             ulong blockCount = 0;
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.CryptingFile("Test1.jpg", "Test1.crypt", keyService.KeyContainer.EcOid,
-                keyService.GetSignPrivateKey(),
+            res = worker.CryptingFile("Test1.jpg", "Test1.jpg.crypt", keyService.GetPublicAsymmetricKey(),
+                keyService.KeyContainer.EcOid, keyService.GetSignPrivateKey(), keyService.EcPublicKey,
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; },
@@ -175,16 +175,20 @@ namespace CryptoRoomLib.Tests
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
             IBlockCipherMode cipherMode = new ModeCBC(algoritm);
             
-            CipherWorker worker = new CipherWorker(keyService, cipherMode);
+            CipherWorker worker = new CipherWorker(cipherMode);
 
             ulong blockCount = 0;
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.DecryptingFile("Test1.crypt", "Test2.jpg",
+            res = worker.DecryptingFile("Test1.jpg.crypt", "Test2.jpg",
+                keyService.GetPrivateAsymmetricKey(),
+                keyService.KeyContainer.EcOid,
+                keyService.EcPublicKey,
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
-                (number) => { blockNum = number; });
+                (number) => { blockNum = number; },
+                (text)=>{});
             
             Assert.IsTrue(res, worker.LastError);
         }
