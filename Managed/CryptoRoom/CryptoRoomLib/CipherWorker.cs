@@ -1,14 +1,8 @@
 ﻿using CryptoRoomLib.AsymmetricInformation;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CryptoRoomLib.Sign;
-using System.Security.Cryptography;
-using System.Drawing;
-using System.Numerics;
 using CryptoRoomLib.Models;
+using System.Diagnostics;
 
 namespace CryptoRoomLib
 {
@@ -44,27 +38,8 @@ namespace CryptoRoomLib
             Action<ulong> setDataSize, Action<ulong> setMaxBlockCount, Action<ulong> endIteration,
             Action<string> sendProcessText)
         {
-            var commonInfo = FileFormat.ReadFileInfo(srcPath);
-            if (commonInfo == null)
-            {
-                LastError = FileFormat.LastError;
-                return false;
-            }
-
-            KeyDecoder kd = new KeyDecoder();
-            byte[] decryptKey;
-
-            var decryptResult = kd.DecryptSessionKey(privateAsymmetricKey,  commonInfo.CryptedSessionKey,
-                out decryptKey);
-
-            commonInfo.SessionKey = decryptKey;
-
-            //В реальном коде вывести сообщение об ошибке.
-            if (!decryptResult)
-            {
-                LastError = kd.Error;
-                return false;
-            }
+            var commonInfo = ReadFileInfo(srcPath, privateAsymmetricKey);
+            if (commonInfo == null) return false;
 
             sendProcessText("Проверка подписи");
             var signTools = new SignTools();
@@ -89,6 +64,134 @@ namespace CryptoRoomLib
         }
 
         /// <summary>
+        /// Расшифровывает файл. Параллельно выполняя проверку подписи и расшифровывание файла.
+        /// </summary>
+        /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
+        /// <param name="endIteration">Возвращает номер обработанного блока. Необходим для движения ProgressBar на форме UI.</param>
+        /// <param name="setDataSize">Возвращает размер декодируемых данных.</param>
+        /// <returns></returns>
+        public bool DecryptingFileParallel(string srcPath, string resultFileName, byte[] privateAsymmetricKey,
+            string ecOid, EcPoint ecPublicKey,
+            Action<ulong> setDataSize, Action<ulong> setMaxBlockCount, Action<ulong> endIteration,
+            Action<string> sendProcessText)
+        {
+            var commonInfo = ReadFileInfo(srcPath, privateAsymmetricKey);
+            if (commonInfo == null) return false;
+
+            string fileName = Path.GetFileName(srcPath);
+
+            var signTask = Task<bool>.Run(() =>
+                {
+                    return MeasureTime(
+                        $"Начата проверка подписи {fileName} ...", 
+                        $"Ошибка проверки подписи файла {fileName}",
+                            $"Проверка подписи {fileName}  завершена.",
+                        () =>
+                        {
+                            var signTools = new SignTools();
+                            if (!signTools.CheckSign(srcPath, commonInfo, ecOid, ecPublicKey))
+                            {
+                                LastError = signTools.LastError;
+                                return signTools.LastError;
+                            }
+
+                            return string.Empty;
+                        }, 
+                        sendProcessText
+                    );
+                }
+            );
+
+            var decryptTask = Task<bool>.Run(() =>
+            {
+                return MeasureTime(
+                    $"Начата расшифровка файла {fileName} ...",
+                    $"Ошибка расшифровки файла {fileName}",
+                        $"Расшифровка файла {fileName} завершена.",
+                    () =>
+                    {
+                        bool result = _blockCipherMode.DecryptData(srcPath, resultFileName, commonInfo,
+                            setDataSize, setMaxBlockCount, endIteration);
+
+                        if (!result)
+                        {
+                            LastError = _blockCipherMode.LastError;
+                            return _blockCipherMode.LastError;
+                        }
+
+                        return string.Empty;
+                    },
+                    sendProcessText
+                );
+            });
+            
+            Task.WaitAll(signTask, decryptTask);
+          
+            return signTask.Result && decryptTask.Result;
+        }
+
+        /// <summary>
+        /// Выполняет функцию, замеряя время выполнения.
+        /// </summary>
+        /// <param name="beginMessage"></param>
+        /// <param name="errorMessage"></param>
+        /// <param name="success"></param>
+        /// <param name="func"></param>
+        /// <param name="sendProcessText"></param>
+        /// <returns></returns>
+        private bool MeasureTime(string beginMessage, string errorMessage, string success, Func<string> func, Action<string> sendProcessText)
+        {
+            sendProcessText(beginMessage);
+
+            Stopwatch stopwatch = new Stopwatch(); //Измерение времени операции.
+            stopwatch.Start();
+            var error = func();
+            stopwatch.Stop();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                sendProcessText($"{errorMessage} : {error}");
+                return false;
+            }
+            
+            TimeSpan time = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
+            sendProcessText($"{success} Затрачено {String.Format("{0:hh\\:mm\\:ss\\:fff}", time)} .");
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Считывает из файла основные данные.
+        /// </summary>
+        /// <returns></returns>
+        private CommonFileInfo ReadFileInfo(string srcPath, byte[] privateAsymmetricKey)
+        {
+            var commonInfo = FileFormat.ReadFileInfo(srcPath);
+            if (commonInfo == null)
+            {
+                LastError = FileFormat.LastError;
+                return null;
+            }
+
+            KeyDecoder kd = new KeyDecoder();
+            byte[] decryptKey;
+
+            var decryptResult = kd.DecryptSessionKey(privateAsymmetricKey, commonInfo.CryptedSessionKey,
+                out decryptKey);
+
+            commonInfo.SessionKey = decryptKey;
+
+            //В реальном коде вывести сообщение об ошибке.
+            if (!decryptResult)
+            {
+                LastError = kd.Error;
+                return null;
+            }
+
+            return commonInfo;
+        }
+
+        /// <summary>
         /// Шифрует файл.
         /// </summary>
         /// <param name="setMaxBlockCount">Возвращает количество обрабатываемых блоков в файле.</param>
@@ -98,8 +201,11 @@ namespace CryptoRoomLib
         /// <returns></returns>
         public bool CryptingFile(string srcPath, string resultFileName, byte[] publicAsymmetricKey, string ecOid, byte[] signPrivateKey, EcPoint ecPublicKey,
             Action<ulong> setDataSize, Action<ulong> setMaxBlockCount,
-            Action<ulong> endIteration, Action<string> sendMessage, Action<int> signProcessStatus)
+            Action<ulong> endIteration, Action<string> sendMessage)
         {
+            string fileName = Path.GetFileName(srcPath);
+            sendMessage($"Шифрование файла {fileName}...");
+
             CommonFileInfo info = new CommonFileInfo();
 
             FileInfo fi = new FileInfo(srcPath);
@@ -124,6 +230,7 @@ namespace CryptoRoomLib
 
             info.BlockData = asWriter.GetData();
 
+
             bool result = _blockCipherMode.CryptData(srcPath, resultFileName, info, 
                 setDataSize, setMaxBlockCount, endIteration);
 
@@ -133,12 +240,16 @@ namespace CryptoRoomLib
                 return false;
             }
 
+            sendMessage($"Шифрование файла {fileName} завершено.");
+
+            sendMessage($"Подпись файла {fileName} ...");
             var signTools = new SignTools();
             if (!signTools.SignFile(resultFileName, sendMessage, ecOid, signPrivateKey, ecPublicKey))
             {
                 LastError = signTools.LastError;
                 return false;
             }
+            sendMessage($"Подпись файла {fileName} завершена.");
 
             return true;
         }

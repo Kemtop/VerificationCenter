@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using System;
+using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -57,6 +58,16 @@ namespace VanishBox.ViewModels
         {
             get => _progressValue;
             set => this.RaiseAndSetIfChanged(ref _progressValue, value);
+        }
+
+        private bool _operationsButtonEnable;
+        /// <summary>
+        /// Активны кнопки управления «Зашифровать» и «Расшифровать».
+        /// </summary>
+        public bool OperationsButtonEnable
+        {
+            get => _operationsButtonEnable;
+            set => this.RaiseAndSetIfChanged(ref _operationsButtonEnable, value);
         }
 
         /// <summary>
@@ -164,7 +175,7 @@ namespace VanishBox.ViewModels
 
             SelectFilesCommand = ReactiveCommand.CreateFromTask(async () =>
             {
-               await SelectFiles();
+                await SelectFiles();
             });
 
             ResetSettingsCommand = ReactiveCommand.CreateFromTask(async () =>
@@ -193,6 +204,11 @@ namespace VanishBox.ViewModels
         {
             _selectedFiles = await SelectFilesDialog.Handle(new object());
             
+            if (_selectedFiles.Length > 0)
+            {
+                OperationsButtonEnable = true;
+            }
+
             foreach (var item in _selectedFiles)
             {
                 AppendInfoText(item);
@@ -236,6 +252,25 @@ namespace VanishBox.ViewModels
         }
 
         /// <summary>
+        /// Переводит компоненты управления в первоначальное состояние. Очищает список файлов, блокирует кнопки.
+        /// </summary>
+        private void ResetControls()
+        {
+            ShowProgressControls = false;
+            OperationsButtonEnable = false;
+            _selectedFiles = new string[]{};
+        }
+
+        /// <summary>
+        /// Отображает элементы информирующее о текущем состоянии операции (progress bar, textblock).
+        /// </summary>
+        private void EnableProgressControls()
+        {
+            ShowProgressControls = true;
+            OperationsButtonEnable = false;
+        }
+
+        /// <summary>
         /// Выводит текст в информационное окно.
         /// </summary>
         /// <param name="text"></param>
@@ -250,14 +285,32 @@ namespace VanishBox.ViewModels
         /// <returns></returns>
         private async Task CryptFiles()
         {
-            ShowProgressControls = true;
+            if (!await GetUserParam()) return;
 
-            while (ProgressValue < 100)
+            EnableProgressControls();
+
+            await Task.Run(() =>
             {
-                ProgressText = $"Выполненно {ProgressValue}%";
-                await Task.Delay(700);
-                ProgressValue++;
-            }
+                var complete = _cipherService.RunOperation(_selectedFiles, true, (text) =>
+                {
+                    AppendInfoText(text);
+                }, (progress) =>
+                {
+                    ProgressValue = progress;
+                }, (textProgress) =>
+                {
+                    ProgressText = textProgress;
+                });
+
+
+                if (!complete)
+                {
+                    AppendInfoText(_cipherService.LastError);
+                }
+
+                AppendInfoText("*** Шифрование завершено ***");
+                ResetControls();
+            });
         }
 
         /// <summary>
@@ -266,20 +319,9 @@ namespace VanishBox.ViewModels
         /// <returns></returns>
         private async Task DecryptFiles()
         {
-            var pathToKey = await GetPathToKey();
-            if (pathToKey == null) return;
+            if(!await GetUserParam()) return;
 
-            var result = await GetPasswordToKey();
-            if(result == null) return;
-
-            if (!_cipherService.CheckPassword(_passwordToKey, pathToKey))
-            {
-                await ShowErrorDialog.Handle(_cipherService.LastError);
-                _passwordToKey = string.Empty;
-                return;
-            }
-
-            ShowProgressControls = true;
+            EnableProgressControls();
 
             await Task.Run(() =>
             {
@@ -300,8 +342,31 @@ namespace VanishBox.ViewModels
                     AppendInfoText(_cipherService.LastError);
                 }
 
-                ShowProgressControls = false;
+                AppendInfoText("*** Расшифровка завершена ***");
+                ResetControls();
             });
+        }
+
+        /// <summary>
+        /// Считывает путь к ключу, проверяет пароль.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<bool> GetUserParam()
+        {
+            var pathToKey = await GetPathToKey();
+            if (pathToKey == null) return false;
+
+            var result = await GetPasswordToKey();
+            if (result == null) return false;
+
+            if (!_cipherService.CheckPassword(_passwordToKey, pathToKey))
+            {
+                await ShowErrorDialog.Handle(_cipherService.LastError);
+                _passwordToKey = string.Empty;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

@@ -77,13 +77,14 @@
                 <Button Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
                         Margin="10,0,0,10" Width="120" Foreground="White" Background="#CC0099"
                         HorizontalContentAlignment="Center"
-                        Command="{Binding CryptCommand}">
-                    Зашифровать
-                </Button>
+                        Command="{Binding CryptCommand}"
+                        IsEnabled="{Binding OperationsButtonEnable}">
+                    Зашифровать</Button>
                 <Button Grid.Row="" Grid.Column="1" HorizontalAlignment="Right"
                         Margin="10,0,0,10" Width="120"
                         Foreground="White" HorizontalContentAlignment="Center" Background="#00A9FF"
-                        Command="{Binding DecryptCommand}">
+                        Command="{Binding DecryptCommand}"
+                        IsEnabled="{Binding OperationsButtonEnable}">
                     Расшифровать
                 </Button>
             </Grid>

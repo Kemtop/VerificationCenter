@@ -153,8 +153,7 @@ namespace CryptoRoomLib.Tests
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
                 (number) => { blockNum = number; },
-                (text)=>{},
-                (signStatus)=>{});
+                (text)=>{});
 
             Assert.IsTrue(res, worker.LastError);
         }
