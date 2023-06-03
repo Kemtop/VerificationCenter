@@ -19,7 +19,7 @@ KeyGen::KeyGen(QWidget *parent)
 	connect(ui.pushButtonW1Cancel, SIGNAL(pressed()), SLOT(close()));
 
 	//Нажатие "закрыть" в последнем виджете
-	connect(ui.pushButtonW5PrintZayavka, SIGNAL(pressed()), SLOT(slotPrintZayavka()));
+	connect(ui.pushButtonW5PrintZayavka, SIGNAL(pressed()), SLOT(slotClose()));
 
 	//Выбор пути к секретному файлу
 	connect(ui.pushButtonSelectKeyPath, SIGNAL(pressed()), SLOT(slotpushButtonSelectKeyPath()));
@@ -42,33 +42,20 @@ KeyGen::KeyGen(QWidget *parent)
 	if (St.loadSettings())
 	{
 		ui.lineEditOrgName->setText(St.OrgName);
-		ui.lineEditEGRUL->setText(St.Egrul);
+		ui.lineEditEGRUL->setText(St.OrgCode);
 		ui.lineEditPodrazdelenie->setText(St.Podrazdelenie);
 		ui.lineEditRayon->setText(St.Rayon);
 		ui.lineEditGorod->setText(St.Gorod);
 		ui.lineEditAdress->setText(St.Adress);
 		ui.lineEditPochta->setText(St.mail);
 	}
-
-	/*
-	//Для отладки.
-	ui.lineEditFamiliya->setText(StrCodec->toUnicode("Иванова"));
-	ui.lineEditImia->setText(StrCodec->toUnicode("Марина"));
-	ui.lineEditOtchestvo->setText(StrCodec->toUnicode("Юрьевна"));
-	ui.lineEditTelefon->setText("012345678");
-	ui.lineEditKeyPath->setText("d:\\41\\");
-	ui.lineEditRequestPath->setText("d:\\41\\");
-	*/
-
+		
 	ui.labelAnimation->setStyleSheet("QLabel::{background-color:#F0F0F0;color:blue;}");
-	//statusBar()->setFixedHeight(1);
-//	statusBar()->hide();
 }
 
 //Нажатие на кнопку "Далее" в первом виджете
 void KeyGen::slotpushButtonW1Next()
 {
-	
 	//Пустое ли поле фамилия?
 	if (ui.lineEditFamiliya->text().isEmpty() == true)
 	{
@@ -162,7 +149,7 @@ void KeyGen::slotpushButtonW1Next()
 
 	SettingTools St; //Пишу настройки.
 	St.OrgName = ui.lineEditOrgName->text();
-	St.Egrul=ui.lineEditEGRUL->text();
+	St.OrgCode=ui.lineEditEGRUL->text();
 	St.Gorod=ui.lineEditGorod->text();
 	St.Rayon=ui.lineEditRayon->text();
 	St.Adress=ui.lineEditAdress->text();
@@ -512,12 +499,10 @@ void KeyGen::setHappyMassege()
 		StrCodec->fromUnicode(ui.lineEditKeyPath->text()) +
 		"<br>Храните в тайне пароль. Не передавайте секретный ключ другим людям.<br>"
 		" Вам нужно получить сертификат открытого ключа. "
-		"Для этого предоставьте файл запроса на получение сертификата и заявку в Удостоверяющий Центр."
+		"Для этого предоставьте файл запроса на получение сертификата в Удостоверяющий Центр."
 		"Файл запроса сохранен по пути:<br>" + StrCodec->fromUnicode(ui.lineEditRequestPath->text()) +
-		"<br> Для получения заявки нажмите кнопку \"Печать заявки\". <br>"
-		"В открывшемся браузере нажмите сочетание клавиш Ctrl+P. ";
-
-
+		"<br> Для выхода нажмите кнопку \"Закрыть\". <br>";
+	
 	HappyMessage = StrCodec->toUnicode(ms1.c_str());
 
 	ui.textEditW5Message->setText(HappyMessage);
@@ -679,32 +664,7 @@ void KeyGen::slotAnimationTimerTick()
 	animationTimer.stop();
 }
 
-void KeyGen::slotPrintZayavka()
+void KeyGen::slotClose()
 {
-	HtmlDocCreator Hc;
-
-	QDateTime now = QDateTime::currentDateTime();
-	QString strNow = now.toString("MM-dd-yyyy-hh-mm-ss");
-
-	QString pathToSave = ui.lineEditRequestPath->text()+"\\" + "zayavka["+ strNow +"].html";
-	QFile file(pathToSave);
-	file.open(QIODevice::WriteOnly);
-	QString doc = Hc.CreateZayavka(Req);
-
-	QTextCodec *StrCodec1;
-	StrCodec1 = QTextCodec::codecForName("Windows-1251"); //Установка кодировки
-
-	file.write(StrCodec1->fromUnicode(doc));
-	file.close();
-
-	QString program = "explorer.exe";
-
-
-	QStringList arguments;
-	arguments << pathToSave;
-
-	QProcess myProcess;
-	myProcess.start(program, arguments);
-	Sleep(2500);
 	close();
 }

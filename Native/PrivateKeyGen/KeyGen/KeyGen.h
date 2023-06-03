@@ -15,7 +15,6 @@
 #include <Windows.h>
 #include "SettingTools.h"
 #include "mRequest.h"
-#include "HtmlDocCreator\HtmlDocCreator.h"
 #include "SecretKeyMaker.h"
 
 
@@ -113,7 +112,7 @@ private:
 	void slotKeyBetweenTimerTick(); //Срабатывание таймера замера периода между нажатием клавиш
 	void slotKeyIsGenarated(); //Слот того что ключ сгенерированн
 	void slotAnimationTimerTick();
-	void slotPrintZayavka();//Нажатие на клавишу "Печать заявки".
+	void slotClose();//Нажатие на клавишу "Закрыть".
 
 protected:
 	void keyPressEvent(QKeyEvent *); //Событие нажатия клавиши //Если кнопка удерживается некоторое время событие повторно вызывается
