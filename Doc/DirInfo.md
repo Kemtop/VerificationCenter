@@ -36,7 +36,7 @@
 </p>
 <p align="left">
 <br>
-<strong>Native</strong>-каталог содержит С++ библиотеку криптографии и Qt приложение. <a href="./BuildQt/HowBuild.md">Инструкция по сборке решения.</a>
+<strong>Native</strong> - каталог содержит С++ проекты использующее Qt framework. <a href="./BuildQt/HowBuild.md">Инструкция по сборке решения.</a> C 2019 г. больше не поддерживается.
 </p>
 <br>
 <p align="left">
