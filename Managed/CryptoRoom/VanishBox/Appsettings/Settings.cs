@@ -57,5 +57,13 @@ namespace VanishBox.Appsettings
 
             return true;
         }
+
+        /// <summary>
+        /// Очищает все настройки.
+        /// </summary
+        public void Clear()
+        {
+            AppSettings.PathSecretKey = string.Empty;
+        }
     }
 }

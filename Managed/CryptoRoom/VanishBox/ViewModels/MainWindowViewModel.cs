@@ -1,10 +1,12 @@
 ﻿using System;
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using VanishBox.Appsettings;
+using CryptoRoomLib.KeyGenerator;
 
 namespace VanishBox.ViewModels
 {
@@ -224,6 +226,9 @@ namespace VanishBox.ViewModels
             var result = await ResetSettingsDialog.Handle("Вы действительно хотите сбросить настройки?");
             if (result == false) return;
 
+            _settings.Clear();
+            _settings.Save();
+
             AppendInfoText("Настройки сброшены.");
         }
 
@@ -237,9 +242,34 @@ namespace VanishBox.ViewModels
             var result = await ShowKeyParamDialog.Handle(keyParam);
             if (result == null) return;
 
-             //Тест.
-            AppendInfoText(result.Password);
-            AppendInfoText(result.Path);
+            string fileName = $"Key{DateTime.Now.ToString("MM-dd-yyyy-HH-mm-ss")}.{SecretKeyMaker.KeyExtension}";
+            string path = Path.Combine(result.Path, fileName);
+
+            SecretKeyMaker maker = new SecretKeyMaker();
+            if (!maker.CreateKeyFileNoReq(result.Password, path))
+            {
+                AppendInfoText(maker.LastError);
+                return;
+            }
+
+            AppendInfoText(happyMessageKeyGen(result.Path, fileName));
+        }
+
+        /// <summary>
+        /// Информационное сообщение об успешности генерации ключа.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private string happyMessageKeyGen(string path, string fileName)
+        {
+            string delimiter = new string('*', 90) + "\r\n";
+
+            return delimiter +
+                   "Уважаемый пользователь!\r\n" +
+                   $"Программа создала секретный ключ {fileName} и сохранила его в файл по пути: \r\n" +
+                   $"{path}\r\n" +
+                   "Храните в тайне пароль. Не передавайте секретный ключ другим людям.\r\n" +
+                   delimiter;
         }
 
         /// <summary>

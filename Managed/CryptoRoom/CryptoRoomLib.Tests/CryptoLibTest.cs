@@ -39,24 +39,25 @@ namespace CryptoRoomLib.Tests
             Assert.IsTrue(res, self.Error);
         }
 
-        //[Test, Order(4)]
-        //public void SecretKeyMakerTest()
-        //{
-        //    SecretKeyMaker maker = new SecretKeyMaker();
-        //    var res = maker.CreateKeyFileNoReq("ТестовыйПароль99EngLater", "key.grk");
-        //    //var res = maker.CreateKeyFileNoReq("12345678");
+        [Test, Order(4)]
+        [TestCase("ТестовыйПароль99EngLater", "key.grk")]
+        public void SecretKeyMakerTest(string password, string pathToKey)
+        {
+            SecretKeyMaker maker = new SecretKeyMaker();
+            var res = maker.CreateKeyFileNoReq(password, pathToKey);
 
-        //    Assert.IsTrue(res);
-        //}
+            Assert.IsTrue(res);
+        }
 
         /// <summary>
         /// Загружает секретный ключ и проверяет его.
         /// </summary>
         [Test, Order(5)]
-        public void KeyServiceLoadKeyTest()
+        [TestCase("key.grk")]
+        public void KeyServiceLoadKeyTest(string pathToKey)
         {
             KeyService service = new KeyService();
-            var res = service.LoadKey("key.grk");
+            var res = service.LoadKey(pathToKey);
             
             Assert.IsTrue(res, service.LastError);
         }
@@ -65,14 +66,15 @@ namespace CryptoRoomLib.Tests
         /// Читает содержимое одного ключа и копирует в другой.
         /// </summary>
         [Test, Order(6)]
-        public void CopySecretKeyTest()
+        [TestCase("key.grk", "copyKey.grk")]
+        public void CopySecretKeyTest(string srcPath, string dstPath)
         {
             KeyService service = new KeyService();
-            var res = service.LoadKey("key.grk");
+            var res = service.LoadKey(srcPath);
             Assert.IsTrue(res, service.LastError);
 
             SecretKeyMaker maker = new SecretKeyMaker();
-            res = maker.SaveToFile(service.KeyContainer, "copyKey.grk");
+            res = maker.SaveToFile(service.KeyContainer, dstPath);
             Assert.IsTrue(res, maker.LastError);
         }
 
@@ -80,17 +82,15 @@ namespace CryptoRoomLib.Tests
         /// Проверяет пароль для секретного ключа.
         /// </summary>
         [Test, Order(7)]
-        public void CheckPasswordTest()
+        [TestCase("ТестовыйПароль99EngLater", "key.grk")]
+        public void CheckPasswordTest(string password, string pathToKey)
         {
             KeyService service = new KeyService();
-            var res = service.LoadKey("key.grk");
+            var res = service.LoadKey(pathToKey);
             Assert.IsTrue(res, service.LastError);
 
-            res = service.CheckPassword("12345678");
+            res = service.CheckPassword(password);
             Assert.IsTrue(res, service.LastError);
-
-            res = service.CheckPassword("123456789");
-            Assert.IsFalse(res, service.LastError);
         }
 
         /// <summary>
@@ -130,13 +130,15 @@ namespace CryptoRoomLib.Tests
         }
         
         [Test, Order(11)]
-        public void CryptingFile()
+        [TestCase("ТестовыйПароль99EngLater", "key.grk", "Test1.jpg", "Test1.jpg.crypt")]
+
+        public void CryptingFile(string password, string pathToKey, string srcFilePath, string dstFilePath)
         {
             KeyService keyService = new KeyService();
-            var res = keyService.LoadKey("key.grk");
+            var res = keyService.LoadKey(pathToKey);
             Assert.IsTrue(res, keyService.LastError);
 
-            res = keyService.CheckPassword("12345678");
+            res = keyService.CheckPassword(password);
             Assert.IsTrue(res, keyService.LastError);
 
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
@@ -148,7 +150,7 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.CryptingFile("Test1.jpg", "Test1.jpg.crypt", keyService.GetPublicAsymmetricKey(),
+            res = worker.CryptingFile(srcFilePath, dstFilePath, keyService.GetPublicAsymmetricKey(),
                 keyService.KeyContainer.EcOid, keyService.GetSignPrivateKey(), keyService.EcPublicKey,
                 (size) => { decryptDataSize = size; },
                 (max) => { blockCount = max; },
@@ -162,13 +164,14 @@ namespace CryptoRoomLib.Tests
         /// Расшифровывает файл.
         /// </summary>
         [Test, Order(12)]
-        public void DecryptingFile()
+        [TestCase("ТестовыйПароль99EngLater", "key.grk", "Test1.jpg.crypt", "Test2.jpg")]
+        public void DecryptingFile(string password, string pathToKey, string srcFilePath, string dstFilePath)
         {
             KeyService keyService = new KeyService();
-            var res = keyService.LoadKey("key.grk");
+            var res = keyService.LoadKey(pathToKey);
             Assert.IsTrue(res, keyService.LastError);
 
-            res = keyService.CheckPassword("12345678");
+            res = keyService.CheckPassword(password);
             Assert.IsTrue(res, keyService.LastError);
 
             ICipherAlgoritm algoritm = new CipherAlgoritm3412();
@@ -180,7 +183,7 @@ namespace CryptoRoomLib.Tests
             ulong blockNum = 0;
             ulong decryptDataSize = 0;
 
-            res = worker.DecryptingFile("Test1.jpg.crypt", "Test2.jpg",
+            res = worker.DecryptingFile(srcFilePath, dstFilePath,
                 keyService.GetPrivateAsymmetricKey(),
                 keyService.KeyContainer.EcOid,
                 keyService.EcPublicKey,

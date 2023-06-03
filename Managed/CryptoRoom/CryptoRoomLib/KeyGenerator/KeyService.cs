@@ -1,19 +1,6 @@
 ﻿using CryptoRoomLib.AsymmetricInformation;
-using CryptoRoomLib.Cipher3412;
-using CryptoRoomLib.CipherMode3413;
 using CryptoRoomLib.Sign;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Diagnostics.Metrics;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace CryptoRoomLib.KeyGenerator
@@ -40,7 +27,7 @@ namespace CryptoRoomLib.KeyGenerator
         {
             get
             {
-                if (_lastException == null) return _lastError;
+                if (string.IsNullOrEmpty(_lastException)) return _lastError;
 
                 return _lastError + $" Исключение: {_lastException}";
             }
@@ -351,7 +338,19 @@ namespace CryptoRoomLib.KeyGenerator
             }
             catch (Exception e)
             {
-                _lastException = e.Message;
+                /*
+                 * При чтении не расшифрованного RSA ключа – всегда возникает исключение с данным сообщением.
+                 * На основании этого можем определить – ключ не расшифрован из-за не корректного пароля.
+                 */
+                if (e.Message == "ASN1 corrupted data.")
+                {
+                    _lastException = string.Empty;
+                }
+                else
+                {
+                  _lastException = e.Message;
+                }
+                
                 LastError = "Неверный пароль.";
                 return false;
             }

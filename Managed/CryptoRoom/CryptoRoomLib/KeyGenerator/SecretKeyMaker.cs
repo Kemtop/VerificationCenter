@@ -1,20 +1,10 @@
-﻿using CryptoRoomLib.AsymmetricInformation;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography;
-using CryptoRoomLib.Hash3411;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
 using System.Text;
 using CryptoRoomLib.Cipher3412;
 using CryptoRoomLib.CipherMode3413;
-using Newtonsoft.Json;
 using System.Xml;
 using System.Xml.Serialization;
-using CryptoRoomLib.Models;
-using System.Security.Cryptography.X509Certificates;
-using System.Collections;
+using CryptoRoomLib.Sign;
 
 namespace CryptoRoomLib.KeyGenerator
 {
@@ -24,9 +14,29 @@ namespace CryptoRoomLib.KeyGenerator
     public class SecretKeyMaker
     {
         /// <summary>
+        /// Минимальная длина пароля.
+        /// </summary>
+        public static int PasswordMinLength = 8;
+
+        /// <summary>
+        /// Максимальная длина пароля.
+        /// </summary>
+        public static int PasswordMaxLength = 64;
+
+        /// <summary>
+        /// Расширение файла ключа.
+        /// </summary>
+        public static string KeyExtension = "grk";
+
+        /// <summary>
         /// Размер соли для кодирование ключа подписи.
         /// </summary>
         private const int SignKeySaltLength = 17;
+
+        /// <summary>
+        /// Длина начального вектора для шифрования закрытого ключа подписи.
+        /// </summary>
+        private const int SignKeyIvLength = 16;
 
         /// <summary>
         /// Алгоритм открытого ключа подписи.
@@ -114,8 +124,8 @@ namespace CryptoRoomLib.KeyGenerator
             container.DateBegin = DateTime.Now;
             container.DateEnd = DateTime.Now.AddYears(1);
 
-            СreateSignKey(container, passwordArray);
-            CreateRsaKey(container, 4096, passwordArray);
+            if (!СreateSignKey(container, passwordArray)) return false;
+            if (!CreateRsaKey(container, 4096, passwordArray)) return false;
             
             container.KeyGenTimeStamp = DateTime.Now; //Время и дата когда ключ был сгенерирован.
 
@@ -154,66 +164,37 @@ namespace CryptoRoomLib.KeyGenerator
         /// Генерация ключевой пары для накладывания и проверки подписи.
         /// </summary>
         /// <param name="container"></param>
-        private void СreateSignKey(SecretKeyContainer container, byte[] password)
+        private bool СreateSignKey(SecretKeyContainer container, byte[] password)
         {
-            //var salt = CipherTools.GenerateRand(SignKeySaltLength);
-
-            byte[] salt = new byte[]
-            {
-                0x10, 0xea, 0x2c, 0x88, 0x25, 0x96, 0xf3, 0x12,
-                0x55, 0xaa, 0xd4, 0xca, 0x5c, 0x58, 0xe7, 0xea,
-                0x4d,
-            };
-
-            byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
+            var salt = CipherTools.GenerateRand(SignKeySaltLength);
+            var hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
 
             HashedPassword(salt, password, hashPassword);
 
-            //Генерирую вектор инициализации
-            byte[] iv = new byte[16]
+            SignTools tools = new SignTools();
+            if (!tools.CreateEcKeyPair(EcOid, out byte[] privateKey, out EcPoint ecPublicKey))
             {
-                0x81, 0x4a, 0x88, 0x25, 0xbd, 0xb2, 0x13, 0x7e,
-                0x53, 0xd8, 0x4c, 0x2b, 0x70, 0x53, 0xc1, 0xec
-            };
+                LastError = tools.LastError;
+                return false;
+            }
 
-            //Закрытый ключ.
-            byte[] sc = new byte[64]
-            {
-                0x70, 0x02, 0xfa, 0x00, 0x11, 0x72, 0x01, 0x01,
-                0x3e, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
-                0x80, 0xfd, 0xe2, 0x03, 0xe9, 0xab, 0x32, 0x77,
-                0x80, 0xe7, 0xbd, 0x00, 0x98, 0x01, 0x00, 0x00,
-                0xf0, 0xac, 0x54, 0x24, 0xfe, 0xff, 0xff, 0xff,
-                0x04, 0xe7, 0xbd, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x14, 0x7b, 0x35, 0x77,
-                0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfa, 0x00
-            };
+            var iv = CipherTools.GenerateRand(SignKeyIvLength); //Генерирую вектор инициализации.
+            CryptSecretKey(hashPassword, iv, privateKey); //Шифрую на хеши от соли и пароля закрытый ключ.
 
-            //Шифрованный на хеши от соли и пароля закрытый ключ.
-            byte[] cryptSc = new byte[64]
-            {
-                0xf3, 0x68, 0x3e, 0x66, 0x53, 0xf6, 0x43, 0xa9,
-                0xe8, 0x76, 0x7c, 0x73, 0x0c, 0x42, 0xdb, 0x60,
-                0xc0, 0x20, 0x0f, 0x56, 0xa9, 0xf1, 0x9d, 0x51,
-                0x88, 0xec, 0x87, 0x07, 0x53, 0xac, 0xfb, 0xb6,
-                0x96, 0x0e, 0x53, 0x85, 0x38, 0x20, 0x1c, 0xf6,
-                0x32, 0x2e, 0x32, 0x04, 0x4f, 0xb2, 0x07, 0x1c,
-                0x2e, 0x82, 0x79, 0x20, 0xb0, 0x0b, 0xa0, 0xda,
-                0xa4, 0x53, 0x6b, 0x8a, 0xdf, 0xe7, 0xeb, 0x5d
-            };
-
-
-            CryptSecretKey(hashPassword, iv, sc);
-
-            container.CryptSignKey = Convert.ToHexString(sc).ToLower();
+            container.CryptSignKey = Convert.ToHexString(privateKey).ToLower();
             container.IvCryptSignKey = Convert.ToHexString(iv).ToLower();
             container.SaltCryptSignKey = Convert.ToHexString(salt).ToLower();
 
-            container.OpenSignKeyPointX = "3316a15ccbb75a466e733d45b394abb8677664c9313ab44d26f690af43b46a36744a3689ecc4aaba6004d400dd85127b243f6339de27feb8628e352fe892a3e8";
-            container.OpenSignKeyPointY = "4717de15337ae417d19d856c2daae1070c0c0aac03334ee11ce5305f0fa092172ee4c24c00d959b11f8577f8382c0c1722e6915b8823770b2d51b0d25b023a7c";
+            container.OpenSignKeyPointX = ecPublicKey.X.ToHexString().ToLower();
+            container.OpenSignKeyPointY = ecPublicKey.Y.ToHexString().ToLower();
 
             container.PublicKeyAlgoritmOid = PublicKeySignAlgoritmOid;
             container.EcOid = EcOid;
+
+            Array.Clear(privateKey); //Затираю ключ.
+            Array.Clear(hashPassword);
+
+            return true;
         }
         
         /// <summary>
@@ -366,38 +347,48 @@ namespace CryptoRoomLib.KeyGenerator
         /// <summary>
         /// Создает ключевые пары для алгоритма RSA.
         /// </summary>
-        private void CreateRsaKey(SecretKeyContainer container, int keySize, byte[] password)
+        private bool CreateRsaKey(SecretKeyContainer container, int keySize, byte[] password)
         {
-            byte[] privateKey;
-            byte[] publicKey;
-            using (RSA rsa = RSA.Create())
+            try
             {
-                rsa.KeySize = keySize;
+                byte[] privateKey;
+                byte[] publicKey;
+                using (RSA rsa = RSA.Create())
+                {
+                    rsa.KeySize = keySize;
 
-                privateKey = rsa.ExportPkcs8PrivateKey();
-                publicKey = rsa.ExportSubjectPublicKeyInfo();
+                    privateKey = rsa.ExportPkcs8PrivateKey();
+                    publicKey = rsa.ExportSubjectPublicKeyInfo();
+                }
+
+                //Генерирую 17байтную соль. Соль случайное число.
+                var salt = CipherTools.GenerateRand(_blockCipherSize + 1);
+
+                //Вычисляю хэш соленого пароля
+                byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
+
+                HashedPassword(salt, password, hashPassword);
+
+                //Генерирую вектор инициализации
+                var iv = CipherTools.GenerateRand(_blockCipherSize);
+
+                //Шифрую закрытый ключ алгоритма RSA. В качестве ключа шифра используется хэш.
+                CryptSecretKey(hashPassword, iv, privateKey);
+
+                container.CryptRsaPrivateKey = Convert.ToHexString(privateKey).ToLower();
+                container.RsaIv = Convert.ToHexString(iv).ToLower();
+                container.RsaSalt = Convert.ToHexString(salt).ToLower();
+                container.RsaPublicKey = Convert.ToHexString(publicKey).ToLower();
+            }
+            catch (Exception ex)
+            {
+                LastError = $"Ошибка в методе CreateRsaKey: {ex.Message}";
+                return false;
             }
 
-            //Генерирую 17байтную соль. Соль случайное число.
-            var salt = CipherTools.GenerateRand(_blockCipherSize + 1);
-
-            //Вычисляю хэш соленого пароля
-            byte[] hashPassword = new byte[Hash3411.Hash3411.Hash256Size];
-
-            HashedPassword(salt, password, hashPassword);
-
-            //Генерирую вектор инициализации
-            var iv = CipherTools.GenerateRand(_blockCipherSize);
-
-            //Шифрую закрытый ключ алгоритма RSA. В качестве ключа шифра используется хэш.
-            CryptSecretKey(hashPassword, iv, privateKey);
-
-            container.CryptRsaPrivateKey = Convert.ToHexString(privateKey).ToLower();
-            container.RsaIv = Convert.ToHexString(iv).ToLower();
-            container.RsaSalt = Convert.ToHexString(salt).ToLower();
-            container.RsaPublicKey = Convert.ToHexString(publicKey).ToLower();
+            return true;
         }
-
+        
         /// <summary>
         /// Шифрую секретный ключ.
         /// </summary>
