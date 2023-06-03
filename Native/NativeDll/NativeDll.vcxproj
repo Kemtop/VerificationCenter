@@ -31,20 +31,20 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)NativeDll\$(Platform)\$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)Cryptopp\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)GranitCore\;$(SolutionDir)\GranitCrypt\Tbs;$(SolutionDir)\GranitCrypt\hash3411;$(SolutionDir)GranitCore\X509Reader\;$(SolutionDir)GranitCore\SignLib\;$(SolutionDir)GranitCore\СertificateСreator\;$(SolutionDir)GranitCore\AlgOidName\;$(SolutionDir)GranitCore\hash3411\;$(SolutionDir)GranitCore\AlgorithmIdentifier\;$(SolutionDir)GranitCore\Gost3412\;$(SolutionDir)GranitCore\AsInterpretator\;$(SolutionDir)GranitCore\ASreader\;$(SolutionDir)GranitCore\CipherGear\;$(SolutionDir)GranitCore\KeyService\;$(SolutionDir)GranitCore\SingleSign\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Mpir\build.vc14\lib_mpir_gc\$(Platform)\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)Cryptopp\$(Platform)\Output\$(Configuration)\;$(SolutionDir)GranitCore\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <LinkIncremental>
     </LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)NativeDll\$(Platform)\$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)Cryptopp\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)GranitCore\;$(SolutionDir)GranitCore\X509Reader\;$(SolutionDir)GranitCore\SignLib\;$(SolutionDir)GranitCore\СertificateСreator\;$(SolutionDir)GranitCore\AlgOidName\;$(SolutionDir)GranitCore\hash3411\;$(SolutionDir)GranitCore\AlgorithmIdentifier\;$(SolutionDir)GranitCore\Gost3412\;$(SolutionDir)GranitCore\AsInterpretator\;$(SolutionDir)GranitCore\ASreader\;$(SolutionDir)GranitCore\CipherGear\;$(SolutionDir)GranitCore\KeyService\;$(SolutionDir)GranitCore\SingleSign\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Mpir\build.vc14\lib_mpir_gc\$(Platform)\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)Cryptopp\$(Platform)\Output\$(Configuration)\;$(SolutionDir)GranitCore\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;LIBGRANITK_LIB;QT_CORE_LIB;QT_WIDGETS_LIB;QT_XML_LIB;QT_SQL_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;NATIVEDLL_LIB;QT_CORE_LIB;QT_WIDGETS_LIB;QT_XML_LIB;QT_SQL_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -57,15 +57,15 @@
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;Qt5Sqld.lib;mpirxx.lib;mpir.lib;cryptlib.lib;GranitCore.lib;Qt5Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>LibGranitK.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>NativeDll.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y  $(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\LibGranitK.dll $(SolutionDir)DLL_API_Example\DLL_API_Example\bin\x86\$(Configuration)\LibGranitK.dll</Command>
+      <Command>copy /Y  $(SolutionDir)NativeDll\$(Platform)\$(Configuration)\NativeDll.dll $(SolutionDir)EasyCript\Win32\$(Configuration)\NativeDll.dll</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;LIBGRANITK_LIB;QT_CORE_LIB;QT_WIDGETS_LIB;QT_XML_LIB;QT_SQL_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;NATIVEDLL_LIB;QT_CORE_LIB;QT_WIDGETS_LIB;QT_XML_LIB;QT_SQL_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -77,21 +77,21 @@
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Widgets.lib;Qt5Xml.lib;Qt5Sql.lib;mpirxx.lib;mpir.lib;cryptlib.lib;GranitCore.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>LibGranitK.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>NativeDll.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y  $(SolutionDir)LibGranitK\$(Platform)\$(Configuration)\NativeDll.dll $(SolutionDir)EasyCript\Win32\$(Configuration)\NativeDll.dll</Command>
+      <Command>copy /Y  $(SolutionDir)NativeDll\$(Platform)\$(Configuration)\NativeDll.dll $(SolutionDir)EasyCript\Win32\$(Configuration)\NativeDll.dll</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LibGranitK.cpp" />
+    <ClCompile Include="NativeDll.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LibGranitK.h" />
-    <ClInclude Include="libgranitk_global.h" />
+    <ClInclude Include="NativeDll.h" />
+    <ClInclude Include="nativedll_global.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LibGranitK.def" />
+    <None Include="NativeDll.def" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -101,7 +101,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2015" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="5.10.1_msvc2015" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

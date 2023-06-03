@@ -1,4 +1,4 @@
-LIBRARY "LibGranitK"
+LIBRARY "NativeDll"
 EXPORTS
 ShowTestWindow
 LoadSecretKey
