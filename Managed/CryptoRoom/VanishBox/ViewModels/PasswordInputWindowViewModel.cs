@@ -3,6 +3,7 @@ using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using CryptoRoomLib.KeyGenerator;
 
 namespace VanishBox.ViewModels
 {
@@ -128,6 +129,16 @@ namespace VanishBox.ViewModels
             if (Password != PasswordConfirm) return "Пароль и подтверждение не совпадают.";
 
             if (string.IsNullOrEmpty(PathToSaveDir)) return "Не выбран каталог сохранения ключа.";
+
+            if (Password.Length < SecretKeyMaker.PasswordMinLength)
+            {
+                return $"Пароль не может быть менее {SecretKeyMaker.PasswordMinLength}-ми символов";
+            }
+
+            if (Password.Length > SecretKeyMaker.PasswordMaxLength)
+            {
+                return $"Пароль не может быть более {SecretKeyMaker.PasswordMaxLength}-ми символов. Сейчас {Password.Length}.";
+            }
 
             return null;
         }

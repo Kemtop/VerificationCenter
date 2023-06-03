@@ -245,5 +245,35 @@ namespace CryptoRoomLib.Sign
             //Создаю точку с указанными в кривой координатами точки P
             return new EcPoint(curve, true);
         }
+
+        /// <summary>
+        /// Создает ключевую пару – закрытый и открытый ключ.
+        /// Генерируется ключ только длиной 512 бит. Генерация 256 битных ключей не предусмотрена.
+        /// </summary>
+        public bool CreateEcKeyPair(string ecOid, out byte[] privateKey, out EcPoint ecPublicKey)
+        {
+            privateKey = new byte[0];
+            ecPublicKey = new EcPoint();
+
+            EcPoint p = GetUserEcPoint(ecOid);
+            if (p == null) return false;
+
+
+            byte[] rawKey;
+            BigInteger d; //Закрытый ключ подписи согласно ГОСТ.
+
+            //Ключ целое число d, удовлетворяющим неравенству 0 < d < q.
+            do
+            {
+                rawKey = CipherTools.GenerateRand(64);
+                d = new BigInteger(rawKey);
+            } while (d <= 0 || d >= p.Q);
+
+            //Ключ проверки подписи — точка эллиптической кривой Q с координатами (xq, yq), удовлетворяющей равенству d * P = Q.
+            ecPublicKey = PointMath.Multiply(d, p);
+            privateKey = rawKey;
+
+            return true;
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace CryptoRoomLib
 
         static SettingsLib()
         {
-            using (StreamReader reader = new("Config.json"))
+            using (StreamReader reader = new("KeyGenData.json"))
             {
                 var json = reader.ReadToEnd();
                 Settings = JsonConvert.DeserializeObject<Settings>(json);

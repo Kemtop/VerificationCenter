@@ -17,5 +17,10 @@
         /// </summary>
         /// <returns></returns>
         bool Save();
+
+        /// <summary>
+        /// Очищает все настройки.
+        /// </summary>
+        void Clear();
     }
 }
