@@ -19,15 +19,13 @@ public:
 	~SettingTools();
 
 	QString OrgName; //Наименование оргнизации.
-	QString Egrul;
+	QString OrgCode;
 	QString Podrazdelenie;
 	QString Rayon;
 	QString Gorod;
 	QString Adress;
-	QString mail;
-	int lastStatementNum; //Последний номер заявки на получение сертификата.  
-
-
+	QString mail; 
+	
 	//Проверяет наличие файла настроек. Есть файл=true.
 	bool hasSetingFile();
 

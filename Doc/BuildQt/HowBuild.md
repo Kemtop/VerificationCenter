@@ -36,3 +36,7 @@ qwindowsd.dll
 После успешной сборки, появиться окно программы:<br>
 <img src="./RoseWindow.jpg" width="80%">
 </p>
+<p>
+Если при сборке проекта "KeyGen" возникает ошибка «Не удается открыть файл включение: qsqldatabase.h: No such file or directory» необходимо поставить галочку «Sql»:<br>
+<img src="./DbError.jpg" width="80%">
+</p>

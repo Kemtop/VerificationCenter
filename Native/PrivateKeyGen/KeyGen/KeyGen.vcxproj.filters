@@ -61,9 +61,6 @@
     <ClCompile Include="SettingTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HtmlDocCreator\HtmlDocCreator.cpp">
-      <Filter>HtmlDocCreator</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_HtmlDocCreator.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -83,9 +80,6 @@
     </CustomBuild>
     <CustomBuild Include="SettingTools.h">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="HtmlDocCreator\HtmlDocCreator.h">
-      <Filter>HtmlDocCreator</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
