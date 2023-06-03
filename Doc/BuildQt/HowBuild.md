@@ -15,14 +15,13 @@ Visual Studio предлагает нам перенацелить проект.
 <img src="./SetQtVersion1.jpg" width="80%"><br>
 <img src="./SetQtVersion2.jpg" width="50%"><br>
 
-Переводим в Release:<br>
-<img src="./SelectRealease.jpg" width="80%"><br>
 Назначаем проект EasyCript автозагружаемым проектом.<br>
+Используем собранные библиотеки CryptoPP, Mpir.<br>
+Копируем все файлы из \Binaries\CryptoPPLib.zip в \Native\CryptoPP\Win32\Output\
+и \Binaries\Mpir.zip в \Native\Mpir<br>
+CryptoPP необходим для работы с RSA и чтения ASN1. Mpir – библиотека больших чисел, для подписи файлов.<br>
 Последовательно собираем проекты:<br>
-1. cryptlib - библиотека работы с RSA;<br>
-2. lib_mpir_cxx - MPIR Library(библиотека для работы с большими числами);<br>
-3. lib_mpir_gc;<br>
-4. GranitCore;<br>
-4. NativeDll - C++ библиотека, которую могу использовать внешние;программы.<br>
-5. EasyCript - программа шифрования «Роза»;<br>
+1. GranitCore - ядро библиотеки;<br>
+2. NativeDll - C++ библиотека, которую могут использовать внешние программы;<br>
+3. EasyCript - программа шифрования «Роза»;<br>
 </p>

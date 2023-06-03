@@ -31,7 +31,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>&quot;Роза-М&quot; Генератор секретного ключа </string>
+   <string>&quot;Роза&quot; Генератор секретного ключа </string>
   </property>
   <property name="documentMode">
    <bool>false</bool>

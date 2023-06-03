@@ -31,7 +31,7 @@ font-size:16px;
 color:#1B1BB3;</string>
    </property>
    <property name="text">
-    <string>Cистема Криптографической Защиты Информации &quot;Роза-М&quot;</string>
+    <string>Cистема Криптографической Защиты Информации &quot;Роза&quot;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
