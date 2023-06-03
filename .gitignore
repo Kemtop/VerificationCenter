@@ -5,13 +5,8 @@
 GranitCrypt/CryptoPP/*
 GranitCrypt/GranitCrypt/*
 GranitCrypt/KeyDistributionCenter/*
-GranitCrypt/Mpir/*
-GranitCrypt/DllProductKeySelfTest/*
-GranitCrypt/dllHwKey/*
 Deployment/*
 
-Native/CryptoPP/*
-Native/Mpir/*
 Native/EasyCript/Test/* 
 
 Debug
@@ -79,8 +74,6 @@ dlldata.c
 project.lock.json
 artifacts/
 
-*_i.c
-*_p.c
 *_i.h
 *.ilk
 *.meta

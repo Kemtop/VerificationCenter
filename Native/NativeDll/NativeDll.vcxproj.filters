@@ -36,22 +36,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LibGranitK.cpp">
+    <ClCompile Include="NativeDll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LibGranitK.h">
+    <ClInclude Include="NativeDll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libgranitk_global.h">
+    <ClInclude Include="nativedll_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LibGranitK.def">
+    <None Include="NativeDll.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

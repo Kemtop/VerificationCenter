@@ -1,4 +1,4 @@
-#include "LibGranitK.h"
+#include "NativeDll.h"
 
 #include "SingleSign\rfcSignedData.h" //Удалить!!
 #include "SingleSign\binASN1SignedData.h"
