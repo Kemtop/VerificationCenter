@@ -38,6 +38,12 @@
 <br>
 <strong>Native</strong> - каталог содержит С++ проекты использующее Qt framework. <a href="./BuildQt/HowBuild.md">Инструкция по сборке решения.</a> C 2019 г. больше не поддерживается.
 </p>
+<p>
+<strong>EasyCript</strong> - программа «Роза». Позволяет шифровать файлы без использования удостоверяющего центра.<br>
+<strong>GranitCore</strong> - ядро библиотеки. Содержит все функции.<br>
+<strong>NativeDll</strong> - С++ dll библиотека с основными функциями.<br>
+<strong>PrivateKeyGen</strong> - полный генератор секретного ключа. Создает закрытый ключ и запрос на получение сертификата. Использует биологический датчик случайных чисел.
+</p>
 <br>
 <p align="left">
 <strong>Binaries\Asn1Editor</strong>-программа для просмотра файлов в формате ASN1.
@@ -47,5 +53,9 @@
 </p>
 <p align="left">
 <strong>Binaries\QtLibs.zip</strong>-Dll(C++) и Qt файлы необходимые для работы библиотеки.
+</p>
+<p>
+<strong>Binaries\CryptoPPLib.zip</strong> - cобранная библиотека CryptoPP<br>
+<strong>Binaries\Mpir.zip</strong> - собранная библиотека MPIR
 </p>
 <hr>
