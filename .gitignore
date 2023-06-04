@@ -9,7 +9,7 @@ Native/Mpir/build.vc14/test-config.props
 Deployment/*
 
 Native/EasyCript/Test/*
-
+GeneratedFiles
 Debug
 Release
 Win32
