@@ -11,9 +11,9 @@ int verify(char * dateEnd)
 		UsbKey usb;
 		usb.InitUsb();
 
-		if (!usb.isConnected()) return -1; //Ключ не найден.
+		if (!usb.IsConnected()) return -1; //Ключ не найден.
 
-		std::string productKey = usb.getSerial();
+		std::string productKey = usb.GetSerial();
 
 		//Проверка ключа продукта. В случае проблем возвращает 0, если все ок возвращает 1.
 		CheckSerial CPk;
