@@ -32,7 +32,7 @@ LoginForm::LoginForm(QWidget *parent)
      #ifdef INCLUDE_HW_USB_KEY 
 	      timerUsbKeyState.setInterval(250); //»нтервал проверки наличи€ USB ключа.
 	      usb.InitUsb();
-		  if (!usb.isConnected())   //ќпредел€ю подключено ли устройство.
+		  if (!usb.IsConnected())   //ќпредел€ю подключено ли устройство.
 			  lockUI(true); //Ѕлокирую интерфейс пользовател€.
 		  connect(&timerUsbKeyState, SIGNAL(timeout()), this, SLOT(slotTimerUsbKeyStateTimeout()));
 		  timerUsbKeyState.start();
@@ -117,7 +117,7 @@ void LoginForm::setWarningMessage(QString m)
 
 void LoginForm::checkUsbKey()
 {	
-	if (!usb.isConnected())   //ќпредел€ю подключено ли устройство.
+	if (!usb.IsConnected())   //ќпредел€ю подключено ли устройство.
 	{
 		lockUI(true); //Ѕлокирую интерфейс пользовател€. Ќет аппаратного ключа.
 		return;
@@ -134,7 +134,7 @@ void LoginForm::checkUsbKey()
 	try 
 	{
         //—читываю и провер€ю ключ продукта.
-		res = usb.cheсkProduckKey(errMessage,phK, lenK);	
+		res = usb.CheсkProduckKey(errMessage,phK, lenK);	
 	}
 	catch (...)
 	{
@@ -168,7 +168,7 @@ void LoginForm::checkUsbKey()
 void LoginForm::slotTimerUsbKeyStateTimeout()
 {
 	//ќпредел€ю подключено ли устройство.
-	if (!usb.isConnected())
+	if (!usb.IsConnected())
 	{
 		lockUI(true); //Ѕлокирование.	
 		return;

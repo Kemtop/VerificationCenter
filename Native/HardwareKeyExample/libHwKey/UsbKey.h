@@ -13,14 +13,13 @@
 #define DEV_PID 0x5711
 
 #define DEV_INTERFACE 0x00
-#define VECTOR_PATH "KeyDistributionCenter\\uVectors.h" //Путь к каталогу где храниться шифрованный ключ продукта.   
 
 /*
   Структура сообщения(верхний уровень см. модель OSI).
   [Команда 1 байт][Данные n байт]
 
   Структура пакета(транспортный уровень)
-  [Команда 1 байт][Номер пакета 1 байт.][Данные n(байт)=MaxPackSize-6=58;][Контрольная сумма,4 байта CRC32]
+  [Команда 1 байт][Номер пакета 1 байт.][Данные n(байт) = MaxPackSize-6 = 58;][Контрольная сумма, 4 байта CRC32]
   */
 
 
@@ -35,6 +34,18 @@
 
 #define TIMEOUT 200000
 
+#define BEGIN_YEAR 2019 //Дата относительно которой считается текущая дата (ключ хранит количество дней).
+#define BEGIN_MONTH 1
+#define BEGIN_DAY 1
+
+#define GET_HW_ID_COMMAND 0x3C //Идентификатор команды «Получить серийный номер устройства».
+#define SAVE_SERIAL_COMMAND 0xa0 //Сохранить серийный номер продукта.
+#define SAVE_DATE_COMMAND 0x15 //Сохранить дату (в днях).
+#define GET_DATE_COMMAND 0x17 //Получить дату (в днях).
+#define SAVE_RSA_KEY_COMMAND 0xa9 //Сохранить модуль n открытого ключа rsa (256 байт).
+#define GET_CRYPT_SERIAL_COMMAND 0x07 //Получить шифрованный ключом серийный номер продукта.
+
+#define GET_RANDOM_COMMAND 0x50 //Получить случайное число.
 enum USBERROR
 {
 	NOT_CONNECTED = -1,
@@ -44,45 +55,46 @@ enum USBERROR
 	UNKNOWN_COMMAND = -5
 };
 
-//
 //Интерфейс для взаимодействия с USB ключем.
 //LIBHWKEY_EXPORT
 class  UsbKey
 {
 public:
 	UsbKey();
+
+	//Последнее сообщение об ошибке.
+	QString LastError;
+
 	//Проверяет подключено ли устройство.
-	bool isConnected();
+	bool IsConnected();
 
-	void sendRSAKey(uint8_t key[256]);
-	std::string getSerial();
+	void SendRSAKey(uint8_t key[256]);
+	std::string GetSerial(QString fileName);
 
-	std::string getHWSerial();
-	void setSerial(uint8_t serial[29]);
-	void setLastDate(uint16_t days);
+	std::string GetHWSerial();
+	void SetSerial(uint8_t serial[29]); //Сохраняет серийный номер продукта.
+	void SetLastDate(uint16_t days);
 	//Пишу в аппаратный блок последнюю дату.
-	void setLastDate(QDate lastDate);
+	void SetLastDate(QDate lastDate);
+		
+	uint16_t GetLastDate();
+	QDate GetLastHwDate(); //Получаю последнюю дату из аппаратного ключа.
 
-	
-	uint16_t getLastDate();
-	QDate getLastHwDate(); //Получаю последнюю дату из аппаратного ключа.
+	std::vector<uint16_t> GetRandData();
 
-	std::vector<uint16_t> getRandData();
-
-	void SendPublicKey();
+	void SendPublicKey(QString rsaKeyFileName);
 	void InitUsb();
 
-	//Транслирует ключ шифрования канального уровня.
-	int translateChannelKey();
+	//Шифрует ключ RSA.
+	bool EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QString arrayName);
 
 	//Считывает и проверяет ключ продукта, если все в порядке возвращается 1, иначе 0 и сообщение об ошибке.
 	//Когда остается менее 10 дней до окончания срока действия-возвращает errMessage.
-	int cheсkProduckKey(std::string &errMessage, uint8_t *phyKey, int len);
-
-
+	int CheсkProduckKey(std::string &errMessage, uint8_t *phyKey, int len);
+	
 private:
-	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования канального уровня.
-	std::string getProductKey(uint8_t *phyKey, int len);
+	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa.
+	std::string GetProductKey(uint8_t *phyKey, int len);
 
 	/*
 	   Отправка пакета USB ключу, и получение ответа.
@@ -99,7 +111,8 @@ private:
 	   после обработки сообщения. Ответ два байта.
 	   0xb3-получить ответ от USB устройства. Ответ пакетный.
 	*/
-	int command(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer, int outLen);
+	int Command(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer, int outLen);
+	
 	/*
 	  Метод который отправляет сообщение USB ключу и считывает ответ ключа. 
 	  command -команда;
@@ -107,10 +120,10 @@ private:
 	  inLen-длина данных которые хотим передать USB ключу;
 	  outBuffer-выходной буфер, содержит ответ USB ключа.
 	*/
-	int packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer);
+	int Packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer);
 
 	/*
-	   Получает 32  числа ряда.	a(n) = 7^n + 8^n + 9^n.
+	   Получает 32  числа ряда функции a(n) = 7^n + 8^n + 9^n.
 	   0        3
 	   1		24
 	   2		194
@@ -131,11 +144,12 @@ private:
 	   17		19161612027339024  //44 13 62 76 36 A1 10
 	   18		169737447404391554 //2 5B 07 4F 21 9E CC 82
 
+	   используется как ключ шифрования контейнера rsa.
 	*/
-	void getTr1(QByteArray &ba);
+	void GetCipherKey(QByteArray &ba);
 
-	//Маскирую массив In, используя значения mask.
-	QByteArray vanishAlg(QByteArray &In, QByteArray &mask);
+	//«Шифрует» (просто xor) массив in, на ключе key.
+	QByteArray Encrypt(QByteArray & in, QByteArray & key);
 
-	void unVanish(uint8_t *in, int o_size);
+	void Decrypt(uint8_t *in, int o_size, QByteArray key);
 };

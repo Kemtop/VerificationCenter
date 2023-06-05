@@ -1,7 +1,7 @@
 #include "UsbKey.h"
 
-#include"AES\inc\aes.h"
-#include  "AES\inc\aes_blocks_dec.h"
+#include "AES\inc\aes.h"
+#include "AES\inc\aes_blocks_dec.h"
 #include "libusb.h"
 #include <CheckSerial.h>
 #include <sstream>
@@ -50,13 +50,13 @@ UsbKey::UsbKey()
 	libusb_set_debug(NULL, 0);  // уровень вывода отладочных сообщений
 }
 
-bool UsbKey::isConnected()
+bool UsbKey::IsConnected()
 {
 	libusb_device_handle *dev = libusb_open_device_with_vid_pid(NULL, DEV_VID, DEV_PID);
 	return dev != NULL;
 }
 
-int UsbKey::command(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer, int outLen)
+int UsbKey::Command(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer, int outLen)
 {
 	uint8_t buffer[MaxPackSize];
 
@@ -116,7 +116,7 @@ int UsbKey::command(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 	return 0;
 }
 
-int UsbKey::packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer)
+int UsbKey::Packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer)
 {
 	
 	uint8_t SendBuff[MaxMessageSize]; //Буфер хранящий сообщение. [Команда 1 байт][Данные(inBuffer) n байт.]
@@ -141,7 +141,7 @@ int UsbKey::packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 
 	//Отправляю команду транспортного уровня USB ключу-начать пакетную передачу.
 	//USB ключ готовит буфер размером MessLen для приема сообщения. Ответа не ожидаем.
-	this->command(0xb0, inbuff, 2, outbuff, 0);
+	this->Command(0xb0, inbuff, 2, outbuff, 0);
 	
 	//int pdsize = 0; //Размер данных в текущем пакете.
 
@@ -165,7 +165,7 @@ int UsbKey::packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 		//При необходимости дополняем нулями.
 		for (int j = pdsize; j < maxpdsize; ++j) inbuff.push_back(0x00);
 		//Отправляем пакет. Не ожидаем ответа от устройства.
-		this->command(0xb1, inbuff, maxpdsize + 1, outbuff, 0);
+		this->Command(0xb1, inbuff, maxpdsize + 1, outbuff, 0);
 	}
 
 	inbuff.clear(); 
@@ -175,7 +175,7 @@ int UsbKey::packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 	    0xb2-обработать сообщение на стороне usb устройства. Ответ от устройства содержит размер данных, которые будут получены
 	   после обработки сообщения.
 	*/
-	this->command(0xb2, inbuff, 0, outbuff, 2);
+	this->Command(0xb2, inbuff, 0, outbuff, 2);
 
 	int answSize = (outbuff.at(0) << 8) | outbuff.at(1);
 	packcount = (answSize == 0) ? 0 : answSize / maxpdsize + 1;
@@ -184,13 +184,13 @@ int UsbKey::packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 		inbuff.clear(); outbuff.clear();
 		int pdsize = ((i + 1) == packcount) ? answSize - i * maxpdsize : maxpdsize;
 		inbuff.push_back((uint8_t)i);
-		this->command(0xb3, inbuff, 1, outbuff, maxpdsize + 1);
+		this->Command(0xb3, inbuff, 1, outbuff, maxpdsize + 1);
 		for (int j = 0; j < pdsize; j++) outBuffer.push_back(outbuff.at(j + 1));
 	}
 	return 0;
 }
 
-void UsbKey::getTr1(QByteArray & ba)
+void UsbKey::GetCipherKey(QByteArray & ba)
 {
 	//a(n) = 7 ^ n + 8 ^ n + 9 ^ n
 	quint64 add1=0;
@@ -250,29 +250,27 @@ void UsbKey::getTr1(QByteArray & ba)
 		t = static_cast<uint8_t>(a);
 		ba.append(t);
 	}
-
 }
 
-QByteArray UsbKey::vanishAlg(QByteArray & In, QByteArray & mask)
+//«Шифрует» (просто xor) массив in, на ключе key.
+QByteArray UsbKey::Encrypt(QByteArray & in, QByteArray & key)
 {
-
 	QByteArray out;
-	int o_size = In.size();
+	int o_size = in.size();
 	out.resize(o_size);
 
 	uint8_t x1 = 0;
 	uint8_t x2 = 0;
 	uint8_t y = 0;
 	int m_pos = 0;
-
-
+	
 	for (int i = 0;i < o_size;i++)
 	{
-		x1=static_cast<uint8_t>(In[i]);
-		x2 = static_cast<uint8_t>(mask[m_pos]);
-		y = x1^x2;
+		x1=static_cast<uint8_t>(in[i]);
+		x2 = static_cast<uint8_t>(key[m_pos]);
+		y = x1 ^ x2;
 
-		out[i]=static_cast<char>(y);
+		out[i] = static_cast<char>(y);
 
 		if (m_pos < 31) m_pos++;
 		else m_pos = 0;
@@ -281,23 +279,23 @@ QByteArray UsbKey::vanishAlg(QByteArray & In, QByteArray & mask)
 	return out;
 }
 
-void UsbKey::sendRSAKey(uint8_t key[256])
+void UsbKey::SendRSAKey(uint8_t key[256])
 {
 	std::vector<uint8_t> in, out;
 	for (int i = 0; i < 256; ++i) in.push_back(key[i]);
-	packcom(0xa9, in, 256, out);
+	Packcom(SAVE_RSA_KEY_COMMAND, in, 256, out);
 }
 
-std::string UsbKey::getSerial()
+std::string UsbKey::GetSerial(QString fileName)
 {
 	std::vector<uint8_t> key;
 	std::vector<uint8_t> cryptVector;
 	std::string Serial;
-	//
+	
 	uint8_t CryptSerial[MaxPackSize];
 
 	std::vector<uint8_t> in, out;
-	packcom(0x07, in, 0, out);
+	Packcom(GET_CRYPT_SERIAL_COMMAND, in, 0, out);
 
 	uint8_t cryptkey[256];
 	for (int i = 0; i < 256; ++i) cryptkey[i] = out.at(i + 1);
@@ -308,7 +306,7 @@ std::string UsbKey::getSerial()
 
 	CryptoPP::AutoSeededRandomPool rng;
 	CryptoPP::RSA::PrivateKey privateKey;
-	CryptoPP::FileSource inkey("prkey", true); //Добавить проверку исключений!
+	CryptoPP::FileSource inkey(fileName.toStdString().c_str(), true); //Добавить проверку исключений!
 	privateKey.Load(inkey);
 	CryptoPP::RSA::PublicKey publicKey(privateKey);
 	c = CryptoPP::Integer((const byte *)cryptkey, sizeof(cryptkey));
@@ -328,7 +326,7 @@ std::string UsbKey::getSerial()
 	return Serial;
 }
 
-std::string UsbKey::getProductKey(uint8_t *phyKey, int len)
+std::string UsbKey::GetProductKey(uint8_t *phyKey, int len)
 {
 	std::vector<uint8_t> key;
 	std::vector<uint8_t> cryptVector;
@@ -337,7 +335,7 @@ std::string UsbKey::getProductKey(uint8_t *phyKey, int len)
 	uint8_t CryptSerial[MaxPackSize];
 
 	std::vector<uint8_t> in, out;
-	packcom(0x07, in, 0, out);
+	Packcom(GET_CRYPT_SERIAL_COMMAND, in, 0, out);
 
 	uint8_t cryptkey[256];
 	for (int i = 0; i < 256; ++i) cryptkey[i] = out.at(i + 1);
@@ -349,12 +347,13 @@ std::string UsbKey::getProductKey(uint8_t *phyKey, int len)
 	CryptoPP::AutoSeededRandomPool rng;
 	CryptoPP::RSA::PrivateKey privateKey;
 
-	unVanish(phyKey, len); //Восстанавливаю.
+	QByteArray keyCipher;
+	GetCipherKey(keyCipher);
+	Decrypt(phyKey, len, keyCipher); //Восстанавливаю.
 	CryptoPP::ArraySource as2(phyKey,len, true); //pumpAll
 
 	privateKey.Load(as2);
-
-	
+		
 	CryptoPP::RSA::PublicKey publicKey(privateKey);
 	c = CryptoPP::Integer((const byte *)cryptkey, sizeof(cryptkey));
 	r = privateKey.CalculateInverse(rng, c);
@@ -373,67 +372,66 @@ std::string UsbKey::getProductKey(uint8_t *phyKey, int len)
 	return Serial;
 }
 
-std::string UsbKey::getHWSerial()
+std::string UsbKey::GetHWSerial()
 {
 	std::vector<uint8_t> in, out;
 	std::string str;
-	packcom(0x3C, in, 0, out);
+	Packcom(GET_HW_ID_COMMAND, in, 0, out);
 	for (size_t i = 1; i < out.size(); ++i) str += out[i];
 	return str;
 }
 
-void UsbKey::setSerial(uint8_t serial[29])
+//Сохраняет серийный номер продукта.
+void UsbKey::SetSerial(uint8_t serial[29])
 {
 	std::vector<uint8_t> in, out;
 	in.assign(serial, serial + 29);
-	packcom(0xa0, in, 29, out);
+	Packcom(SAVE_SERIAL_COMMAND, in, 29, out);
 }
 
-void UsbKey::setLastDate(uint16_t days)
+void UsbKey::SetLastDate(uint16_t days)
 {
 	std::vector<uint8_t> in, out;
 	in.push_back((uint8_t)(days >> 8));
 	in.push_back((uint8_t)days);
-	packcom(0x15, in, 2, out);
+	Packcom(SAVE_DATE_COMMAND, in, 2, out);
 }
 
-void UsbKey::setLastDate(QDate lastDate)
+void UsbKey::SetLastDate(QDate lastDate)
 {
-	QDate dat(2019, 01, 01);
+	QDate dat(BEGIN_YEAR, BEGIN_MONTH, BEGIN_DAY);
 	uint16_t days = (uint16_t)dat.daysTo(lastDate);
-	setLastDate(days);
+	SetLastDate(days);
 }
 
-uint16_t UsbKey::getLastDate()
+uint16_t UsbKey::GetLastDate()
 {
 	std::vector<uint8_t> in, out;
-	if (packcom(0x17, in, 0, out)) return 0;
+	if (Packcom(GET_DATE_COMMAND, in, 0, out)) return 0;
 	return out.at(1) << 8 | out.at(2);
 }
 
-QDate UsbKey::getLastHwDate()
+QDate UsbKey::GetLastHwDate()
 {
-	uint16_t days = getLastDate();
-	QDate dat(2019, 01, 01);
-	QDate d=dat.addDays(days);
-
-	return d;
+	uint16_t days = GetLastDate();
+	QDate dat(BEGIN_YEAR, BEGIN_MONTH, BEGIN_DAY);
+	return dat.addDays(days);
 }
 
-std::vector<uint16_t> UsbKey::getRandData()
+std::vector<uint16_t> UsbKey::GetRandData()
 {
 	std::vector<uint8_t> in, out;
 	std::vector<uint16_t> data;
-	if (packcom(0x50, in, 0, out)) return data;
+	if (Packcom(GET_RANDOM_COMMAND, in, 0, out)) return data;
 	for (int i = 0; i < 28; i++) data.push_back(out.at(2 * i + 1) << 8 | out.at(2 * i + 2));
 	return data;
 }
 
-void UsbKey::SendPublicKey()
+void UsbKey::SendPublicKey(QString rsaKeyFileName)
 {
 	CryptoPP::RSA::PrivateKey privateKey;
 
-	CryptoPP::FileSource in("prkey", true);
+	CryptoPP::FileSource in(rsaKeyFileName.toStdString().c_str(), true);
 	privateKey.Load(in);
 
 	CryptoPP::Integer n = privateKey.GetModulus();
@@ -442,7 +440,7 @@ void UsbKey::SendPublicKey()
 	{
 		key[i] = n.GetByte(255 - i);
 	}
-	sendRSAKey(key);
+	SendRSAKey(key);
 }
 
 void UsbKey::InitUsb()
@@ -451,42 +449,43 @@ void UsbKey::InitUsb()
    libusb_set_debug(NULL, 0);  // уровень вывода отладочных сообщений
 }
 
-int UsbKey::translateChannelKey()
+//Шифрует ключ RSA.
+bool UsbKey::EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QString arrayName)
 {
-	QFileInfo file_info("prkey");
+	QFileInfo file_info(rsaKeyFileName);
 	qint64 f_size = file_info.size();
-	/*
-	Размер файла не удалось получить или размер файла меньше заголовка
-	*/
+	
+	//Размер файла не удалось получить или размер файла меньше заголовка
 	if (f_size == 0)
 	{
-		return 1;
+		LastError = "Размер файла не удалось получить или размер файла меньше заголовка";
+		return false;
 	}
 
-	QFile file("prkey");
+	QFile file(rsaKeyFileName);
 	if (!file.open(QIODevice::ReadOnly))
 	{
-		return 2;
+		LastError = "Не удается открыть файл ключа.";
+		return false;
 	}
 
 	QByteArray aR = file.readAll();
 
-	if (f_size != aR.size()) //Размер не совпал.
+	if (f_size != aR.size())
 	{
-		return 3;
+		LastError = "Не удается считать файл ключа.";
+		return false;
 	}
-
-
-	QByteArray mask; //Получаю ряд.
-	getTr1(mask);
-	QByteArray out;
-	out=vanishAlg(aR, mask);
+	
+	QByteArray cipherKey; //Получаю ряд.
+	GetCipherKey(cipherKey);
+	QByteArray out = Encrypt(aR, cipherKey);
 
 	QByteArray hex = out.toHex();
 	//Проверить длину массива должна быть кратна 2!.
 	QString a(hex);
-
-	QString str = "#define usbTLeverVector {";
+	
+	QString str = "#define " + arrayName + " {";
 	QString tmp1;
 	QString tmp2;
 
@@ -507,23 +506,22 @@ int UsbKey::translateChannelKey()
 
 	str = str + "}";
 
-	QString solDir = SOLUTION_DIR; //Получаю директорию решения.
-	QString outDir = solDir + VECTOR_PATH;
+	QString outDir = SOLUTION_DIR + protectProjectName;
 
-     QFile file2(outDir);
+    QFile file2(outDir);
 	if (!file2.open(QIODevice::WriteOnly))
 	{
-		;
+		LastError = "Не удается сохранить массив.";
+		return false;
 	}
 
 	file2.write(str.toUtf8());
 	file2.close();
-
-	
+		
 	return false;
 }
 
-int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
+int UsbKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 {
 	std::string productKey;
 	errMessage = "";
@@ -531,7 +529,7 @@ int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	try
 	{
 		//Получает ключ продукта из аппаратного ключа, использует ключ шифрования канального уровня.
-		 productKey = getProductKey(phyKey, len);
+		 productKey = GetProductKey(phyKey, len);
 	}
 	catch (...)
 	{
@@ -579,7 +577,7 @@ int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	//Проверка подделки системного времени.
 	try
 	{
-		QDate LastDate = getLastHwDate(); //Получаю последнюю дату записанную в  аппаратный ключ.
+		QDate LastDate = GetLastHwDate(); //Получаю последнюю дату записанную в  аппаратный ключ.
 		//Если текущая дата меньше, последней записанной в аппаратный ключ. Явная подделка времени на ПК пользователя.
 		if (curDate < LastDate)
 		{
@@ -593,7 +591,7 @@ int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 
 		if (r > 7) //Обновляю последнюю дату.
 		{
-			setLastDate(curDate); //Пишу дату в аппаратный блок.
+			SetLastDate(curDate); //Пишу дату в аппаратный блок.
 		}
 
 		//До окончания действия ключа продукта вшитого в аппаратный блок  осталось менее 7дней.
@@ -601,13 +599,13 @@ int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 		
 		if ((r1>-1)&&(r1 < 7)) //Меньше 7ми или текущая(r1=0), но не меньше текущей.
 		{
-			setLastDate(curDate); //Пишу дату в аппаратный блок.
+			SetLastDate(curDate); //Пишу дату в аппаратный блок.
 		}
 		
 		if ((r1 < 0) || (r1 == 0)) //Перевели время, или текущая дата.
 		{
 			curDate.addDays(1);
-			setLastDate(curDate); //Пишу дату в аппаратный блок.
+			SetLastDate(curDate); //Пишу дату в аппаратный блок.
 			//После следующего запуска программа перестанет работать.
 		}
 	}
@@ -620,12 +618,8 @@ int UsbKey::cheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	return 1;
 }
 
-void UsbKey::unVanish(uint8_t * In, int o_size)
+void UsbKey::Decrypt(uint8_t * in, int o_size, QByteArray key)
 {
-	QByteArray mask; //Получаю ряд.
-	getTr1(mask);
-
-
 	uint8_t x1 = 0;
 	uint8_t x2 = 0;
 	uint8_t y = 0;
@@ -633,11 +627,11 @@ void UsbKey::unVanish(uint8_t * In, int o_size)
 	
 	for (int i = 0;i < o_size;i++)
 	{
-		x1 = In[i];
-		x2 = static_cast<uint8_t>(mask[m_pos]);
-		y = x1^x2;
+		x1 = in[i];
+		x2 = static_cast<uint8_t>(key[m_pos]);
+		y = x1 ^ x2;
 
-		In[i]=y;
+		in[i] = y;
 
 		if (m_pos < 31) m_pos++;
 		else m_pos = 0;
