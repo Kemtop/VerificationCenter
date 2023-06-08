@@ -38,9 +38,6 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="ApiKey">
-      <UniqueIdentifier>{ad638a5f-e3f4-4f24-8417-85d4bfd97eb3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -76,12 +73,6 @@
     <ClCompile Include="KeyProger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ApiKey\ApiKey.cpp">
-      <Filter>ApiKey</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_Dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainForm.h">
@@ -115,9 +106,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_KeyProger.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ApiKey\ApiKey.h">
-      <Filter>ApiKey</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

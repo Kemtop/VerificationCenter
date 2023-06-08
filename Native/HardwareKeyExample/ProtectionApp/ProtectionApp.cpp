@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "KeyDistributionCenter.h"
+#include "ProtectionApp.h"
 
-KeyDistributionCenter::KeyDistributionCenter(QWidget *parent)
+ProtectionApp::ProtectionApp(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
@@ -31,26 +31,26 @@ KeyDistributionCenter::KeyDistributionCenter(QWidget *parent)
 	connect(ui.actionExit, SIGNAL(triggered(bool)), this, SLOT(slotActionExit()));
 }
 
-KeyDistributionCenter::~KeyDistributionCenter()
+ProtectionApp::~ProtectionApp()
 {
 }
 
-void KeyDistributionCenter::setCurentUser(QString login)
+void ProtectionApp::setCurentUser(QString login)
 {
 	CurentUser = login;
 }
 
-void KeyDistributionCenter::setDbSrvHostName(QString host)
+void ProtectionApp::setDbSrvHostName(QString host)
 {
 	DbSrvHostName = host;
 }
 
-void KeyDistributionCenter::setDbSrvPort(int port)
+void ProtectionApp::setDbSrvPort(int port)
 {
 	dbSrvPort = port;
 }
 
-QString KeyDistributionCenter::getDataInfo()
+QString ProtectionApp::getDataInfo()
 {
 	QDate d = QDate::currentDate();
 
@@ -61,14 +61,14 @@ QString KeyDistributionCenter::getDataInfo()
 	return x;
 }
 
-void KeyDistributionCenter::showEvent(QShowEvent *ev)
+void ProtectionApp::showEvent(QShowEvent *ev)
 {
 	QWidget::showEvent(ev);
 	emit sigShowEvent();
 }
 
 //Нажатие на пункт меню Файл->Выход
-void KeyDistributionCenter::slotActionExit()
+void ProtectionApp::slotActionExit()
 {
 	close();
 }

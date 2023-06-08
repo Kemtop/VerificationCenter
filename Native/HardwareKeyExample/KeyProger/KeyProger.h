@@ -8,7 +8,7 @@
 #include "ui_KeyProger.h"
 #include <QTextCodec>
 #include <QFileInfo>
-#include "ApiKey.h"
+#include "ApiKey/ApiKey.h"
 #include "configKey.h"
 
 class KeyProger : public QMainWindow

@@ -14,6 +14,7 @@
     <ProjectGuid>{0170330B-55F4-4AA0-A17E-259E64DF69C4}</ProjectGuid>
     <Keyword>Qt4VSv1.0</Keyword>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>ProtectionApp</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -30,13 +31,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)KeyDistributionCenter\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)libHwKey\;$(SolutionDir)KeyDistributionCenter\LoginForm\;$(SolutionDir).\..\Cryptopp\;$(SolutionDir)GranitCore\;$(SolutionDir)KeyDistributionCenter\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)ProtectionApp\$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(SolutionDir)libHwKey\;$(SolutionDir)ProtectionApp\LoginForm\;$(SolutionDir).\..\Cryptopp\;$(SolutionDir)GranitCore\;$(SolutionDir)ProtectionApp\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)ProductKeyLib\Tools\;$(SolutionDir)libUSB\libusb;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ProductKeyLib\$(Configuration)\;$(SolutionDir)libUSB\$(Platform)\$(Configuration)\lib;$(SolutionDir)libHwKey\$(Platform)\$(Configuration);$(SolutionDir).\..\CryptoPP\$(Platform)\Output\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_gc\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)KeyDistributionCenter\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir).\..\CryptoPP;$(SolutionDir)libHwKey;$(SolutionDir)KeyDistributionCenter\KeyDistributionCenter\LoginForm;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)\KeyDistributionCenter\KeyDistributionCenter\hash3411;$(SolutionDir)Cryptopp\;$(SolutionDir)KeyDistributionCenter\KeyDistributionCenter\DbConnection;$(SolutionDir)GranitCore\;$(SolutionDir)GranitCore\X509Reader\;$(SolutionDir)GranitCore\SignLib\;$(SolutionDir)GranitCore\СertificateСreator\;$(SolutionDir)GranitCore\AlgOidName\;$(SolutionDir)GranitCore\hash3411\;$(SolutionDir)GranitCore\AlgorithmIdentifier\;$(SolutionDir)GranitCore\Gost3412\;$(SolutionDir)GranitCore\KeyService\;$(SolutionDir)GranitCore\Models\;$(SolutionDir)GranitCore\RequestReader\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)ProtectionApp\$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(SolutionDir).\..\CryptoPP;$(SolutionDir)libHwKey;$(SolutionDir)ProtectionApp\ProtectionApp\LoginForm;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)\ProtectionApp\ProtectionApp\hash3411;$(SolutionDir)Cryptopp\;$(SolutionDir)ProtectionApp\ProtectionApp\DbConnection;$(SolutionDir)GranitCore\;$(SolutionDir)GranitCore\X509Reader\;$(SolutionDir)GranitCore\SignLib\;$(SolutionDir)GranitCore\СertificateСreator\;$(SolutionDir)GranitCore\AlgOidName\;$(SolutionDir)GranitCore\hash3411\;$(SolutionDir)GranitCore\AlgorithmIdentifier\;$(SolutionDir)GranitCore\Gost3412\;$(SolutionDir)GranitCore\KeyService\;$(SolutionDir)GranitCore\Models\;$(SolutionDir)GranitCore\RequestReader\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ProductKeyLib\$(Configuration)\;$(SolutionDir)libUSB\$(Platform)\$(Configuration)\lib;$(SolutionDir)libHwKey\$(Platform)\$(Configuration);$(SolutionDir)Cryptopp\$(Platform)\Output\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_cxx\$(Platform)\$(Configuration)\;$(SolutionDir)Mpir\build.vc14\lib_mpir_gc\$(Platform)\$(Configuration)\;$(SolutionDir)GranitCore\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -80,25 +81,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AppConfig\AppConfig.cpp" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_ProtectionApp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_LoginForm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\qrc_ProtectionApp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_ProtectionApp.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_LoginForm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="KeyDistributionCenter.cpp" />
+    <ClCompile Include="ProtectionApp.cpp" />
     <ClCompile Include="LoginForm\LoginForm.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -121,21 +122,21 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" "-fstdafx.h" "-f../../LoginForm/LoginForm.h"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_QML_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtSql" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtQml"</Command>
     </CustomBuild>
     <ClInclude Include="СertificateСreator\ExtensionField.h" />
-    <ClInclude Include="GeneratedFiles\ui_KeyDistributionCenter.h" />
-    <CustomBuild Include="KeyDistributionCenter.h">
+    <ClInclude Include="GeneratedFiles\ui_ProtectionApp.h" />
+    <CustomBuild Include="ProtectionApp.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing KeyDistributionCenter.h...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing ProtectionApp.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_QML_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtSql" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtQml" "-fstdafx.h" "-f../../KeyDistributionCenter.h"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_QML_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtSql" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtQml" "-fstdafx.h" "-f../../ProtectionApp.h"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing KeyDistributionCenter.h...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing ProtectionApp.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_QML_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtSql" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtQml" "-fstdafx.h" "-f../../KeyDistributionCenter.h"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_QML_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtSql" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtQml" "-fstdafx.h" "-f../../ProtectionApp.h"</Command>
     </CustomBuild>
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="KeyDistributionCenter.ui">
+    <CustomBuild Include="ProtectionApp.ui">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Uic%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
@@ -147,7 +148,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="KeyDistributionCenter.qrc">
+    <CustomBuild Include="ProtectionApp.qrc">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath);%(AdditionalInputs)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Rcc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>

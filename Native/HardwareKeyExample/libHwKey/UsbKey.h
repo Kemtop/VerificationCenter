@@ -3,11 +3,11 @@
 #include "libhwkey_global.h"
 #include "stdint.h"
 #include <vector>
-#include "rsa.h"
 #include "files.h"
-#include "osrng.h"
 #include <QFileInfo>
+#include <QDate>
 #include <streambuf>
+#include "libusb.h"
 
 #define DEV_VID 0x0483  //Идентификатор USB устройства (ключа). 
 #define DEV_PID 0x5711
@@ -69,33 +69,21 @@ public:
 	bool IsConnected();
 
 	void SendRSAKey(uint8_t key[256]);
-	std::string GetSerial(QString fileName);
 
 	std::string GetHWSerial();
 	void SetSerial(uint8_t serial[29]); //Сохраняет серийный номер продукта.
 	void SetLastDate(uint16_t days);
-	//Пишу в аппаратный блок последнюю дату.
-	void SetLastDate(QDate lastDate);
+	void SetLastDate(QDate lastDate); 	//Пишу в аппаратный блок последнюю дату.
 		
 	uint16_t GetLastDate();
 	QDate GetLastHwDate(); //Получаю последнюю дату из аппаратного ключа.
 
 	std::vector<uint16_t> GetRandData();
+	std::vector<uint8_t> GetCryptProductSerial(); //Возвращает шифрованный ключ продукта.
 
-	void SendPublicKey(QString rsaKeyFileName);
 	void InitUsb();
 
-	//Шифрует ключ RSA.
-	bool EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QString arrayName);
-
-	//Считывает и проверяет ключ продукта, если все в порядке возвращается 1, иначе 0 и сообщение об ошибке.
-	//Когда остается менее 10 дней до окончания срока действия-возвращает errMessage.
-	int CheсkProduckKey(std::string &errMessage, uint8_t *phyKey, int len);
-	
-private:
-	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa.
-	std::string GetProductKey(uint8_t *phyKey, int len);
-
+private:	
 	/*
 	   Отправка пакета USB ключу, и получение ответа.
 	   command-команда транспортного уровня, 1 байт
@@ -121,35 +109,4 @@ private:
 	  outBuffer-выходной буфер, содержит ответ USB ключа.
 	*/
 	int Packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer);
-
-	/*
-	   Получает 32  числа ряда функции a(n) = 7^n + 8^n + 9^n.
-	   0        3
-	   1		24
-	   2		194
-	   3		1584
-	   4		13058
-	   5		108624
-	   6		911234
-	   7		7703664
-	   8		65588738
-	   9		561991824
-	   10		4843001474
-	   11		41948320944
-	   12		364990300418
-	   13		3188510652624
-	   14		27953062038914
-	   15		245823065693424
-	   16		2167728096132098
-	   17		19161612027339024  //44 13 62 76 36 A1 10
-	   18		169737447404391554 //2 5B 07 4F 21 9E CC 82
-
-	   используется как ключ шифрования контейнера rsa.
-	*/
-	void GetCipherKey(QByteArray &ba);
-
-	//«Шифрует» (просто xor) массив in, на ключе key.
-	QByteArray Encrypt(QByteArray & in, QByteArray & key);
-
-	void Decrypt(uint8_t *in, int o_size, QByteArray key);
 };

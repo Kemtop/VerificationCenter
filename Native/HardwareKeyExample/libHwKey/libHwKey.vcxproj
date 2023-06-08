@@ -90,10 +90,12 @@
     <ClCompile Include="AES\src\aes_keyschedule.c" />
     <ClCompile Include="AES\src\aes_sbox.c" />
     <ClCompile Include="AES\src\gf256mul.c" />
+    <ClCompile Include="ApiKey\ApiKey.cpp" />
     <ClCompile Include="libHwKey.cpp" />
     <ClCompile Include="UsbKey.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApiKey\ApiKey.h" />
     <ClInclude Include="libHwKey.h" />
     <ClInclude Include="libhwkey_global.h" />
     <ClInclude Include="UsbKey.h" />

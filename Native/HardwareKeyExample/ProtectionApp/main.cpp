@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "KeyDistributionCenter.h"
+#include "ProtectionApp.h"
 #include <QtWidgets/QApplication>
 #include <LoginForm.h>
 #include <AppConfig/AppConfig.h>
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 	QIcon icon("Image/app.ico");
-	KeyDistributionCenter w;
+	ProtectionApp w;
 	w.move(QApplication::desktop()->screen()->rect().center() - w.rect().center());
 	w.setWindowIcon(icon);
 	//Cтиль для QMessageBox

@@ -64,20 +64,14 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_ProtectionApp.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_ProtectionApp.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_KeyDistributionCenter.cpp">
+    <ClCompile Include="GeneratedFiles\qrc_ProtectionApp.cpp">
       <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_ToolTipMessage.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_ToolTipMessage.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="AppConfig\AppConfig.cpp">
       <Filter>AppConfig</Filter>
@@ -91,7 +85,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_LoginForm.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="KeyDistributionCenter.cpp">
+    <ClCompile Include="ProtectionApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -99,7 +93,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_KeyDistributionCenter.h">
+    <ClInclude Include="GeneratedFiles\ui_ProtectionApp.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="СertificateСreator\ExtensionField.h">
@@ -116,13 +110,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="KeyDistributionCenter.h">
+    <CustomBuild Include="ProtectionApp.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="KeyDistributionCenter.ui">
+    <CustomBuild Include="ProtectionApp.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="KeyDistributionCenter.qrc">
+    <CustomBuild Include="ProtectionApp.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="LoginForm.ui">

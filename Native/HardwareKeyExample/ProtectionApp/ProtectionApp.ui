@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>KeyDistributionCenterClass</class>
- <widget class="QMainWindow" name="KeyDistributionCenterClass">
+ <class>ProtectionAppClass</class>
+ <widget class="QMainWindow" name="ProtectionAppClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -575,7 +575,7 @@ background-position: left </string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="KeyDistributionCenter.qrc"/>
+  <include location="ProtectionApp.qrc"/>
  </resources>
  <connections/>
 </ui>
