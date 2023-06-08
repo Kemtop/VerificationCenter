@@ -31,7 +31,7 @@ KeyProger::KeyProger(QWidget *parent)
 //Получаем серийный номер из устройства.
 void KeyProger::GetSerial()
 {
-	QString serial = QString::fromStdString(key.Serial(RSA_KEY_FILENAME));
+	QString serial = QString::fromStdString(key.ProductSerial(RSA_KEY_FILENAME));
 	ui.TbSerial->setText(serial);
 }
 

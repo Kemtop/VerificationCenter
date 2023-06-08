@@ -1,26 +1,26 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include "ui_KeyDistributionCenter.h"
+#include "ui_ProtectionApp.h"
 #include <QDialog>
 #include <QDomDocument>
 #include <exception>
 #include "global.h"
 #include "qbrush.h"
 
-class KeyDistributionCenter : public QMainWindow
+class ProtectionApp : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    KeyDistributionCenter(QWidget *parent = Q_NULLPTR);
-	~KeyDistributionCenter();
+    ProtectionApp(QWidget *parent = Q_NULLPTR);
+	~ProtectionApp();
 	void setCurentUser(QString login);//Устанавливает Логин(имя) текущего пользователя успешно прошедшего авторизацию.
 	void setDbSrvHostName(QString host);//Устанавливает имя хоста сервера БД.
 	void setDbSrvPort(int port);
 
 private:
-    Ui::KeyDistributionCenterClass ui;
+    Ui::ProtectionAppClass ui;
 
 	QString CurentUser; //Логин(имя) текущего пользователя успешно прошедшего авторизацию.
 	QString DbSrvHostName; //Имя хоста сервера БД.

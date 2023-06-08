@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include "ui_LoginForm.h"
-#include "UsbKey.h"
+#include "ApiKey/ApiKey.h"
 #include "global.h"
 #include "uVectors.h"
 
@@ -30,7 +30,7 @@ public:
 private:
 	Ui::LoginForm ui;
 	QTextCodec *StrCoder;
-	UsbKey usb; //Объект для работы с USB ключом.
+	ApiKey usbKey; //Объект для работы с USB ключом.
 
 	QTimer timerUsbKeyState; //Таймер для опроса состояния USB ключа.
 

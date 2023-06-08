@@ -53,7 +53,7 @@
       <ModuleDefinitionFile>main.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y  $(SolutionDir)libVr5b\$(Platform)\$(Configuration)\libVr5b.dll $(SolutionDir)KeyDistributionCenter\$(Platform)\$(Configuration)\
+      <Command>copy /Y  $(SolutionDir)libVr5b\$(Platform)\$(Configuration)\libVr5b.dll $(SolutionDir)ProtectionApp\$(Platform)\$(Configuration)\
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

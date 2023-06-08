@@ -27,6 +27,9 @@
     <Filter Include="AES">
       <UniqueIdentifier>{6937975d-6097-40c7-8d5b-81e505a452cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ApiKey">
+      <UniqueIdentifier>{2f80ce62-4469-4161-a05c-b16cda8104bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="libHwKey.cpp">
@@ -77,6 +80,9 @@
     <ClCompile Include="AES\src\gf256mul.c">
       <Filter>AES</Filter>
     </ClCompile>
+    <ClCompile Include="ApiKey\ApiKey.cpp">
+      <Filter>ApiKey</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libHwKey.h">
@@ -84,6 +90,9 @@
     </ClInclude>
     <ClInclude Include="UsbKey.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiKey\ApiKey.h">
+      <Filter>ApiKey</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

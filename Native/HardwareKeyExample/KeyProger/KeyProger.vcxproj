@@ -31,7 +31,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)KeyProger\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)\KeyProger\ApiKey;$(SolutionDir)ProductKeyLib\Tools\;$(SolutionDir)./../CryptoPP;$(SolutionDir)libHwKey;$(SolutionDir);$(SolutionDir)Dialogs;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\KeyProger\ApiKey;$(SolutionDir)ProductKeyLib\Tools\;$(SolutionDir)./../CryptoPP;$(SolutionDir)libHwKey;$(SolutionDir);$(SolutionDir)Dialogs;$(SolutionDir)libUSB\libusb;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ProductKeyLib\$(Configuration)\;$(SolutionDir)./../CryptoPP\$(Platform)\Output\$(Configuration);$(SolutionDir)libUSB\$(Platform)\$(Configuration)\lib;$(SolutionDir)libHwKey\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -71,7 +71,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ApiKey\ApiKey.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_MainForm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -126,7 +125,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ApiKey\ApiKey.h" />
     <ClInclude Include="GeneratedFiles\ui_MainForm.h" />
     <ClInclude Include="GeneratedFiles\ui_KeyProger.h" />
     <ClInclude Include="GeneratedFiles\ui_UserForm.h" />

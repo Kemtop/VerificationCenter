@@ -31,8 +31,8 @@ LoginForm::LoginForm(QWidget *parent)
 
      #ifdef INCLUDE_HW_USB_KEY 
 	      timerUsbKeyState.setInterval(250); //Интервал проверки наличия USB ключа.
-	      usb.InitUsb();
-		  if (!usb.IsConnected())   //Определяю подключено ли устройство.
+	      usbKey.InitUsb();
+		  if (!usbKey.DeviceIsConnected())   //Определяю подключено ли устройство.
 			  lockUI(true); //Блокирую интерфейс пользователя.
 		  connect(&timerUsbKeyState, SIGNAL(timeout()), this, SLOT(slotTimerUsbKeyStateTimeout()));
 		  timerUsbKeyState.start();
@@ -117,7 +117,7 @@ void LoginForm::setWarningMessage(QString m)
 
 void LoginForm::checkUsbKey()
 {	
-	if (!usb.IsConnected())   //Определяю подключено ли устройство.
+	if (!usbKey.DeviceIsConnected())   //Определяю подключено ли устройство.
 	{
 		lockUI(true); //Блокирую интерфейс пользователя. Нет аппаратного ключа.
 		return;
@@ -125,7 +125,7 @@ void LoginForm::checkUsbKey()
 	
 	timerUsbKeyState.stop(); //Останавливаю таймер поиска аппаратного ключа.Ключ найден.
 
-	//Проверка корректности ключа продукта.
+	//Проверка корректности ключа продукта.Такая сложность необходима для усложнения взлома программы.
 	uint8_t phK[] = usbTLeverVector;
 	int lenK = sizeof(phK) / sizeof(phK[0]); 
 	int res = 0;
@@ -134,7 +134,7 @@ void LoginForm::checkUsbKey()
 	try 
 	{
         //Считываю и проверяю ключ продукта.
-		res = usb.CheсkProduckKey(errMessage,phK, lenK);	
+		res = usbKey.CheсkProduckKey(errMessage,phK, lenK);	
 	}
 	catch (...)
 	{
@@ -168,7 +168,7 @@ void LoginForm::checkUsbKey()
 void LoginForm::slotTimerUsbKeyStateTimeout()
 {
 	//Определяю подключено ли устройство.
-	if (!usb.IsConnected())
+	if (!usbKey.DeviceIsConnected())
 	{
 		lockUI(true); //Блокирование.	
 		return;
