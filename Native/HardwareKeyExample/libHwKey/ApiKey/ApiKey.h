@@ -82,8 +82,16 @@ private:
 	//Шифрует ключ RSA.
 	bool EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QString arrayName);
 
-	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa.
+	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa (phyKey). Вшитый в защищаемую программу.
 	std::string GetProductKey(uint8_t *phyKey, int len);
 
 	std::string GetSerial(QString fileName); //Возвращает шифрованный ключ продукта.
+
+	//Расшифровывает сеансовый ключ.
+	void DecryptSessionKey(CryptoPP::RSA::PrivateKey privateKey, uint8_t *cryptSessionKey, int keyLen, uint8_t *sessionKey);
+
+	//Расшифровывает серийный номер продукта.
+	std::string DecryptProductSerial(std::vector<uint8_t> data, uint8_t *sessionKey);
+
+	std::string GetProductSerial(CryptoPP::RSA::PrivateKey privateKey);
 };

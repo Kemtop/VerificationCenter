@@ -5,7 +5,6 @@
 #include <CheckSerial.h>
 #include <sstream>
 
-
 ApiKey::ApiKey()
 {
 
@@ -61,7 +60,7 @@ bool ApiKey::SaveRsaModule(QString keyFileName, QString vectorPath, QString cryp
 	//Проверяю существует ли файл. Если существует проверяю-это файл а не директория.
 	if (!(zfile.exists() && zfile.isFile()))
 	{
-		LastError = "Отсутствует ключ rsa.";
+		LastError = "Rsa key not found.";
 		return false;
 	}
 
@@ -112,7 +111,7 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	}
 	catch (...)
 	{
-		errMessage = "Unknown error:: Error code::703.";
+		errMessage = "Fatal error:: Code:507. Please contact support.";
 		return 0;
 	}
 
@@ -120,7 +119,7 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	std::string dtEnd = "";
 	QString prk = QString::fromStdString(productKey);
 
-	int  res = 15; //Любое число не 0 или 1. В случае исключения должно быть значение.
+	int  res = 0;
 
 	//Проверяю правильность ключа продукта и получаю дату окончания действия ключа продукта.
 	try
@@ -129,14 +128,14 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	}
 	catch (...)
 	{
-		errMessage = "Core parameter failure::Code Error 667.";
+		errMessage = "Fatal error:: Code:508. Please contact support.";
 		return 0;
 	}
 
 	//Проблемы с ключом продукта.
 	if (res == 0)
 	{
-		errMessage = "Linear alignment error of the main unit::Code Error 13578.";
+		errMessage = "Fatal error:: Code:509. Please contact support..";
 		return 0; //Проблемы с ключом продукта.
 	}
 
@@ -160,28 +159,27 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 		//Если текущая дата меньше, последней записанной в аппаратный ключ. Явная подделка времени на ПК пользователя.
 		if (curDate < LastDate)
 		{
-			errMessage = "Object represents a particular::Code Error 2987.";
+			errMessage = "Fatal error:: Code:510. Please contact support.";
 			return 0;
 		}
 
 		//Вычисляю разность текущей даты и последней даты записанной в аппаратный ключ.
-		quint64 r = 23;
-		r = LastDate.daysTo(curDate);
+		quint64 daysPassed = LastDate.daysTo(curDate);
 
-		if (r > 7) //Обновляю последнюю дату.
+		if (daysPassed > UPDATE_DATE_PERIOD) //Обновляю последнюю дату.
 		{
 			SetLastDate(curDate); //Пишу дату в аппаратный блок.
 		}
 
-		//До окончания действия ключа продукта вшитого в аппаратный блок  осталось менее 7дней.
-		quint64 r1 = curDate.daysTo(endDatePk); //Сколько дней осталось до окончания действия ключа.
+		//До окончания действия ключа продукта вшитого в аппаратный блок осталось менее 7дней.
+		quint64 daysToEnd = curDate.daysTo(endDatePk); //Сколько дней осталось до окончания действия ключа.
 
-		if ((r1 > -1) && (r1 < 7)) //Меньше 7ми или текущая(r1=0), но не меньше текущей.
+		if ((daysToEnd > -1) && (daysToEnd < UPDATE_DATE_PERIOD)) //Меньше 7ми или текущая(=0), но не меньше текущей.
 		{
 			SetLastDate(curDate); //Пишу дату в аппаратный блок.
 		}
 
-		if ((r1 < 0) || (r1 == 0)) //Перевели время, или текущая дата.
+		if ((daysToEnd < 0) || (daysToEnd == 0)) //Перевели время, или текущая дата.
 		{
 			curDate.addDays(1);
 			SetLastDate(curDate); //Пишу дату в аппаратный блок.
@@ -190,7 +188,7 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	}
 	catch (...)
 	{
-		errMessage = "No particular linear ground thread::Code Error 709.";
+		errMessage = "Fatal error:: Code:506. Please contact support.";
 		return 0;
 	}
 
@@ -200,11 +198,11 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 //Шифрует ключ RSA.
 bool ApiKey::EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QString arrayName)
 {
-	QFileInfo file_info(rsaKeyFileName);
-	qint64 f_size = file_info.size();
+	QFileInfo fileInfo(rsaKeyFileName);
+	qint64 fileSize = fileInfo.size();
 
 	//Размер файла не удалось получить или размер файла меньше заголовка
-	if (f_size == 0)
+	if (fileSize == 0)
 	{
 		LastError = "Размер файла не удалось получить или размер файла меньше заголовка";
 		return false;
@@ -219,19 +217,18 @@ bool ApiKey::EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QS
 
 	QByteArray aR = file.readAll();
 
-	if (f_size != aR.size())
+	if (fileSize != aR.size())
 	{
 		LastError = "Не удается считать файл ключа.";
 		return false;
 	}
 
-	QByteArray cipherKey; //Получаю ряд.
+	QByteArray cipherKey; //Получаю ключ шифрования.
 	GetCipherKey(cipherKey);
 	QByteArray out = Encrypt(aR, cipherKey);
 
 	QByteArray hex = out.toHex();
 	//Проверить длину массива должна быть кратна 2!.
-	QString a(hex);
 
 	QString str = "#define " + arrayName + " {";
 	QString tmp1;
@@ -256,19 +253,20 @@ bool ApiKey::EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QS
 
 	QString outDir = SOLUTION_DIR + protectProjectName;
 
-	QFile file2(outDir);
-	if (!file2.open(QIODevice::WriteOnly))
+	QFile resultFile(outDir);
+	if (!resultFile.open(QIODevice::WriteOnly))
 	{
 		LastError = "Не удается сохранить массив.";
 		return false;
 	}
 
-	file2.write(str.toUtf8());
-	file2.close();
+	resultFile.write(str.toUtf8());
+	resultFile.close();
 
-	return false;
+	return true;
 }
 
+//Получает 32  числа ряда функции a(n) = 7^n + 8^n + 9^n. Используется как ключ шифрования контейнера rsa.
 void ApiKey::GetCipherKey(QByteArray & ba)
 {
 	//a(n) = 7 ^ n + 8 ^ n + 9 ^ n
@@ -351,46 +349,24 @@ QByteArray ApiKey::Encrypt(QByteArray & in, QByteArray & key)
 
 		out[i] = static_cast<char>(y);
 
-		if (m_pos < 31) m_pos++;
+		if (m_pos < CIPHER_PRODUCT_KEY_LEN - 1) m_pos++;
 		else m_pos = 0;
 	}
 
 	return out;
 }
 
+//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa (phyKey). Вшитый в защищаемую программу.
 std::string ApiKey::GetProductKey(uint8_t *phyKey, int len)
 {
-	std::vector<uint8_t> data;
-	data = usb.GetCryptProductSerial(); //Получаем [шифрованный rsa сеансовый ключ, 256 байт ][данные, 32 байта]
-
-	uint8_t cryptSessionKey[CIPHER_SESSION_KEY_LEN];
-	memcpy(cryptSessionKey, data.data(), data.size() - CIPHER_PRODUCT_KEY_LEN);
-
-	CryptoPP::AutoSeededRandomPool rng;
-	CryptoPP::RSA::PrivateKey privateKey;
-
 	QByteArray keyCipher;
 	GetCipherKey(keyCipher);
 	Decrypt(phyKey, len, keyCipher); //Расшифровка закрытого ключа rsa.
 	CryptoPP::ArraySource arraySource(phyKey, len, true); //pumpAll
-
+	CryptoPP::RSA::PrivateKey privateKey;
 	privateKey.Load(arraySource);
-	CryptoPP::Integer cryptRsaData = CryptoPP::Integer((const byte *)cryptSessionKey, sizeof(cryptSessionKey));
-	CryptoPP::Integer decryptResult = privateKey.CalculateInverse(rng, cryptRsaData); //Расшифровка сеансового ключа.
-	
-	uint8_t cryptSerial[MaxPackSize];
-	uint8_t sessionKey[SESSION_KEY_LEN];
-	for (int i = 0; i < SESSION_KEY_LEN; ++i)
-	{
-		sessionKey[i] = decryptResult.GetByte(SESSION_KEY_LEN - 1 - i);
-	}
 
-	memcpy(cryptSerial, &data.at(CIPHER_SESSION_KEY_LEN), CIPHER_PRODUCT_KEY_LEN);
-	aes128_block_dec(cryptSerial, sessionKey, CIPHER_PRODUCT_KEY_LEN);	
-	std::string productSerial;
-	for (size_t i = 0; i < CIPHER_PRODUCT_KEY_LEN; ++i) productSerial += cryptSerial[i];
-
-	return productSerial;
+	return GetProductSerial(privateKey);
 }
 
 void ApiKey::Decrypt(uint8_t * in, int o_size, QByteArray key)
@@ -408,7 +384,7 @@ void ApiKey::Decrypt(uint8_t * in, int o_size, QByteArray key)
 
 		in[i] = y;
 
-		if (m_pos < 31) m_pos++;
+		if (m_pos < CIPHER_PRODUCT_KEY_LEN - 1) m_pos++;
 		else m_pos = 0;
 	}
 }
@@ -421,10 +397,10 @@ void ApiKey::SendPublicKey(QString rsaKeyFileName)
 	privateKey.Load(in);
 
 	CryptoPP::Integer n = privateKey.GetModulus();
-	uint8_t key[256];
-	for (int i = 0; i < 256; ++i)
+	uint8_t key[CIPHER_SESSION_KEY_LEN];
+	for (int i = 0; i < CIPHER_SESSION_KEY_LEN; ++i)
 	{
-		key[i] = n.GetByte(255 - i);
+		key[i] = n.GetByte(CIPHER_SESSION_KEY_LEN - 1 - i);
 	}
 	
 	usb.SendRSAKey(key);
@@ -433,40 +409,49 @@ void ApiKey::SendPublicKey(QString rsaKeyFileName)
 //Возвращает ключ продукта.
 std::string ApiKey::ProductSerial(QString fileName)
 {
-	std::vector<uint8_t> key;
-	std::vector<uint8_t> cryptVector;
-	std::string Serial;
-
-	uint8_t CryptSerial[MaxPackSize];
-
-	std::vector<uint8_t> out;
-	out = usb.GetCryptProductSerial();
-
-	uint8_t cryptkey[256];
-	for (int i = 0; i < 256; ++i) cryptkey[i] = out.at(i + 1);
-	std::stringstream ss;
-	std::string strn;
-
-	CryptoPP::Integer c, r;
-
-	CryptoPP::AutoSeededRandomPool rng;
 	CryptoPP::RSA::PrivateKey privateKey;
 	CryptoPP::FileSource inkey(fileName.toStdString().c_str(), true); //Добавить проверку исключений!
 	privateKey.Load(inkey);
-	CryptoPP::RSA::PublicKey publicKey(privateKey);
-	c = CryptoPP::Integer((const byte *)cryptkey, sizeof(cryptkey));
-	r = privateKey.CalculateInverse(rng, c);
 
-	for (int i = 0; i < 16; ++i)
+	return GetProductSerial(privateKey);
+}
+
+std::string ApiKey::GetProductSerial(CryptoPP::RSA::PrivateKey privateKey) {
+
+	std::vector<uint8_t> data;
+	data = usb.GetCryptProductSerial(); //Получаем [шифрованный rsa сеансовый ключ, 256 байт ][данные, 32 байта]
+
+	uint8_t cryptSessionKey[CIPHER_SESSION_KEY_LEN];
+	memcpy(cryptSessionKey, data.data(), data.size() - CIPHER_PRODUCT_KEY_LEN);
+	   
+	uint8_t sessionKey[SESSION_KEY_LEN];
+	DecryptSessionKey(privateKey, cryptSessionKey, CIPHER_SESSION_KEY_LEN, sessionKey);
+
+	return DecryptProductSerial(data, sessionKey);
+}
+
+//Расшифровывает сеансовый ключ.
+void ApiKey::DecryptSessionKey(CryptoPP::RSA::PrivateKey privateKey, uint8_t *cryptSessionKey, int keyLen, uint8_t *sessionKey) {
+
+	CryptoPP::AutoSeededRandomPool rng;
+	CryptoPP::Integer cryptRsaData = CryptoPP::Integer((const byte *)cryptSessionKey, keyLen);
+	CryptoPP::Integer decryptResult = privateKey.CalculateInverse(rng, cryptRsaData); //Расшифровка сеансового ключа.
+
+	for (int i = 0; i < SESSION_KEY_LEN; ++i)
 	{
-		key.push_back(r.GetByte(15 - i));
+		sessionKey[i] = decryptResult.GetByte(SESSION_KEY_LEN - 1 - i);
 	}
+}
 
-	for (int i = 0; i < 32; ++i) cryptVector.push_back(out.at(i + 257));
+//Расшифровывает серийный номер продукта.
+std::string ApiKey::DecryptProductSerial(std::vector<uint8_t> data, uint8_t *sessionKey) {
 
-	for (size_t i = 0; i < cryptVector.size(); ++i) CryptSerial[i] = cryptVector.at(i);
-	aes128_block_dec(CryptSerial, key.data(), (uint8_t)cryptVector.size());
-	for (size_t i = 0; i < cryptVector.size(); ++i) Serial += CryptSerial[i];
-
-	return Serial;
+	uint8_t cryptSerial[MaxPackSize];
+	memcpy(cryptSerial, &data.at(CIPHER_SESSION_KEY_LEN), CIPHER_PRODUCT_KEY_LEN);
+	aes128_block_dec(cryptSerial, sessionKey, CIPHER_PRODUCT_KEY_LEN);
+	
+	std::string productSerial;
+	for (size_t i = 0; i < CIPHER_PRODUCT_KEY_LEN; ++i) productSerial += cryptSerial[i];
+	
+	return productSerial;
 }

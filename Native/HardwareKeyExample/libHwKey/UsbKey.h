@@ -51,6 +51,7 @@
 #define SESSION_KEY_LEN 16 //Длина сеансового ключа.
 #define CIPHER_SESSION_KEY_LEN 256 //Длина шифрованного rsa сеансового ключа.
 #define CIPHER_PRODUCT_KEY_LEN 32 //Размер блока с зашифрованным ключем продукта.
+#define UPDATE_DATE_PERIOD 7 //Период обновления даты ключа.
 
 enum USBERROR
 {
