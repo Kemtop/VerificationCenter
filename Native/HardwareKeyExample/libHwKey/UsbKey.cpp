@@ -251,11 +251,17 @@ std::vector<uint8_t> UsbKey::GetCryptProductSerial()
 {
 	std::vector<uint8_t> in, out;
 	Packcom(GET_CRYPT_SERIAL_COMMAND, in, 0, out);
-	return out;
+	return GetDataFromPacket(out);
 }
 
 void UsbKey::InitUsb()
 {
    libusb_init(NULL);   // инициализация
    libusb_set_debug(NULL, 0);  // уровень вывода отладочных сообщений
+}
+
+//Возвращает пользовательские данные. Удаляет в начале 1 байт – команду.
+std::vector<uint8_t> UsbKey::GetDataFromPacket(std::vector<uint8_t>& buffer) {
+	buffer.erase(buffer.begin());
+	return buffer;
 }

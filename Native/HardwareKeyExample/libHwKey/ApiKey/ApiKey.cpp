@@ -277,9 +277,9 @@ void ApiKey::GetCipherKey(QByteArray & ba)
 	quint64 add3 = 0;
 	quint64 a = 0;
 
-	quint64 data[16];
+	quint64 data[SESSION_KEY_LEN];
 	int pos = 0;
-	for (int i = 2; i < 18; i++)
+	for (int i = 2; i < SESSION_KEY_LEN + 2; i++)
 	{
 		add1 = 7;
 		add2 = 8;
@@ -316,9 +316,9 @@ void ApiKey::GetCipherKey(QByteArray & ba)
 		18		169737447404391554 //2 5B 07 4F 21 9E CC 82
 		*/
 
-		//Всегда есть два байта. Берем их.
+	//Всегда есть два байта. Берем их.
 	uint8_t t = 0;
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < SESSION_KEY_LEN; i++)
 	{
 		a = data[i] & 0xFF;
 		t = static_cast<uint8_t>(a);
@@ -360,47 +360,37 @@ QByteArray ApiKey::Encrypt(QByteArray & in, QByteArray & key)
 
 std::string ApiKey::GetProductKey(uint8_t *phyKey, int len)
 {
-	std::vector<uint8_t> key;
-	std::vector<uint8_t> cryptVector;
-	std::string Serial;
-	//
-	uint8_t CryptSerial[MaxPackSize];
+	std::vector<uint8_t> data;
+	data = usb.GetCryptProductSerial(); //Получаем [шифрованный rsa сеансовый ключ, 256 байт ][данные, 32 байта]
 
-	std::vector<uint8_t> out;
-	out = usb.GetCryptProductSerial();
+	uint8_t cryptSessionKey[CIPHER_SESSION_KEY_LEN];
+	memcpy(cryptSessionKey, data.data(), data.size() - CIPHER_PRODUCT_KEY_LEN);
 
-	uint8_t cryptkey[256];
-	for (int i = 0; i < 256; ++i) cryptkey[i] = out.at(i + 1);
-	std::stringstream ss;
-	std::string strn;
-	
-	CryptoPP::Integer c, r;
 	CryptoPP::AutoSeededRandomPool rng;
 	CryptoPP::RSA::PrivateKey privateKey;
 
 	QByteArray keyCipher;
 	GetCipherKey(keyCipher);
-	Decrypt(phyKey, len, keyCipher); //Восстанавливаю.
-	CryptoPP::ArraySource as2(phyKey, len, true); //pumpAll
+	Decrypt(phyKey, len, keyCipher); //Расшифровка закрытого ключа rsa.
+	CryptoPP::ArraySource arraySource(phyKey, len, true); //pumpAll
 
-	privateKey.Load(as2);
-
-	CryptoPP::RSA::PublicKey publicKey(privateKey);
-	c = CryptoPP::Integer((const byte *)cryptkey, sizeof(cryptkey));
-	r = privateKey.CalculateInverse(rng, c);
-
-	for (int i = 0; i < 16; ++i)
+	privateKey.Load(arraySource);
+	CryptoPP::Integer cryptRsaData = CryptoPP::Integer((const byte *)cryptSessionKey, sizeof(cryptSessionKey));
+	CryptoPP::Integer decryptResult = privateKey.CalculateInverse(rng, cryptRsaData); //Расшифровка сеансового ключа.
+	
+	uint8_t cryptSerial[MaxPackSize];
+	uint8_t sessionKey[SESSION_KEY_LEN];
+	for (int i = 0; i < SESSION_KEY_LEN; ++i)
 	{
-		key.push_back(r.GetByte(15 - i));
+		sessionKey[i] = decryptResult.GetByte(SESSION_KEY_LEN - 1 - i);
 	}
 
-	for (int i = 0; i < 32; ++i) cryptVector.push_back(out.at(i + 257));
+	memcpy(cryptSerial, &data.at(CIPHER_SESSION_KEY_LEN), CIPHER_PRODUCT_KEY_LEN);
+	aes128_block_dec(cryptSerial, sessionKey, CIPHER_PRODUCT_KEY_LEN);	
+	std::string productSerial;
+	for (size_t i = 0; i < CIPHER_PRODUCT_KEY_LEN; ++i) productSerial += cryptSerial[i];
 
-	for (size_t i = 0; i < cryptVector.size(); ++i) CryptSerial[i] = cryptVector.at(i);
-	aes128_block_dec(CryptSerial, key.data(), (uint8_t)cryptVector.size());
-	for (size_t i = 0; i < cryptVector.size(); ++i) Serial += CryptSerial[i];
-
-	return Serial;
+	return productSerial;
 }
 
 void ApiKey::Decrypt(uint8_t * in, int o_size, QByteArray key)

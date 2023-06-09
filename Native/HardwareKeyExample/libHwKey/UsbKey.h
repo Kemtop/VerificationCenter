@@ -46,6 +46,12 @@
 #define GET_CRYPT_SERIAL_COMMAND 0x07 //Получить шифрованный ключом серийный номер продукта.
 
 #define GET_RANDOM_COMMAND 0x50 //Получить случайное число.
+
+#define CRC_LEN 32 //Длина контрольной суммы.
+#define SESSION_KEY_LEN 16 //Длина сеансового ключа.
+#define CIPHER_SESSION_KEY_LEN 256 //Длина шифрованного rsa сеансового ключа.
+#define CIPHER_PRODUCT_KEY_LEN 32 //Размер блока с зашифрованным ключем продукта.
+
 enum USBERROR
 {
 	NOT_CONNECTED = -1,
@@ -109,4 +115,7 @@ private:
 	  outBuffer-выходной буфер, содержит ответ USB ключа.
 	*/
 	int Packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, std::vector<uint8_t>& outBuffer);
+
+	//Возвращает пользовательские данные. Удаляет в начале 1 байт – команду.
+	std::vector<uint8_t> GetDataFromPacket(std::vector<uint8_t>& outBuffer);
 };
