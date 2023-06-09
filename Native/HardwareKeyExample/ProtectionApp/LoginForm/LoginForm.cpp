@@ -125,7 +125,7 @@ void LoginForm::checkUsbKey()
 	
 	timerUsbKeyState.stop(); //Останавливаю таймер поиска аппаратного ключа.Ключ найден.
 
-	//Проверка корректности ключа продукта.Такая сложность необходима для усложнения взлома программы.
+	//Проверка корректности ключа продукта.
 	uint8_t phK[] = usbTLeverVector;
 	int lenK = sizeof(phK) / sizeof(phK[0]); 
 	int res = 0;

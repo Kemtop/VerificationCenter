@@ -5,7 +5,7 @@ KeyProger::KeyProger(QWidget *parent)
 {
 	ui.setupUi(this);
 	timer = new QTimer();
-	timer->setInterval(50);
+	timer->setInterval(1000);
 
 	//Нажатие на кнопку GetSerial.
 	connect(ui.BtnGetSerial, SIGNAL(clicked()), this, SLOT(GetSerial()));
