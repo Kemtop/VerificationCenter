@@ -9,7 +9,7 @@
 <p>
 Скачиваем IDE Keil v5.36. Собираем прошивку из \HardwareProjects\STM32UsbKey.
 Или берем готовую из \Binaries\STM32UsbKeyFirmware.zip. 
-<a href="./LoadFirmware/LoadFirmware.md">Прошиваем микроконтроллер.</a>
+<a href="../LoadFirmware/LoadFirmware.md">Прошиваем микроконтроллер.</a>
 </p>
 <p>
 Генерируем ключ RSA, которым микроконтроллер будет шифровать сеансовый ключ.
