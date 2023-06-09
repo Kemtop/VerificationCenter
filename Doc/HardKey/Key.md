@@ -5,9 +5,9 @@
 <a href="./KeyProger/KeyProger.md">Инструкция по созданию ключа.</a>
 <br>
 Режим «простого» пользователя:<br>
-<img src="./KeySoft/SetKey1.jpg" width="50%"><br>
+<img src="./KeyProger/Images/EasyMode.jpg" width="50%"><br>
 Режим «Эксперт» (доступен после ввода пароля на главной форме):<br>
-<img src="./KeySoft/ExpertMode.jpg" width="50%"><br>
+<img src="./KeyProger/Images/ExpertMode.jpg" width="50%"><br>
 </p>
 <p>
 Защищаемая программа обращается к микроконтроллеру, он посылает шифрованный ключ продукта. Программа расшифровывает и проверяет данные. 
@@ -23,7 +23,7 @@
 Применено гибридное шифрование – AES и RSA. Сеансовый ключ используется AES для шифрования серийного номера, RSA - шифрует сеансовый ключ. По проводу всегда передаются случайные данные.
 </p>
 <p>
-<a href="./KeySoft/Протокол обмена с USB ключом.docx">Протокол обмена с USB ключом (.docx)</a>
+<a href="./KeyProger/Протокол обмена с USB ключом.docx">Протокол обмена с USB ключом (.docx)</a>
 </p>
 <br>
 <p align="left">
@@ -31,10 +31,10 @@
 </p>
 <p align="left">
 Разводка платы защиты для изготовления методом ЛУТ<br>
-<img src="./BoardProtect.png" width="20%">
-<a href="./BoardProtect.lay">Файл модели - BoardProtect.lay </a>
+<img src="./Images/BoardProtect.png" width="20%">
+<a href="./Images/BoardProtect.lay">Файл модели - BoardProtect.lay </a>
 </p>
 <p align="left">
-<img src="./hwkey1.jpg" width="100%">
-<img src="./hwkey.jpg" width="100%">
+<img src="./Images/hwkey1.jpg" width="100%">
+<img src="./Images/hwkey.jpg" width="100%">
 </p>
