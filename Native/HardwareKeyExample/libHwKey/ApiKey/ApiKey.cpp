@@ -266,7 +266,8 @@ bool ApiKey::EncodeRsaKey(QString rsaKeyFileName, QString protectProjectName, QS
 	return true;
 }
 
-//Получает 32  числа ряда функции a(n) = 7^n + 8^n + 9^n. Используется как ключ шифрования контейнера rsa.
+//Получает 32  числа ряда функции a(n) = 7^n + 8^n + 9^n. Используется как ключ шифрования контейнера rsa. 
+//Чем экзотичнее тут код – тем сложнее будет взломать защиту.
 void ApiKey::GetCipherKey(QByteArray & ba)
 {
 	//a(n) = 7 ^ n + 8 ^ n + 9 ^ n
@@ -406,7 +407,7 @@ void ApiKey::SendPublicKey(QString rsaKeyFileName)
 	usb.SendRSAKey(key);
 }
 
-//Возвращает ключ продукта.
+//Возвращает ключ продукта. Используя закрытый ключ rsa из файла.
 std::string ApiKey::ProductSerial(QString fileName)
 {
 	CryptoPP::RSA::PrivateKey privateKey;
@@ -416,6 +417,7 @@ std::string ApiKey::ProductSerial(QString fileName)
 	return GetProductSerial(privateKey);
 }
 
+//Читает и расшифровывает ключ (серийный номер) продукта.
 std::string ApiKey::GetProductSerial(CryptoPP::RSA::PrivateKey privateKey) {
 
 	std::vector<uint8_t> data;

@@ -23,7 +23,7 @@ public:
 	void InitUsb(); //Инициализирует usb.	
 	bool DeviceIsConnected(); //Подключено ли устройство.
 
-	std::string ProductSerial(QString keyName); //Возвращает ключ продукта.
+	std::string ProductSerial(QString keyName); //Возвращает ключ продукта. Используя закрытый ключ rsa из файла.
 	std::string HWSerial(); //Возвращает серийный номер устройства.
 	QDate LastDate();
 	void SetLastDate(QDate days); //Пишу в аппаратный блок последнюю дату.
@@ -85,13 +85,12 @@ private:
 	//Получает ключ продукта из аппаратного ключа, использует ключ шифрования rsa (phyKey). Вшитый в защищаемую программу.
 	std::string GetProductKey(uint8_t *phyKey, int len);
 
-	std::string GetSerial(QString fileName); //Возвращает шифрованный ключ продукта.
-
 	//Расшифровывает сеансовый ключ.
 	void DecryptSessionKey(CryptoPP::RSA::PrivateKey privateKey, uint8_t *cryptSessionKey, int keyLen, uint8_t *sessionKey);
 
 	//Расшифровывает серийный номер продукта.
 	std::string DecryptProductSerial(std::vector<uint8_t> data, uint8_t *sessionKey);
 
+	//Читает и расшифровывает ключ (серийный номер) продукта.
 	std::string GetProductSerial(CryptoPP::RSA::PrivateKey privateKey);
 };
