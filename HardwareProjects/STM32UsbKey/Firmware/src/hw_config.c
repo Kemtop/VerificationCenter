@@ -25,7 +25,6 @@ uint16_t MessLen;
 
 uint8_t preallocated_buffer[4096];
 
-
 uint8_t entropy_data[32] =
   {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -38,6 +37,7 @@ extern void aes128_block_enc(void* buffer, void* key, uint8_t size);
 
 static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len);
 
+//Считает контрольную сумму.
 uint32_t crc32_native(uint8_t *bfr, int len, int clear) 
 {
 	int l;
@@ -116,7 +116,6 @@ void RunCommand(void)
 	{
 		0x01, 0x00, 0x01
 	};
-
 	
 	switch (Command[0])
 	{
@@ -241,10 +240,10 @@ void Set_System(void)
 //  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 //  EXTI_Init(&EXTI_InitStructure);
 
-EXTI->IMR = 0x00040000;
-EXTI->EMR = 0x00000000;
-EXTI->RTSR = 0x00040000;
-EXTI->FTSR = 0x00000000;
+	EXTI->IMR = 0x00040000;
+	EXTI->EMR = 0x00000000;
+	EXTI->RTSR = 0x00040000;
+	EXTI->FTSR = 0x00000000;
 }
 
 /*******************************************************************************
@@ -264,29 +263,29 @@ void Set_ADCConfig(void)
 	
 	ADC_InitTypeDef ADC_InitStructure;
 	
-	   // define ADC config
-    ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-    ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;  // we work in continuous sampling mode
-    ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-    ADC_InitStructure.ADC_NbrOfChannel = 1;
+	// define ADC config
+  ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+  ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;  // we work in continuous sampling mode
+  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_NbrOfChannel = 1;
  
-    ADC_RegularChannelConfig(ADC1,ADC_Channel_1, 1,ADC_SampleTime_28Cycles5); // define regular conversion config
-    ADC_Init ( ADC1, &ADC_InitStructure);   //set config of ADC1
+  ADC_RegularChannelConfig(ADC1,ADC_Channel_1, 1,ADC_SampleTime_28Cycles5); // define regular conversion config
+  ADC_Init ( ADC1, &ADC_InitStructure);   //set config of ADC1
  
-    // enable ADC
-    ADC_Cmd (ADC1,ENABLE);  //enable ADC1
+  // enable ADC
+  ADC_Cmd (ADC1,ENABLE);  //enable ADC1
  
-    //  ADC calibration (optional, but recommended at power on)
-    ADC_ResetCalibration(ADC1); // Reset previous calibration
-    while(ADC_GetResetCalibrationStatus(ADC1));
-    ADC_StartCalibration(ADC1); // Start new calibration (ADC must be off at that time)
-    while(ADC_GetCalibrationStatus(ADC1));
+  //  ADC calibration (optional, but recommended at power on)
+  ADC_ResetCalibration(ADC1); // Reset previous calibration
+  while(ADC_GetResetCalibrationStatus(ADC1));
+  ADC_StartCalibration(ADC1); // Start new calibration (ADC must be off at that time)
+  while(ADC_GetCalibrationStatus(ADC1));
  
-    // start conversion
-    ADC_Cmd (ADC1,ENABLE);  //enable ADC1
-    ADC_SoftwareStartConvCmd(ADC1, ENABLE); // start conversion (will be endless as we are in continuous mode)
+  // start conversion
+  ADC_Cmd (ADC1,ENABLE);  //enable ADC1
+  ADC_SoftwareStartConvCmd(ADC1, ENABLE); // start conversion (will be endless as we are in continuous mode)
 }
 
 
