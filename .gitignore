@@ -7,6 +7,8 @@ Native/CryptoPP/adhoc.cpp.copied
 Native/Mpir/build.vc/output_params.bat
 Native/Mpir/build.vc14/test-config.props
 Deployment/*
+HardwareProjects/STM32UsbKey/Objects/*
+
 
 Native/EasyCript/Test/*
 GeneratedFiles
