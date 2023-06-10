@@ -553,6 +553,16 @@
               <FileType>1</FileType>
               <FilePath>.\Firmware\src\mytrng.c</FilePath>
             </File>
+            <File>
+              <FileName>transport_layer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Firmware\src\transport_layer.c</FilePath>
+            </File>
+            <File>
+              <FileName>transport_layer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Firmware\inc\transport_layer.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
