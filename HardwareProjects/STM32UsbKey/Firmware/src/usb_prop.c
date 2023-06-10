@@ -32,8 +32,7 @@
 #include "usb_prop.h"
 #include "usb_desc.h"
 #include "usb_pwr.h"
-#include "usb_flash.h"
-#include "hw_config.h"
+#include "transport_layer.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -43,15 +42,6 @@ uint32_t ProtocolValue;
 __IO uint8_t EXTI_Enable;
 __IO uint8_t Request = 0;
 uint8_t Report_Buf[wMaxPacketSize];
-extern uint8_t Buffer[wMaxPacketSize+1]; //defined in hw_config.c
-extern uint8_t AES_key[];
-extern tpSettings settings;
-extern uint8_t Command[MaxMessageSize];
-extern uint16_t MessLen;
-extern __IO uint8_t PrevXferComplete;
-
-
-extern uint32_t crc32_native(uint8_t *bfr, int len, int clear);
 
 /* -------------------------------------------------------------------------- */
 /*  Structures initializations */
@@ -230,64 +220,7 @@ void HID_SetDeviceAddress (void)
 *******************************************************************************/
 void HID_Status_In(void)
 {
-	int i;
-	int maxpdsize, packcount, pdsize;
-	uint32_t crc;
-	
-  switch (Report_Buf[0])
-  {
-		case 0xb0:
-			if (CheckCRC(Report_Buf, 3))
-			{
-				StartTransfer(Report_Buf[1] <<8 | Report_Buf[2]);
-			}
-		break;
-		case 0xb1:
-			maxpdsize = (wMaxPacketSize - 6);
-			if (CheckCRC(Report_Buf, maxpdsize+2))
-			{
-				packcount = MessLen / maxpdsize + 1;
-				if (Report_Buf[1] == packcount)
-				{
-					pdsize = MessLen - Report_Buf[1] * maxpdsize;
-				}
-				else
-				{
-					pdsize = maxpdsize;
-				}
-				
-				for (i = 0; i < pdsize; ++i) Command[Report_Buf[1]*maxpdsize + i] = Report_Buf[i+2];
-				
-				RHID_Send(0xb1);
-			}
-		break;
-		case 0xb2:
-			RunCommand();
-		break;
-		case 0xb3:
-			maxpdsize = (wMaxPacketSize - 6);
-			Buffer[0] = 0xb3;
-			Buffer[1] = Report_Buf[1];
-			for (i = 0; i < maxpdsize; ++i)	Buffer[i+2] = Command[Report_Buf[1]*maxpdsize+i];
-			crc = crc32_native(Buffer,maxpdsize+2,1);
-			Buffer[maxpdsize+2] = (uint8_t)(crc>>24);
-			Buffer[maxpdsize+3] = (uint8_t)(crc>>16);
-			Buffer[maxpdsize+4] = (uint8_t)(crc>>8);
-			Buffer[maxpdsize+5] = (uint8_t) crc;
-			
-		  /* Reset the control token to inform upper layer that a transfer is ongoing */
-			PrevXferComplete = 0;
-
-			/* Copy mouse position info in ENDP1 Tx Packet Memory Area*/
-			USB_SIL_Write(EP1_IN, Buffer, wMaxPacketSize);
-			/* Enable endpoint for transmission */
-			SetEPTxValid(ENDP1);
-		
-		break;
-		default:
-			RHID_Send(0xf0);
-			break;
-  }
+	TransportLayerLogic(Report_Buf);
 }
 
 /*******************************************************************************
