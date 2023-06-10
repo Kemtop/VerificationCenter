@@ -181,6 +181,12 @@ int UsbKey::Packcom(uint8_t command, std::vector<uint8_t> inBuffer, int inLen, s
 	return 0;
 }
 
+void UsbKey::InitUsb()
+{
+	libusb_init(NULL);   // инициализаци€
+	libusb_set_debug(NULL, 0);  // уровень вывода отладочных сообщений
+}
+
 void UsbKey::SendRSAKey(uint8_t key[CIPHER_SESSION_KEY_LEN])
 {
 	std::vector<uint8_t> in, out;
@@ -251,10 +257,20 @@ std::vector<uint8_t> UsbKey::GetCryptProductSerial()
 	return GetDataFromPacket(out);
 }
 
-void UsbKey::InitUsb()
+//«адает состо€ние выходам на плате. ¬озвращает текущее состо€ние.
+std::vector<uint8_t> UsbKey::SetOutputs(uint8_t data)
 {
-   libusb_init(NULL);   // инициализаци€
-   libusb_set_debug(NULL, 0);  // уровень вывода отладочных сообщений
+	std::vector<uint8_t> in, out;
+	in.push_back((uint8_t) data);
+	Packcom(SET_LED_VALUE, in, in.size(), out);
+	return out;
+}
+
+//¬озвращает состо€ние входов.
+std::vector<uint8_t> UsbKey::InputStatus() {
+	std::vector<uint8_t> in, out;
+	Packcom(INPUT_PORTS_STATUS, in, 0, out);
+	return out;
 }
 
 //¬озвращает пользовательские данные. ”дал€ет в начале 1 байт Ц команду.

@@ -16,11 +16,6 @@ void AppConfig::setServerLogin(QString _ServerLogin)
 	ServerLogin=_ServerLogin;
 }
 
-void AppConfig::setPathToSignKey(QString val)
-{
-	PathToSignKey = val;
-}
-
 QString AppConfig::getServerHost()
 {
 	return ServerHost; //Имя сервера
@@ -34,11 +29,6 @@ int AppConfig::getServerPort()
 QString AppConfig::getServerLogin()
 {
 	return ServerLogin;//Логин.
-}
-
-QString AppConfig::getPathToSignKey()
-{
-	return PathToSignKey;
 }
 
 bool AppConfig::HasConfFile()
@@ -82,16 +72,6 @@ void AppConfig::Read()
 			ServerLogin = ServerConfig["ServerLogin"].toString();
 	}
 
-	
-	if (cObj.contains("AppConfig") && cObj["AppConfig"].isObject())
-	{
-		QJsonObject AppConfig = cObj["AppConfig"].toObject();
-
-		if (AppConfig.contains("PathToSignKey") && AppConfig["PathToSignKey"].isString())
-			PathToSignKey = AppConfig["PathToSignKey"].toString();
-	}
-	
-
 	hasConfFile = 1; //Файл конфигурации существует.
 }
 
@@ -115,11 +95,7 @@ void AppConfig::Write()
 	ServerConf["ServerLogin"] = ServerLogin;
 
 	QJsonObject AppConf;
-	//Путь к ключу подписи сертификатов.
-	AppConf["PathToSignKey"]= PathToSignKey;
-
-
-
+	   
 	QJsonObject configObject;
 	configObject["ServerConfig"] = ServerConf;
 	configObject["AppConfig"] = AppConf;
@@ -136,7 +112,6 @@ AppConfig::AppConfig()
 	ServerHost="127.0.0.1"; //Имя сервера
 	ServerPort= 5432; //Порт
 	ServerLogin="postgres";//Логин.
-	PathToSignKey = "";
 }
 
 AppConfig::~AppConfig()

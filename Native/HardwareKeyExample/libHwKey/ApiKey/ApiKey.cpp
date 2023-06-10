@@ -457,3 +457,15 @@ std::string ApiKey::DecryptProductSerial(std::vector<uint8_t> data, uint8_t *ses
 	
 	return productSerial;
 }
+
+//Задает состояние выходам на плате. Возвращает текущее состояние.
+uint8_t ApiKey::SetOutputs(uint8_t data) {
+	std::vector<uint8_t> result = usb.SetOutputs(data);
+	return result[1];
+}
+
+//Возвращает состояние входов.
+uint8_t ApiKey::InputStatus() {
+	std::vector<uint8_t> result = usb.InputStatus();
+	return result[1];
+}
