@@ -1,6 +1,5 @@
 {
     "AppConfig": {
-        "PathToSignKey": "D:/CA/KeyАдминистратор УЦ Main.grk"
     },
     "ServerConfig": {
         "Host": "127.0.0.1",

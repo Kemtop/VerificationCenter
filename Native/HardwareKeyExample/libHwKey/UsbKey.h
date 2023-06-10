@@ -36,6 +36,8 @@
 #define BEGIN_MONTH 1
 #define BEGIN_DAY 1
 
+#define SET_LED_VALUE 0x01 //Установить значение порту светодиода на плате.
+#define INPUT_PORTS_STATUS 0x02 //Получить состояние входов на плате.
 #define GET_HW_ID_COMMAND 0x3C //Идентификатор команды «Получить серийный номер устройства».
 #define SAVE_SERIAL_COMMAND 0xa0 //Сохранить серийный номер продукта.
 #define SAVE_DATE_COMMAND 0x15 //Сохранить дату (в днях).
@@ -43,6 +45,7 @@
 #define SAVE_RSA_KEY_COMMAND 0xa9 //Сохранить модуль n открытого ключа rsa (256 байт).
 #define GET_CRYPT_SERIAL_COMMAND 0x07 //Получить шифрованный ключом серийный номер продукта.
 #define GET_RANDOM_COMMAND 0x50 //Получить случайное число.
+
 
 #define ANSWER_BAD_CRC 0xFF //Неверный CRC
 #define ANSWER_UNKNOWN_COMMAND 0xF0
@@ -78,6 +81,8 @@ public:
 	//Последнее сообщение об ошибке.
 	QString LastError;
 
+	void InitUsb();
+
 	//Проверяет подключено ли устройство.
 	bool IsConnected();
 	//Загружает модуль n rsa ключа.
@@ -94,7 +99,10 @@ public:
 	std::vector<uint16_t> GetRandData(); //Генерация случайного числа.
 	std::vector<uint8_t> GetCryptProductSerial(); //Возвращает шифрованный ключ продукта.
 
-	void InitUsb();
+	//Задает состояние выходам на плате. Возвращает текущее состояние.
+	std::vector<uint8_t> SetOutputs(uint8_t data);
+	//Возвращает состояние входов.
+	std::vector<uint8_t> InputStatus();
 
 private:	
 	/*

@@ -44,6 +44,11 @@ public:
 	int CheсkProduckKey(std::string &errMessage, uint8_t *phyKey, int len);
 
 	void SendPublicKey(QString rsaKeyFileName);
+	
+	//Задает состояние выходам на плате. Возвращает текущее состояние.
+	uint8_t SetOutputs(uint8_t data);
+	//Возвращает состояние входов.
+	uint8_t InputStatus();
 
 private:
 	UsbKey usb;

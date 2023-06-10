@@ -25,6 +25,8 @@ private:
 	QFile file;
 
 	QTextCodec *StrCodec; //Для преобразования кодировки.
+	int _ledStarus; //Состояние светодиода на плате, которым будем моргать.
+	void LedBlinking(); //Мигание светодиодом.
 
 private slots:
 	void GetSerial();

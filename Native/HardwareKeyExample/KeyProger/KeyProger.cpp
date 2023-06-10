@@ -26,6 +26,7 @@ KeyProger::KeyProger(QWidget *parent)
 
 	timer->start();
 	key.InitUsb();
+	_ledStarus = 0;
 }
 
 //Получаем серийный номер из устройства.
@@ -68,7 +69,10 @@ void KeyProger::TimerTick()
 	//Определяю подключено ли устройство.
 	if (key.DeviceIsConnected())
 	{
-		ui.statusBar->showMessage("Устройство подключено");
+		LedBlinking();
+		uint8_t btnStatus = key.InputStatus();
+		ui.statusBar->showMessage("Подключено. BtnValue=" + QString::number(btnStatus));
+		//ui.statusBar->showMessage("Устройство подключено");
 		ui.statusBar->setStyleSheet("color: green");
 		ui.TbHWSerial->setText(QString::fromStdString(key.HWSerial()));
 	}
@@ -88,4 +92,19 @@ void KeyProger::SaveKey()
 	}
 
 	QMessageBox::information(0, "Информация.", "Операция выполнена успешно.");
+}
+
+//Мигание светодиодом.
+void KeyProger::LedBlinking()
+{
+	if (!_ledStarus)
+	{
+		key.SetOutputs(0x01);
+		_ledStarus = 1;
+	}
+	else
+	{
+		key.SetOutputs(0);
+		_ledStarus = 0;
+	}
 }
