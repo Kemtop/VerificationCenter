@@ -245,8 +245,8 @@ std::vector<uint16_t> UsbKey::GetRandData()
 	std::vector<uint8_t> in, out;
 	std::vector<uint16_t> data;
 	if (Packcom(GET_RANDOM_COMMAND, in, 0, out)) return data;
-	//for (int i = 0; i < 28; i++) data.push_back(out.at(2 * i + 1) << 8 | out.at(2 * i + 2));
-	//return data;
+	for (int i = 0; i < 28; i++) data.push_back(out.at(2 * i + 1) << 8 | out.at(2 * i + 2));
+	return data;
 }
 
 //Возвращает шифрованный ключ продукта.

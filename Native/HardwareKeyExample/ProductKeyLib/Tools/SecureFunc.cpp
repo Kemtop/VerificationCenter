@@ -1,23 +1,13 @@
 #include "SecureFunc.h"
 
-
-
-SecureFunc::SecureFunc()
-{
-}
-
-
-SecureFunc::~SecureFunc()
-{
-}
-
-void SecureFunc::SfCRC(QByteArray &Xi)
+void SecureFunc::SfCRC(QByteArray &xi)
 {
 	unsigned char  k[11]; 
 
 	int a, b, c, d, t;
 	int pos = 0;
-	//Формирую некоторый секретный ряд. Ряд был протестирован, "отбалды" использовать нельзя!
+
+	//Формирую некоторый секретный ряд. Ряд был протестирован. Дрогой ряд "отбалды" использовать нельзя!
 	for (int i = 5; i < 60; i = i + 5)
 	{
 		a = -1;
@@ -36,21 +26,16 @@ void SecureFunc::SfCRC(QByteArray &Xi)
 	//Замешиваю байты.
 	for (int i = 0;i<11;i++)
 	{
-		x1 = Xi[i];
+		x1 = xi[i];
 		x2 = k[i];
 		y = x1 ^ x2;
-		Xi[i] = static_cast<unsigned char>(y);
+		xi[i] = static_cast<unsigned char>(y);
 	}
-
 }
 
-
-
-
-
-void SecureFunc::TwistTheRing(int rotate, bool * R)
+//Вращения 32 битного кольца. Сдвиг с обратной связью-"Вращение кольца".
+void SecureFunc::TwistTheRing(int rotate, bool * r)
 {
-
 	bool tmp1 = false;
 	bool tmp2 = false;
 
@@ -58,35 +43,36 @@ void SecureFunc::TwistTheRing(int rotate, bool * R)
 	for (int i = 0; rotate < 5; i++)
 	{
 		//Замкнутый сдвиг блока размером 32 бита.
-		tmp1 = R[31]; //Копирую последний бит который станет первым.              
+		tmp1 = r[31]; //Копирую последний бит который станет первым.              
 		for (int j = 0; j < 32; j++)
 		{
-			tmp2 = R[j]; //Сохраняю текущее значение бита.
-			R[j] = tmp1;//Сдвигаю
+			tmp2 = r[j]; //Сохраняю текущее значение бита.
+			r[j] = tmp1;//Сдвигаю
 			tmp1 = tmp2;//Подготавливаю для следующего сдвига.
 		}
-
 	}
 }
 
-int SecureFunc::CountUnits(bool Val[], int Len)
+//Подсчитывает количество единиц в массиве длиной len
+int SecureFunc::CountUnits(bool val[], int len)
 {
 	int cnt = 0;
 
-	for (int i = 0; i < Len; i++)
+	for (int i = 0; i < len; i++)
 	{
-		if (Val[i] == true) cnt++;
+		if (val[i] == true) cnt++;
 	}
 
 	return cnt;
 }
 
+//Заполняет массив ArSF0 данными некоторой функции. 
 void SecureFunc::FillArSF0()
 {
 	qint64 y, x;
 	quint64 ret;
 
-	for (int i = 1; i < 100; i++)
+	for (int i = 1; i < SF_LEN; i++)
 	{
 		x = i * (-15200);
 		y = (715 * x) + 25300;
@@ -94,19 +80,19 @@ void SecureFunc::FillArSF0()
 		ret = ret << 16;
 		ArSF0[i - 1] = ret;
 	}
-
 }
 
-void SecureFunc::ConvertBaseNumUint(bool *BaseNum, quint64 & result)
+//Конвертирует битовый массив в UInt64.
+void SecureFunc::ConvertBaseNumUint(bool *baseNum, quint64 & result)
 {
 	bool In[32]; //Временный массив.
 	//Очищаю массив.
 	for (int i = 0;i < 32;i++) In[i] = false;
 
-							  //Копирую базовое число во временный массив.
+	//Копирую базовое число во временный массив.
 	for (int i = 0; i < 26; i++)
 	{
-		In[i] = BaseNum[i];
+		In[i] = baseNum[i];
 	}
 
 	quint32 bVAL[32]; //Значения 2ки в соответствующей степени.
@@ -143,8 +129,7 @@ void SecureFunc::ConvertBaseNumUint(bool *BaseNum, quint64 & result)
 	bVAL[29] = 0x20000000;
 	bVAL[30] = 0x40000000;
 	bVAL[31] = 0x80000000;//2147483648
-
-
+	
 	quint64 Res = 0;//Результат преобразования.
 
 	for (int i = 0; i < 32; i++)

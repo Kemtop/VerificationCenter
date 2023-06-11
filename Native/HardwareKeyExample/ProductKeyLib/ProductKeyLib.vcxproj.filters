@@ -39,31 +39,22 @@
     <ClCompile Include="ProductKeyLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SerialNumTools.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_SerialNumTools.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_SerialNumTools.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Tools\Biektion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tools\CheckSerial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tools\scale36.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tools\SecureFunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tools\XorShift.cpp">
+    <ClCompile Include="Tools\Biektion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LockControl\LockControl.cpp">
+    <ClCompile Include="Tools\scale36.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,22 +62,16 @@
     <ClInclude Include="ProductKeyLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tools\Biektion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tools\CheckSerial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tools\scale36.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tools\SecureFunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tools\XorShift.h">
+    <ClInclude Include="Tools\Biektion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LockControl\LockControl.h">
+    <ClInclude Include="Tools\scale36.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -94,11 +79,6 @@
     <ClInclude Include="productkeylib_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="SerialNumTools.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

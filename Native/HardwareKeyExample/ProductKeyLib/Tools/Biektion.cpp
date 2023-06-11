@@ -1,11 +1,8 @@
 #include "Biektion.h"
 
-
-
 Biektion::Biektion()
 {
 }
-
 
 Biektion::~Biektion()
 {
