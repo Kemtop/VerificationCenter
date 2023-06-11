@@ -4,7 +4,7 @@ libHwKey::libHwKey()
 {
 }
 
-int libHwKey::test1()
+int libHwKey::Test()
 {
-	return 10;
+	return 1;
 }
