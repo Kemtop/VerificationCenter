@@ -133,7 +133,7 @@ int ApiKey::CheсkProduckKey(std::string & errMessage, uint8_t * phyKey, int len)
 	}
 
 	//Проблемы с ключом продукта.
-	if (res == 0)
+	if (res != NO_SERIAL_ERROR)
 	{
 		errMessage = "Fatal error:: Code:509. Please contact support..";
 		return 0; //Проблемы с ключом продукта.

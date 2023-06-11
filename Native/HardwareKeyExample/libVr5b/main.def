@@ -1,9 +1,0 @@
-LIBRARY "libVr5b"
-EXPORTS
-DllTest
-Curdeprecon
-CubicWatchMan
-CubicWatchManVx
-CubicWatchManWoW64
-CubicWatchManLoS
-IsToi

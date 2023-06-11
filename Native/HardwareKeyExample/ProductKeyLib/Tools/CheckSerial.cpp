@@ -1,110 +1,86 @@
 #include "CheckSerial.h"
 
-
-
 CheckSerial::CheckSerial()
 {
 }
 
-
-CheckSerial::~CheckSerial()
+//Проверка ключа продукта.	В случае проблем возвращает 0, если все ок возвращает 1.
+//Так же возвращает дату окончания действия ключа, если ключ валидный.
+int CheckSerial::CheckProductKey(QString productKey, std::string &dateEnd)
 {
-}
-
-int CheckSerial::CheckSelfTest(QString ProductKey)
-{
-
 	//Проверка контрольной суммы серийного номера.
-	if (!CheckKeySum(ProductKey))
-		return 1;
+	if (!CheckKeySum(productKey)) return ERROR_BAD_CRC;
 
 	//Непосредственная проверка самого серийного номера
-	if (!SerialValidatorSeltTest(ProductKey))
-		return 2;
+	if (!SerialValidator(productKey)) return ERROR_BAD_SERIAL;
 
 	//Получаю дату окончания действия ключа продукта.  
-	QDate endDatePk = GetDateEnd(ProductKey);
-	QString str = endDatePk.toString("dd.MM.yyyy"); //"Срок окончания ключа: " 
-
-	QDate curDate = QDateTime::currentDateTime().date();
-
-	if (endDatePk >= curDate)  return 3;
-
-	return 0;
-}
-
-int CheckSerial::CheckProductKey(QString ProductKey, std::string &DateEnd)
-{
-	//Проверка контрольной суммы серийного номера.
-	if (!CheckKeySum(ProductKey))
-
-		//Непосредственная проверка самого серийного номера
-		if (!SerialValidator(ProductKey))
-			return 0;
-
-	//Получаю дату окончания действия ключа продукта.  
-	QDate endDatePk = GetDateEnd(ProductKey);
+	QDate endDatePk = GetDateEnd(productKey);
 	QDate curDate = QDateTime::currentDateTime().date();
 
 	//Если текущая дата больше даты окончания действия ключа.
-	if (endDatePk <= curDate)  return 0;
+	if (endDatePk <= curDate) return ERROR_KEY_DATE_END;
 
 	QString str = endDatePk.toString("dd.MM.yyyy"); //"Срок окончания ключа: " 
-	DateEnd = str.toStdString();
+	dateEnd = str.toStdString();
 
-	return 1;
+	return NO_SERIAL_ERROR;
 }
 
-QString CheckSerial::GetSnBlock(QString ProductKey, QString & ControlSum)
+//Получаю данные для вычисления контрольной суммы ключа продукта, а так же саму контрольную сумму.
+//В случае проблем возвращает false.
+QString CheckSerial::GetSnBlock(QString productKey, QString & controlSum)
 {
-	QStringList list = ProductKey.split('-');
-	if (list.size() < 5)	return "";
+	QStringList list = productKey.split('-');
+	if (list.size() < 5) return "";
 
-	//Cам ключ продукта.
-	QString pk = "a51" + list.at(0) + "k" + list.at(1) + list.at(2) + list.at(3) + "p";
+	//Cам ключ продукта. 
+	QString pk = MASK_STR_0 + list.at(0) + MASK_STR_1 + list.at(1) + list.at(2) + list.at(3) + MASK_STR_2;
 
-	ControlSum = list.at(4); //Контрольная сумма.
-
+	controlSum = list.at(4); //Контрольная сумма.
+	controlSum = controlSum.replace(0, ' ').replace(" ", ""); //Контрольная сумма.
+	
 	return pk;
 }
 
-bool CheckSerial::ConvertBaseNum(QBitArray BaseNum, bool * Arr)
+//Конвертирует базовый номер из BitArray в массив bool, считает количество единиц и проверяет.
+bool CheckSerial::ConvertBaseNum(QBitArray baseNum, bool * arr)
 {
-
 	//Обязательно! очищаю массив размерности 32 бита.
-	for (int i = 0;i < 32;i++) Arr[i] = 0;
+	for (int i = 0;i < 32;i++) arr[i] = 0;
 
 	int Cnt = 0;
 	//Копирую 
 	for (int i = 0; i < 26; i++)
 	{
-		Arr[i] = BaseNum[i];
-		if (Arr[i] == true) Cnt++;
+		arr[i] = baseNum[i];
+		if (arr[i] == true) Cnt++;
 	}
 
 	//Если базовое число содержит более 26 единиц.
 	if (Cnt > 26) return false;
 
 	return true;
-
 }
 
-bool CheckSerial::ConvertControlBits(QBitArray BaseNum, bool * Arr)
+//Конвертирует контрольные биты из BitArray в массив bool.
+bool CheckSerial::ConvertControlBits(QBitArray baseNum, bool * arr)
 {
 	//Копирую 
-	for (int i = 0; i < BaseNum.size(); i++)
+	for (int i = 0; i < baseNum.size(); i++)
 	{
-		Arr[i] = BaseNum[i];
+		arr[i] = baseNum[i];
 	}
 
 	return false;
 }
 
-bool CheckSerial::CheckKeySum(QString ProductKey)
+//Проверяет контрольную сумму ключа продукта.
+bool CheckSerial::CheckKeySum(QString productKey)
 {
 	//Получаю строку для вычисления контрольной суммы и саму контрольную сумму.
 	QString SnCrc = "";
-	QString str = GetSnBlock(ProductKey, SnCrc);
+	QString str = GetSnBlock(productKey, SnCrc);
 
 	if (str.isEmpty()) return false; //Ошибка.
 
@@ -114,23 +90,21 @@ bool CheckSerial::CheckKeySum(QString ProductKey)
 
 	QByteArray baHash1 = QCryptographicHash::hash(baCrcPk, QCryptographicHash::Sha1);
 
-	QString CrcStr_ = baHash1.toHex();
-	CrcStr_ = CrcStr_.toUpper();
-	QString CrcStr = CrcStr_.right(5);
+	QString CrcStr = baHash1.toHex().toUpper().right(5);
 
 	//Сравниваю контрольную сумму.
-	if (SnCrc != CrcStr) return false; //Не верная контрольная сумма.
+	if (SnCrc.toUpper() != CrcStr) return false; //Неверная контрольная сумма.
 
 	return true;
 }
 
-bool CheckSerial::SerialValidatorSeltTest(QString ProductKey)
+bool CheckSerial::SerialValidatorSeltTest(QString productKey)
 {
 	QString BaseNum = ""; //36 ричное представление базового числа.
 	QString ControlBits = "";  //36 ричное представление контрольных битов.
 
 		   //Выполняю парсинг серийного номера. Разделяю на базовое число и контрольные биты.
-	if (!GetSnData(ProductKey, BaseNum, ControlBits))
+	if (!GetSnData(productKey, BaseNum, ControlBits))
 		return false;
 
 	//Конвертирование 36 ричного базового числа в байт массив.
@@ -150,8 +124,7 @@ bool CheckSerial::SerialValidatorSeltTest(QString ProductKey)
 
 	bool aBaseNum[32]; //Преобразовываю BitArray  в массив.
 	if (!ConvertBaseNum(baBaseNum, aBaseNum)) return false;
-
-
+	
 	bool Res[9];
 
 	//На основании базового числа,вычисляю значения функций, и сравниваю результаты.
@@ -159,44 +132,23 @@ bool CheckSerial::SerialValidatorSeltTest(QString ProductKey)
 	{
 		Res[i] = ChkBits(aBaseNum, biteArr, i);
 	}
-
-
+	
 	//Проверка правильности вычисления блоков.
 	for (int i = 0;i < 9;i++)
 	{
 		if (!Res[i]) return false;
 	}
-
-
-	//Проверяем работу единичных методов.
-	Res[0] = ChkBit0(aBaseNum, biteArr);
-	Res[1] = ChkBit1(aBaseNum, biteArr);
-	Res[2] = ChkBit2(aBaseNum, biteArr);
-	Res[3] = ChkBit3(aBaseNum, biteArr);
-	Res[4] = ChkBit4(aBaseNum, biteArr);
-	Res[5] = ChkBit5(aBaseNum, biteArr);
-	Res[6] = ChkBit6(aBaseNum, biteArr);
-	Res[7] = ChkBit7(aBaseNum, biteArr);
-	Res[8] = ChkBit8(aBaseNum, biteArr);
-
-
-	//Проверка правильности вычисления блоков.
-	for (int i = 0;i < 9;i++)
-	{
-		if (!Res[i]) return false;
-	}
-
-
+	   
 	return true;
 }
 
-bool CheckSerial::SerialValidator(QString ProductKey)
+bool CheckSerial::SerialValidator(QString productKey)
 {
 	QString BaseNum = ""; //36 ричное представление базового числа.
 	QString ControlBits = "";  //36 ричное представление контрольных битов.
 
 							   //Выполняю парсинг серийного номера. Разделяю на базовое число и контрольные биты.
-	if (!GetSnData(ProductKey, BaseNum, ControlBits))
+	if (!GetSnData(productKey, BaseNum, ControlBits))
 		return false;
 
 	//Конвертирование 36 ричного базового числа в байт массив.
@@ -217,278 +169,104 @@ bool CheckSerial::SerialValidator(QString ProductKey)
 	bool aBaseNum[32]; //Преобразовываю BitArray  в массив.
 	if (!ConvertBaseNum(baBaseNum, aBaseNum)) return false;
 
+	bool Res[9];
 
-	//Проверка правильности вычисления блоков.
-
-	int day = QDateTime::currentDateTime().date().day();
-	int modula = day % 9;
-
-	//В зависимости от дня мы проверяем нужный нам блок, тем самым усложняя задачу взломщику с дизасемблером.
-	switch (modula)
+	//На основании базового числа,вычисляю значения функций, и сравниваю результаты.
+	for (int i = 0; i < 9; i++)
 	{
-	case 0:
-		return ChkBit0(aBaseNum, biteArr);
-
-	case 1:
-		return ChkBit1(aBaseNum, biteArr);
-
-	case 2:
-		return ChkBit2(aBaseNum, biteArr);
-
-	case 3:
-		return ChkBit3(aBaseNum, biteArr);
-
-	case 4:
-		return ChkBit4(aBaseNum, biteArr);
-
-	case 5:
-		return ChkBit5(aBaseNum, biteArr);
-
-	case 6:
-		return  ChkBit6(aBaseNum, biteArr);
-
-	case 7:
-		return  ChkBit7(aBaseNum, biteArr);
-
-	case 8:
-		return  ChkBit8(aBaseNum, biteArr);
-
-	case 9:
-		return  ChkBit8(aBaseNum, biteArr);
-
-	default:
-		return false;
+		Res[i] = ChkBits(aBaseNum, biteArr, i);
 	}
-
-
+	
+	//Проверка правильности вычисления блоков.
+	for (int i = 0; i < 9; i++)
+	{
+		if (!Res[i]) return false;
+	}
+	
 	return true;
-
 }
 
-bool CheckSerial::GetSnData(QString ProductKey, QString & BaseNum, QString & ControlBits)
+//Выполняет парсинг ключа продукта.
+bool CheckSerial::GetSnData(QString productKey, QString & baseNum, QString & controlBits)
 {
-	QStringList list = ProductKey.split('-');
+	QStringList list = productKey.split('-');
 
 	if (list.size() < 5) //Менее 5 блоков.
 	{
 		return false;
 	}
 
-	BaseNum = list.at(0);
-	ControlBits = list.at(1) + list.at(2) + list.at(3);    //Передаю контрольный биты.
+	baseNum = list.at(0);
+	controlBits = list.at(1) + list.at(2) + list.at(3);    //Передаю контрольный биты.
 
 	return true;
 }
 
-bool CheckSerial::ChkBits(bool *X, bool *ControlBits, int n)
+//Проверяет правильность n блока контрольных бит.
+bool CheckSerial::ChkBits(bool *x, bool *controlBits, int n)
 {
 	SecureFunc Sf;
 	Biektion Be; //Биекции.
 
-	bool Y[32]; //Результат выполнения функции.
+	bool y[32]; //Результат выполнения функции.
 
 	bool res = false; //Результат проверки.
 
 	switch (n)
 	{
 	case 0:
-		Sf.SF0(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv0(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF0(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv0(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 1:
-		Sf.SF1(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv1(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF1(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv1(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 2:
-		Sf.SF2(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv2(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF2(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv2(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 3:
-		Sf.SF3(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv3(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF3(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv3(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 4:
-		Sf.SF4(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv4(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF4(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv4(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 5:
-		Sf.SF5(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv5(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF5(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv5(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 6:
-		Sf.SF6(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv6(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF6(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv6(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 7:
-		Sf.SF7(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv7(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF7(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv7(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 
 	case 8:
-		Sf.SF8(X, Y); //На основании базового числа получаю первую функцию.
-		res = Be.ChekBiektiv8(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
+		Sf.SF8(x, y); //На основании базового числа получаю первую функцию.
+		res = Be.ChekBiektiv8(y, controlBits); //Делает обратные перестановки и сравнивает ряды.
 		break;
 	}
-
-
+	
 	return res;
 }
 
-bool CheckSerial::ChkBit0(bool *X, bool *ControlBits)
+// Возвращает дату окончания действия серийного номера.
+QDate CheckSerial::GetDateEnd(QString productKey)
 {
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-
-	Sf.SF0(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv0(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit1(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF1(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv1(Y, ControlBits); //Делает обратные перестановки и 
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit2(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF2(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv2(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit3(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF3(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv3(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit4(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF4(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv4(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit5(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF5(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv5(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit6(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF6(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv6(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit7(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF7(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv7(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-bool CheckSerial::ChkBit8(bool *X, bool *ControlBits)
-{
-	SecureFunc Sf;
-	Biektion Be; //Биекции.
-
-	bool Y[32]; //Результат выполнения функции.
-
-	bool res = false; //Результат проверки.
-
-	Sf.SF8(X, Y); //На основании базового числа получаю первую функцию.
-	res = Be.ChekBiektiv8(Y, ControlBits); //Делает обратные перестановки и сравнивает ряды.
-
-
-	return res;
-}
-
-QDate CheckSerial::GetDateEnd(QString ProductKey)
-{
-	QString BitBlock = GetBits(ProductKey);
+	QString BitBlock = GetBits(productKey);
 	Scale36 Sbits;
 	Sbits.FromString(BitBlock);
 	QBitArray bits = Sbits.ToBitArray();
@@ -519,10 +297,11 @@ QDate CheckSerial::GetDateEnd(QString ProductKey)
 	return date;
 }
 
-QString CheckSerial::GetBits(QString ProductKey)
+//Возвращает блок хранящий контрольные биты.
+QString CheckSerial::GetBits(QString productKey)
 {
-	QStringList list = ProductKey.split('-');
-	if (list.size() < 5)	return "";
+	QStringList list = productKey.split('-');
+	if (list.size() < 5) return "";
 
 	QString BitBlock = list.at(1) + list.at(2) + list.at(3);
 

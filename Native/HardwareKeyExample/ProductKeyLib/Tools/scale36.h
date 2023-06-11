@@ -4,6 +4,7 @@
 #include "qlist.h"
 #include "qbitarray.h"
 
+//Конвертор 36-ричных чисел.
 class Scale36 : QList<uint8_t>
 {
 public:
