@@ -7,5 +7,5 @@ class LIBHWKEY_EXPORT libHwKey
 public:
     libHwKey();
 
-	 int _stdcall test1();
+	int _stdcall Test();
 };

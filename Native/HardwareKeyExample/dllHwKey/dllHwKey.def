@@ -1,4 +1,0 @@
-LIBRARY "dllHwKey"
-EXPORTS
-   verify
-  
